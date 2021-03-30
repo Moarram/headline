@@ -1,4 +1,5 @@
-# To install source this file from your .zshrc file
+#!/bin/zsh
+# To install, source this file from your .zshrc file
 
 # see documentation at http://linux.die.net/man/1/zshexpn
 # A: finds the absolute path, even if this is symlinked
@@ -105,5 +106,3 @@ ZSH_THEME_GIT_PROMPT_BEHIND="%{↓%G%}"
 ZSH_THEME_GIT_PROMPT_AHEAD="%{↑%G%}"
 ZSH_THEME_GIT_PROMPT_UNTRACKED="%{…%G%}"
 ZSH_THEME_GIT_PROMPT_CLEAN="%{$fg_bold[green]%}%{✔%G%}"
-
-

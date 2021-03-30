@@ -21,7 +21,7 @@ Install the prompt on a remote machine.
 ```
 
 ## Dependencies
-`git` - file management, installation
-`zsh` - shell
-`python` - [git prompt](https://travis-ci.org/olivierverdier/zsh-git-prompt) component
-`ssh` - remote installation (optional)
+* `git` - file management, installation
+* `zsh` - shell
+* `python` - [git prompt](https://travis-ci.org/olivierverdier/zsh-git-prompt) component
+* `ssh` - remote installation (optional)
