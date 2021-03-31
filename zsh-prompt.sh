@@ -33,6 +33,10 @@ prompt_len() {
   typeset -g REPLY=$x
 }
 
+# Flags
+! [ -z "$SSH_TTY$SSH_CONNECTION$SSH_CLIENT" ]
+IS_SSH=$?
+
 # Prompt colors (0-15)
 COLOR_LINE=8
 COLOR_FAINT=8
@@ -41,6 +45,9 @@ COLOR_MACHINE=11
 COLOR_PATH=12
 COLOR_GIT_BRANCH=14
 COLOR_GIT_STATUS=9
+if [ $IS_SSH ]; then
+	COLOR_USER=10
+fi
 
 # Git status
 source ~/.zsh-prompt/deps/zshrc_git.sh
@@ -57,10 +64,13 @@ ZSH_THEME_GIT_PROMPT_UNTRACKED="%B?" # %B
 # ZSH_THEME_GIT_PROMPT_CLEAN="%b✔"
 
 # Logic for line 1
-do_separator=0 # is set true after prompting
+do_separator='false' # is set true after prompting
+if [ $IS_SSH ]; then
+	do_separator='true' # assume it's not a fresh window
+fi
 preexec() {
   if [ "$2" = "clear" ]; then
-    do_separator=0
+    do_separator='false'
   fi
 }
 
@@ -90,10 +100,10 @@ precmd() {
     pad=" %F{$COLOR_FAINT}| "
   fi
 
-  if [ "$do_separator" -ne "0" ]; then
+  if [ "$do_separator" = 'true' ]; then
     print -rP "%F{$COLOR_LINE}${(r:$COLUMNS::_:)}" # separator line
   fi
-  do_separator=1
+  do_separator='true'
 
   print -rP $user_str$machine_str$path_str$pad$git_str # information line
 }
