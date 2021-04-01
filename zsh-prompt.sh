@@ -36,17 +36,23 @@ prompt_len() {
 # Flags
 ! [ -z "$SSH_TTY$SSH_CONNECTION$SSH_CLIENT" ]
 IS_SSH=$?
+ZSH_PROMPT_SEP_ALL=1 # false
 
 # Prompt colors (0-15)
 COLOR_LINE=8
-COLOR_OUTPUT=15
+COLOR_INPUT=15
+COLOR_OUTPUT=7
 COLOR_FAINT=8
-COLOR_USER=9 # 3
-if [ $IS_SSH = 0 ]; then COLOR_USER=13; fi
+COLOR_USER=$(( $IS_SSH == 0 ? 13 : 9 ))
 COLOR_MACHINE=11
 COLOR_PATH=12
 COLOR_GIT_BRANCH=14
 COLOR_GIT_STATUS=9
+COLOR_USER_LINE=$(( $COLOR_USER - 0 ))
+COLOR_MACHINE_LINE=$(( $COLOR_MACHINE - 0 ))
+COLOR_PATH_LINE=$(( $COLOR_PATH - 0 ))
+COLOR_GIT_BRANCH_LINE=$(( $COLOR_GIT_BRANCH - 0 ))
+COLOR_GIT_STATUS_LINE=$(( $COLOR_GIT_STATUS - 0 ))
 
 # Git status
 source ~/.zsh-prompt/deps/zshrc_git.sh
@@ -70,23 +76,26 @@ preexec() {
 # Prompt line 1 and 2
 setopt PROMPT_SUBST
 precmd() {
+  local L='_' # line spacer char
+  local A='_' # line accent char
+
   # <branch>
-  local git_branch_str="%F{$COLOR_GIT_BRANCH}$(git_prompt_branch)"
+  local git_branch_str="%B%F{$COLOR_GIT_BRANCH}$(git_prompt_branch)"
   prompt_len $git_branch_str
   local -i git_branch_str_len=$REPLY
-  local git_branch_line="%B%F{$COLOR_GIT_BRANCH}${(r:$git_branch_str_len::_:)}"
+  local git_branch_line="%B%F{$COLOR_GIT_BRANCH_LINE}${(l:(( $git_branch_str_len * 2 ))::$A:)}"
 
   # <status>
   local git_status_str="%B%F{$COLOR_GIT_STATUS}$(git_prompt_status)"
   prompt_len $git_status_str
   local -i git_status_str_len=$REPLY
-  local git_status_line="%B%F{$COLOR_GIT_STATUS}${(r:$git_status_str_len::_:)}"
+  local git_status_line="%B%F{$COLOR_GIT_STATUS_LINE}${(l:(( $git_status_str_len * 2 ))::$A:)}"
 
   # (<status>)
   if [ $git_status_str_len -gt 0 ]; then
     git_status_str_len=$(( $git_status_str_len + 3 ))
     git_status_str=" %b%F{$COLOR_FAINT}($git_status_str%b%F{$COLOR_FAINT})"
-    git_status_line="%b%F{$COLOR_LINE}__$git_status_line%b%F{$COLOR_LINE}_"
+    git_status_line="%b%F{$COLOR_LINE}$L$L$git_status_line%b%F{$COLOR_LINE}$L"
   fi
 
   # <branch> (<status>)
@@ -98,34 +107,34 @@ precmd() {
   local user_str="%B%F{$COLOR_USER}%n%b %F{$COLOR_FAINT}@ " # %B
   prompt_len $user_str
   local -i user_str_len=$REPLY
-  local user_line="%B%F{$COLOR_USER}${(r:(( $user_str_len - 3 ))::_:)}%b%F{$COLOR_LINE}___"
+  local user_line="%B%F{$COLOR_USER_LINE}${(r:(( $user_str_len * 2 - 6 ))::$A:)}%b%F{$COLOR_LINE}$L$L$L"
 
   # <machine>:
   local machine_str="%B%F{$COLOR_MACHINE}%m%b%F{$COLOR_FAINT}: " # %B
   prompt_len $machine_str
   local -i machine_str_len=$REPLY
-  local machine_line="%B%F{$COLOR_MACHINE}${(r:(( $machine_str_len - 2 ))::_:)}%b%F{$COLOR_LINE}__"
+  local machine_line="%B%F{$COLOR_MACHINE_LINE}${(r:(( $machine_str_len * 2 - 4 ))::$A:)}%b%F{$COLOR_LINE}$L$L"
 
   # <path>
   local remainder_len=$(( $COLUMNS - $user_str_len - $machine_str_len - ($git_str_len ? ($git_str_len + 3) : 0) ))
   local path_str="%B%F{$COLOR_PATH}%$remainder_len<...<%~%<<%b" # %B
   prompt_len $path_str
   local -i path_str_len=$REPLY
-  local path_line="%B%F{$COLOR_PATH}${(r:$path_str_len::_:)}"
+  local path_line="%B%F{$COLOR_PATH_LINE}${(l:(( $path_str_len * 2 ))::$A:)}"
 
   # padding
   local spaces=$(( $COLUMNS - $user_str_len - $machine_str_len - $path_str_len - $git_str_len ))
   local pad=${(l:$spaces:: :)}
-  local pad_line="%b%F{$COLOR_LINE}${(r:$spaces::_:)}"
+  local pad_line="%b%F{$COLOR_LINE}${(l:(( $spaces * 2 ))::$L:)}"
   if (( $git_str_len > 0 )) && (( $spaces < 4 )); then
     pad=" %F{$COLOR_FAINT}| "
-    pad_line="%b%F{$COLOR_LINE}___"
+    pad_line="%b%F{$COLOR_LINE}$L$L$L"
   fi
 
-  # ____
-  if [ "$do_separator" = 0 ]; then
+  # _________________________________________
+  if [ "$do_separator" = 0 ] || [ "$ZSH_PROMPT_SEP_ALL" = 0 ]; then
     print -rP "$user_line$machine_line$path_line$pad_line$git_line"
-    # print -rP "%F{$COLOR_LINE}${(r:$COLUMNS::_:)}"
+    # print -rP "%F{$COLOR_LINE}${(l:$COLUMNS::_:)}"
   fi
   do_separator=0
 
@@ -134,5 +143,5 @@ precmd() {
 }
 
 # Prompt line 3
-PROMPT="%f$ "
+PROMPT="%F{$COLOR_INPUT}$ "
 PROMPT_EOL_MARK=""
