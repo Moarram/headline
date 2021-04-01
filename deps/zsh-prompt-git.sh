@@ -8,10 +8,6 @@ export __GIT_PROMPT_DIR=${0:A:h}
 
 export GIT_PROMPT_EXECUTABLE=${GIT_PROMPT_EXECUTABLE:-"python"}
 
-# Initialize colors.
-autoload -U colors
-colors
-
 # Allow for functions in the prompt.
 setopt PROMPT_SUBST
 
@@ -31,7 +27,7 @@ function preexec_update_git_vars() {
 }
 
 function precmd_update_git_vars() {
-    if [ -n "$__EXECUTED_GIT_COMMAND" ] || [ ! -n "$ZSH_THEME_GIT_PROMPT_CACHE" ]; then
+    if [ -n "$__EXECUTED_GIT_COMMAND" ] || [ ! -n "$ZSH_PROMPT_GIT_CACHE" ]; then
         update_current_git_vars
         unset __EXECUTED_GIT_COMMAND
     fi
@@ -70,70 +66,42 @@ git_prompt_branch() {
 }
 
 git_prompt_status() {
-	if [ -n "$__CURRENT_GIT_STATUS" ]; then
-		if [ "$GIT_CHANGED" -eq "0" ] && [ "$GIT_CONFLICTS" -eq "0" ] && [ "$GIT_STAGED" -eq "0" ] && [ "$GIT_UNTRACKED" -eq "0" ]; then
-			# STATUS="$STATUS$ZSH_THEME_GIT_PROMPT_CLEAN"
-		else
-			STATUS="$STATUS"
-			if [ "$GIT_STAGED" -ne "0" ]; then
-				STATUS="$STATUS$ZSH_THEME_GIT_PROMPT_STAGED"
-			fi
-			if [ "$GIT_CONFLICTS" -ne "0" ]; then
-				STATUS="$STATUS$ZSH_THEME_GIT_PROMPT_CONFLICTS"
-			fi
-			if [ "$GIT_CHANGED" -ne "0" ]; then
-				STATUS="$STATUS$ZSH_THEME_GIT_PROMPT_CHANGED"
-			fi
-			if [ "$GIT_UNTRACKED" -ne "0" ]; then
-				STATUS="$STATUS$ZSH_THEME_GIT_PROMPT_UNTRACKED"
-			fi
-			STATUS="$STATUS"
-		fi
-		echo "$STATUS"
-	fi
-}
-
-git_super_status() {
 	precmd_update_git_vars
-    if [ -n "$__CURRENT_GIT_STATUS" ]; then
-		STATUS="$ZSH_THEME_GIT_PROMPT_PREFIX$ZSH_THEME_GIT_PROMPT_BRANCH$GIT_BRANCH" #%{${reset_color}%}"
-		# if [ "$GIT_BEHIND" -ne "0" ]; then
-		# 	STATUS="$STATUS$ZSH_THEME_GIT_PROMPT_BEHIND$GIT_BEHIND" #%{${reset_color}%}"
-		# fi
-		# if [ "$GIT_AHEAD" -ne "0" ]; then
-		# 	STATUS="$STATUS$ZSH_THEME_GIT_PROMPT_AHEAD$GIT_AHEAD" #%{${reset_color}%}"
-		# fi
+	if [ -n "$__CURRENT_GIT_STATUS" ]; then
+		if [ "$GIT_BEHIND" -ne "0" ]; then
+			STATUS="$STATUS$ZSH_PROMPT_GIT_BEHIND" #$(( $GIT_BEHIND == 1 ? '' : $GIT_BEHIND ))"
+		fi
+		if [ "$GIT_AHEAD" -ne "0" ]; then
+			STATUS="$STATUS$ZSH_PROMPT_GIT_AHEAD" #$(( $GIT_AHEAD == 1 ? '' : $GIT_AHEAD ))"
+		fi
 		if [ "$GIT_CHANGED" -eq "0" ] && [ "$GIT_CONFLICTS" -eq "0" ] && [ "$GIT_STAGED" -eq "0" ] && [ "$GIT_UNTRACKED" -eq "0" ]; then
-			# STATUS="$STATUS$ZSH_THEME_GIT_PROMPT_CLEAN"
+			STATUS="$STATUS$ZSH_PROMPT_GIT_CLEAN"
 		else
-			STATUS="$STATUS$ZSH_THEME_GIT_PROMPT_SEPARATOR"
+			STATUS="$STATUS"
 			if [ "$GIT_STAGED" -ne "0" ]; then
-				STATUS="$STATUS$ZSH_THEME_GIT_PROMPT_STAGED" #$GIT_STAGED%{${reset_color}%}"
+				STATUS="$STATUS$ZSH_PROMPT_GIT_STAGED"
 			fi
 			if [ "$GIT_CONFLICTS" -ne "0" ]; then
-				STATUS="$STATUS$ZSH_THEME_GIT_PROMPT_CONFLICTS" #$GIT_CONFLICTS%{${reset_color}%}"
+				STATUS="$STATUS$ZSH_PROMPT_GIT_CONFLICTS"
 			fi
 			if [ "$GIT_CHANGED" -ne "0" ]; then
-				STATUS="$STATUS$ZSH_THEME_GIT_PROMPT_CHANGED" #$GIT_CHANGED%{${reset_color}%}"
+				STATUS="$STATUS$ZSH_PROMPT_GIT_CHANGED"
 			fi
 			if [ "$GIT_UNTRACKED" -ne "0" ]; then
-				STATUS="$STATUS$ZSH_THEME_GIT_PROMPT_UNTRACKED" #%{${reset_color}%}"
+				STATUS="$STATUS$ZSH_PROMPT_GIT_UNTRACKED"
 			fi
-			STATUS="$STATUS$ZSH_THEME_GIT_PROMPT_SUFFIX" #%{${reset_color}%}$ZSH_THEME_GIT_PROMPT_SUFFIX"
+			STATUS="$STATUS"
 		fi
 		echo "$STATUS"
 	fi
 }
 
 # Default values for the appearance of the prompt. Configure at will.
-ZSH_THEME_GIT_PROMPT_PREFIX="("
-ZSH_THEME_GIT_PROMPT_SUFFIX=")"
-ZSH_THEME_GIT_PROMPT_SEPARATOR="|"
-ZSH_THEME_GIT_PROMPT_BRANCH="%{$fg_bold[magenta]%}"
-ZSH_THEME_GIT_PROMPT_STAGED="%{$fg[red]%}%{●%G%}"
-ZSH_THEME_GIT_PROMPT_CONFLICTS="%{$fg[red]%}%{✖%G%}"
-ZSH_THEME_GIT_PROMPT_CHANGED="%{$fg[blue]%}%{✚%G%}"
-ZSH_THEME_GIT_PROMPT_BEHIND="%{↓%G%}"
-ZSH_THEME_GIT_PROMPT_AHEAD="%{↑%G%}"
-ZSH_THEME_GIT_PROMPT_UNTRACKED="%{…%G%}"
-ZSH_THEME_GIT_PROMPT_CLEAN="%{$fg_bold[green]%}%{✔%G%}"
+ZSH_PROMPT_GIT_BRANCH="%B%F{5}"
+ZSH_PROMPT_GIT_STAGED="%F{1}%{●%G%}"
+ZSH_PROMPT_GIT_CONFLICTS="%F{1}%{✖%G%}"
+ZSH_PROMPT_GIT_CHANGED="%F{4}%{✚%G%}"
+ZSH_PROMPT_GIT_BEHIND="%{↓%G%}"
+ZSH_PROMPT_GIT_AHEAD="%{↑%G%}"
+ZSH_PROMPT_GIT_UNTRACKED="%{…%G%}"
+ZSH_PROMPT_GIT_CLEAN="%B%F{2}%{✔%G%}"

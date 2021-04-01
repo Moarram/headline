@@ -1,7 +1,43 @@
 #!/bin/zsh
 # To install, source this file from your .zshrc file
 
-# Constants
+# Prompt config options
+ZSH_PROMPT_DO_LINE='auto' # yes|no|auto
+ZSH_PROMPT_LINE_ACCENT_CHAR='_'
+ZSH_PROMPT_LINE_FILL_CHAR='_'
+
+# Flags
+! [ -z "$SSH_TTY$SSH_CONNECTION$SSH_CLIENT" ]
+IS_SSH=$?
+
+# Prompt colors (0-15)
+ZSH_PROMPT_COLOR_LINE=8
+ZSH_PROMPT_COLOR_INPUT=15
+ZSH_PROMPT_COLOR_OUTPUT=7
+ZSH_PROMPT_COLOR_JOINTS=8
+ZSH_PROMPT_COLOR_USER=$(( $IS_SSH == 0 ? 13 : 9 ))
+ZSH_PROMPT_COLOR_MACHINE=11
+ZSH_PROMPT_COLOR_PATH=12
+ZSH_PROMPT_COLOR_GIT_BRANCH=14
+ZSH_PROMPT_COLOR_GIT_STATUS=13
+ZSH_PROMPT_COLOR_USER_LINE=$ZSH_PROMPT_COLOR_USER
+ZSH_PROMPT_COLOR_MACHINE_LINE=$ZSH_PROMPT_COLOR_MACHINE
+ZSH_PROMPT_COLOR_PATH_LINE=$ZSH_PROMPT_COLOR_PATH
+ZSH_PROMPT_COLOR_GIT_BRANCH_LINE=$ZSH_PROMPT_COLOR_GIT_BRANCH
+ZSH_PROMPT_COLOR_GIT_STATUS_LINE=$ZSH_PROMPT_COLOR_GIT_STATUS
+
+# Git status
+RELATIVE="$(dirname ${(%):-%x})"
+source "$RELATIVE/deps/zsh-prompt-git.sh"
+ZSH_PROMPT_GIT_STAGED="%B+" # %B
+ZSH_PROMPT_GIT_CONFLICTS="%b✘"
+ZSH_PROMPT_GIT_CHANGED="%B!" # %B
+ZSH_PROMPT_GIT_UNTRACKED="%B?" # %B
+ZSH_PROMPT_GIT_BEHIND="%b↓"
+ZSH_PROMPT_GIT_AHEAD="%b↑"
+ZSH_PROMPT_GIT_CLEAN=""
+
+# Constants for zsh
 HISTFILE=~/.histfile
 HISTSIZE=1000
 SAVEHIST=1000
@@ -33,41 +69,13 @@ prompt_len() {
   typeset -g REPLY=$x
 }
 
-# Flags
-! [ -z "$SSH_TTY$SSH_CONNECTION$SSH_CLIENT" ]
-IS_SSH=$?
-ZSH_PROMPT_SEP_ALL=1 # false
-
-# Prompt colors (0-15)
-COLOR_LINE=8
-COLOR_INPUT=15
-COLOR_OUTPUT=7
-COLOR_FAINT=8
-COLOR_USER=$(( $IS_SSH == 0 ? 13 : 9 ))
-COLOR_MACHINE=11
-COLOR_PATH=12
-COLOR_GIT_BRANCH=14
-COLOR_GIT_STATUS=9
-COLOR_USER_LINE=$(( $COLOR_USER - 0 ))
-COLOR_MACHINE_LINE=$(( $COLOR_MACHINE - 0 ))
-COLOR_PATH_LINE=$(( $COLOR_PATH - 0 ))
-COLOR_GIT_BRANCH_LINE=$(( $COLOR_GIT_BRANCH - 0 ))
-COLOR_GIT_STATUS_LINE=$(( $COLOR_GIT_STATUS - 0 ))
-
-# Git status
-source ~/.zsh-prompt/deps/zshrc_git.sh
-ZSH_THEME_GIT_PROMPT_STAGED="%B+" # %B
-ZSH_THEME_GIT_PROMPT_CONFLICTS="%b✘"
-ZSH_THEME_GIT_PROMPT_CHANGED="%B!" # %B
-ZSH_THEME_GIT_PROMPT_UNTRACKED="%B?" # %B
-
 # Logic for line 1
 do_separator=1 # is set true after prompting
 if [ $IS_SSH = 0 ]; then
 	do_separator=0 # assume it's not a fresh window
 fi
 preexec() {
-  print -nrP "%F{$COLOR_OUTPUT}"
+  print -nrP "%F{$ZSH_PROMPT_COLOR_OUTPUT}"
   if [ "$2" = "clear" ]; then
     do_separator=1
   fi
@@ -76,26 +84,26 @@ preexec() {
 # Prompt line 1 and 2
 setopt PROMPT_SUBST
 precmd() {
-  local L='_' # line spacer char
-  local A='_' # line accent char
+  local A=$ZSH_PROMPT_LINE_ACCENT_CHAR
+  local L=$ZSH_PROMPT_LINE_FILL_CHAR
 
   # <branch>
-  local git_branch_str="%B%F{$COLOR_GIT_BRANCH}$(git_prompt_branch)"
+  local git_branch_str="%B%F{$ZSH_PROMPT_COLOR_GIT_BRANCH}$(git_prompt_branch)"
   prompt_len $git_branch_str
   local -i git_branch_str_len=$REPLY
-  local git_branch_line="%B%F{$COLOR_GIT_BRANCH_LINE}${(l:(( $git_branch_str_len * 2 ))::$A:)}"
+  local git_branch_line="%B%F{$ZSH_PROMPT_COLOR_GIT_BRANCH_LINE}${(l:(( $git_branch_str_len * 2 ))::$A:)}"
 
   # <status>
-  local git_status_str="%B%F{$COLOR_GIT_STATUS}$(git_prompt_status)"
+  local git_status_str="%B%F{$ZSH_PROMPT_COLOR_GIT_STATUS}$(git_prompt_status)"
   prompt_len $git_status_str
   local -i git_status_str_len=$REPLY
-  local git_status_line="%B%F{$COLOR_GIT_STATUS_LINE}${(l:(( $git_status_str_len * 2 ))::$A:)}"
+  local git_status_line="%B%F{$ZSH_PROMPT_COLOR_GIT_STATUS_LINE}${(l:(( $git_status_str_len * 2 ))::$A:)}"
 
   # (<status>)
   if [ $git_status_str_len -gt 0 ]; then
     git_status_str_len=$(( $git_status_str_len + 3 ))
-    git_status_str=" %b%F{$COLOR_FAINT}($git_status_str%b%F{$COLOR_FAINT})"
-    git_status_line="%b%F{$COLOR_LINE}$L$L$git_status_line%b%F{$COLOR_LINE}$L"
+    git_status_str=" %b%F{$ZSH_PROMPT_COLOR_JOINTS}($git_status_str%b%F{$ZSH_PROMPT_COLOR_JOINTS})"
+    git_status_line="%b%F{$ZSH_PROMPT_COLOR_LINE}$L$L$git_status_line%b%F{$ZSH_PROMPT_COLOR_LINE}$L"
   fi
 
   # <branch> (<status>)
@@ -104,37 +112,36 @@ precmd() {
   local git_line="$git_branch_line$git_status_line"
 
   # <user> @
-  local user_str="%B%F{$COLOR_USER}%n%b %F{$COLOR_FAINT}@ " # %B
+  local user_str="%B%F{$ZSH_PROMPT_COLOR_USER}%n%b %F{$ZSH_PROMPT_COLOR_JOINTS}@ " # %B
   prompt_len $user_str
   local -i user_str_len=$REPLY
-  local user_line="%B%F{$COLOR_USER_LINE}${(r:(( $user_str_len * 2 - 6 ))::$A:)}%b%F{$COLOR_LINE}$L$L$L"
+  local user_line="%B%F{$ZSH_PROMPT_COLOR_USER_LINE}${(r:(( $user_str_len * 2 - 6 ))::$A:)}%b%F{$ZSH_PROMPT_COLOR_LINE}$L$L$L"
 
   # <machine>:
-  local machine_str="%B%F{$COLOR_MACHINE}%m%b%F{$COLOR_FAINT}: " # %B
+  local machine_str="%B%F{$ZSH_PROMPT_COLOR_MACHINE}%m%b%F{$ZSH_PROMPT_COLOR_JOINTS}: " # %B
   prompt_len $machine_str
   local -i machine_str_len=$REPLY
-  local machine_line="%B%F{$COLOR_MACHINE_LINE}${(r:(( $machine_str_len * 2 - 4 ))::$A:)}%b%F{$COLOR_LINE}$L$L"
+  local machine_line="%B%F{$ZSH_PROMPT_COLOR_MACHINE_LINE}${(r:(( $machine_str_len * 2 - 4 ))::$A:)}%b%F{$ZSH_PROMPT_COLOR_LINE}$L$L"
 
   # <path>
   local remainder_len=$(( $COLUMNS - $user_str_len - $machine_str_len - ($git_str_len ? ($git_str_len + 3) : 0) ))
-  local path_str="%B%F{$COLOR_PATH}%$remainder_len<...<%~%<<%b" # %B
+  local path_str="%B%F{$ZSH_PROMPT_COLOR_PATH}%$remainder_len<...<%~%<<%b" # %B
   prompt_len $path_str
   local -i path_str_len=$REPLY
-  local path_line="%B%F{$COLOR_PATH_LINE}${(l:(( $path_str_len * 2 ))::$A:)}"
+  local path_line="%B%F{$ZSH_PROMPT_COLOR_PATH_LINE}${(l:(( $path_str_len * 2 ))::$A:)}"
 
   # padding
   local spaces=$(( $COLUMNS - $user_str_len - $machine_str_len - $path_str_len - $git_str_len ))
   local pad=${(l:$spaces:: :)}
-  local pad_line="%b%F{$COLOR_LINE}${(l:(( $spaces * 2 ))::$L:)}"
+  local pad_line="%b%F{$ZSH_PROMPT_COLOR_LINE}${(l:(( $spaces * 2 ))::$L:)}"
   if (( $git_str_len > 0 )) && (( $spaces < 4 )); then
-    pad=" %F{$COLOR_FAINT}| "
-    pad_line="%b%F{$COLOR_LINE}$L$L$L"
+    pad=" %F{$ZSH_PROMPT_COLOR_JOINTS}| "
+    pad_line="%b%F{$ZSH_PROMPT_COLOR_LINE}$L$L$L"
   fi
 
-  # _________________________________________
-  if [ "$do_separator" = 0 ] || [ "$ZSH_PROMPT_SEP_ALL" = 0 ]; then
+  # _____
+  if [[ $ZSH_PROMPT_DO_LINE == 'yes' || ($ZSH_PROMPT_DO_LINE == 'auto' && $do_separator == 0 ) ]]; then
     print -rP "$user_line$machine_line$path_line$pad_line$git_line"
-    # print -rP "%F{$COLOR_LINE}${(l:$COLUMNS::_:)}"
   fi
   do_separator=0
 
@@ -143,5 +150,5 @@ precmd() {
 }
 
 # Prompt line 3
-PROMPT="%F{$COLOR_INPUT}$ "
+PROMPT="%F{$ZSH_PROMPT_COLOR_INPUT}$ "
 PROMPT_EOL_MARK=""
