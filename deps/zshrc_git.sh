@@ -61,6 +61,37 @@ function update_current_git_vars() {
 	GIT_UNTRACKED=$__CURRENT_GIT_STATUS[7]
 }
 
+git_prompt_branch() {
+	precmd_update_git_vars
+	if [ -n "$__CURRENT_GIT_STATUS" ]; then
+		STATUS="$GIT_BRANCH"
+		echo "$STATUS"
+	fi
+}
+
+git_prompt_status() {
+	if [ -n "$__CURRENT_GIT_STATUS" ]; then
+		if [ "$GIT_CHANGED" -eq "0" ] && [ "$GIT_CONFLICTS" -eq "0" ] && [ "$GIT_STAGED" -eq "0" ] && [ "$GIT_UNTRACKED" -eq "0" ]; then
+			# STATUS="$STATUS$ZSH_THEME_GIT_PROMPT_CLEAN"
+		else
+			STATUS="$STATUS"
+			if [ "$GIT_STAGED" -ne "0" ]; then
+				STATUS="$STATUS$ZSH_THEME_GIT_PROMPT_STAGED"
+			fi
+			if [ "$GIT_CONFLICTS" -ne "0" ]; then
+				STATUS="$STATUS$ZSH_THEME_GIT_PROMPT_CONFLICTS"
+			fi
+			if [ "$GIT_CHANGED" -ne "0" ]; then
+				STATUS="$STATUS$ZSH_THEME_GIT_PROMPT_CHANGED"
+			fi
+			if [ "$GIT_UNTRACKED" -ne "0" ]; then
+				STATUS="$STATUS$ZSH_THEME_GIT_PROMPT_UNTRACKED"
+			fi
+			STATUS="$STATUS"
+		fi
+		echo "$STATUS"
+	fi
+}
 
 git_super_status() {
 	precmd_update_git_vars

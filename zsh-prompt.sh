@@ -39,75 +39,100 @@ IS_SSH=$?
 
 # Prompt colors (0-15)
 COLOR_LINE=8
+COLOR_OUTPUT=15
 COLOR_FAINT=8
 COLOR_USER=9 # 3
+if [ $IS_SSH = 0 ]; then COLOR_USER=13; fi
 COLOR_MACHINE=11
 COLOR_PATH=12
 COLOR_GIT_BRANCH=14
 COLOR_GIT_STATUS=9
-if [ $IS_SSH ]; then
-	COLOR_USER=13
-fi
 
 # Git status
 source ~/.zsh-prompt/deps/zshrc_git.sh
-ZSH_THEME_GIT_PROMPT_PREFIX=""
-ZSH_THEME_GIT_PROMPT_SUFFIX="%b%F{$COLOR_FAINT})"
-ZSH_THEME_GIT_PROMPT_SEPARATOR=" %b%F{$COLOR_FAINT}(%F{$COLOR_GIT_STATUS}"
-ZSH_THEME_GIT_PROMPT_BRANCH="%B%F{$COLOR_GIT_BRANCH}" # %B
 ZSH_THEME_GIT_PROMPT_STAGED="%B+" # %B
 ZSH_THEME_GIT_PROMPT_CONFLICTS="%b✘"
 ZSH_THEME_GIT_PROMPT_CHANGED="%B!" # %B
-# ZSH_THEME_GIT_PROMPT_BEHIND="%B↓" # %B
-# ZSH_THEME_GIT_PROMPT_AHEAD="%B↑" # %B
 ZSH_THEME_GIT_PROMPT_UNTRACKED="%B?" # %B
-# ZSH_THEME_GIT_PROMPT_CLEAN="%b✔"
 
 # Logic for line 1
-do_separator='false' # is set true after prompting
-if [ $IS_SSH ]; then
-	do_separator='true' # assume it's not a fresh window
+do_separator=1 # is set true after prompting
+if [ $IS_SSH = 0 ]; then
+	do_separator=0 # assume it's not a fresh window
 fi
 preexec() {
+  print -nrP "%F{$COLOR_OUTPUT}"
   if [ "$2" = "clear" ]; then
-    do_separator='false'
+    do_separator=1
   fi
 }
 
 # Prompt line 1 and 2
 setopt PROMPT_SUBST
 precmd() {
-  local git_str=$(git_super_status) # see variables ZSH_THEME_GIT_PROMPT_...
-  prompt_len $git_str
-  local -i git_str_len=$REPLY
+  # <branch>
+  local git_branch_str="%F{$COLOR_GIT_BRANCH}$(git_prompt_branch)"
+  prompt_len $git_branch_str
+  local -i git_branch_str_len=$REPLY
+  local git_branch_line="%B%F{$COLOR_GIT_BRANCH}${(r:$git_branch_str_len::_:)}"
 
+  # <status>
+  local git_status_str="%B%F{$COLOR_GIT_STATUS}$(git_prompt_status)"
+  prompt_len $git_status_str
+  local -i git_status_str_len=$REPLY
+  local git_status_line="%B%F{$COLOR_GIT_STATUS}${(r:$git_status_str_len::_:)}"
+
+  # (<status>)
+  if [ $git_status_str_len -gt 0 ]; then
+    git_status_str_len=$(( $git_status_str_len + 3 ))
+    git_status_str=" %b%F{$COLOR_FAINT}($git_status_str%b%F{$COLOR_FAINT})"
+    git_status_line="%b%F{$COLOR_LINE}__$git_status_line%b%F{$COLOR_LINE}_"
+  fi
+
+  # <branch> (<status>)
+  local git_str_len=$(( $git_branch_str_len + $git_status_str_len ))
+  local git_str="$git_branch_str$git_status_str"
+  local git_line="$git_branch_line$git_status_line"
+
+  # <user> @
   local user_str="%B%F{$COLOR_USER}%n%b %F{$COLOR_FAINT}@ " # %B
   prompt_len $user_str
   local -i user_str_len=$REPLY
+  local user_line="%B%F{$COLOR_USER}${(r:(( $user_str_len - 3 ))::_:)}%b%F{$COLOR_LINE}___"
 
-  local machine_str="%B%F{$COLOR_MACHINE}%m%b%F{$COLOR_FAINT}:%f " # %B
+  # <machine>:
+  local machine_str="%B%F{$COLOR_MACHINE}%m%b%F{$COLOR_FAINT}: " # %B
   prompt_len $machine_str
   local -i machine_str_len=$REPLY
+  local machine_line="%B%F{$COLOR_MACHINE}${(r:(( $machine_str_len - 2 ))::_:)}%b%F{$COLOR_LINE}__"
 
+  # <path>
   local remainder_len=$(( $COLUMNS - $user_str_len - $machine_str_len - ($git_str_len ? ($git_str_len + 3) : 0) ))
   local path_str="%B%F{$COLOR_PATH}%$remainder_len<...<%~%<<%b" # %B
   prompt_len $path_str
   local -i path_str_len=$REPLY
+  local path_line="%B%F{$COLOR_PATH}${(r:$path_str_len::_:)}"
 
+  # padding
   local spaces=$(( $COLUMNS - $user_str_len - $machine_str_len - $path_str_len - $git_str_len ))
   local pad=${(l:$spaces:: :)}
+  local pad_line="%b%F{$COLOR_LINE}${(r:$spaces::_:)}"
   if (( $git_str_len > 0 )) && (( $spaces < 4 )); then
     pad=" %F{$COLOR_FAINT}| "
+    pad_line="%b%F{$COLOR_LINE}___"
   fi
 
-  if [ "$do_separator" = 'true' ]; then
-    print -rP "%F{$COLOR_LINE}${(r:$COLUMNS::_:)}" # separator line
+  # ____
+  if [ "$do_separator" = 0 ]; then
+    print -rP "$user_line$machine_line$path_line$pad_line$git_line"
+    # print -rP "%F{$COLOR_LINE}${(r:$COLUMNS::_:)}"
   fi
-  do_separator='true'
+  do_separator=0
 
-  print -rP $user_str$machine_str$path_str$pad$git_str # information line
+  # <user> @ <machine>: <path>  padding  <branch> (<status>)
+  print -rP "$user_str$machine_str$path_str$pad$git_str" # information line
 }
 
 # Prompt line 3
-PROMPT="$ "
+PROMPT="%f$ "
 PROMPT_EOL_MARK=""
