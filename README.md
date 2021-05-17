@@ -3,6 +3,8 @@ I made a decent zsh prompt, but discovered that I couldn't use it when ssh'ing i
 
 **NOTICE:** *This repository is only public for personal convenience at this time. The project is still in development.*
 
+![prompt screenshot](.github/images/prompt_screenshot.png)
+
 ## Files
 ### `zsh-prompt.sh`
 Source this file in your `~/.zshrc` to use the zsh prompt. It relies on `deps/zsh-prompt-git.sh` for the git repository information. A few things can be easily customized (by editing environment variables at the top of the file) such as colors, the separator line, and some characters/symbols.
