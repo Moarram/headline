@@ -30,8 +30,8 @@ if ! [ -z "$needed" ]; then # list is not empty
 fi
 
 # Determine if installation is needed
-install_dir='$HOME/.zsh-prompt'
-backup_dir='$HOME/.zsh-prompt-old'
+install_dir="$HOME/.zsh-prompt"
+backup_dir="$HOME/.zsh-prompt-old"
 needs_install='true'
 if [ -d "$install_dir" ]; then # install directory exists
   cd $install_dir
