@@ -1,11 +1,5 @@
 # Moarram's ZSH Theme
-This ZSH theme features a colored separator bar and information bar, which adapt to terminal width. The information bar displays the user, host machine, path, Git branch (or commit), and Git status symbols. You can easily customize colors and certain characters by editing the theme file.
-
-Screenshots taken from iTerm2. Using FiraCode font for the connected underscores.
-
-![dark theme screenshot](.github/images/zsh_theme_dark.png)
-
-![light theme screenshot](.github/images/zsh_theme_light.png)
+A ZSH theme featuring Git status information and a colored line before the prompt.
 
 ```
 ________________________________________________________________________________
@@ -13,11 +7,22 @@ ________________________________________________________________________________
 $
 ```
 
+## Screenshots
+Screenshots of theme in iTerm2. Using the FiraCode font for connected underscores.
+
+>![light theme screenshot](https://raw.githubusercontent.com/Moarram/zsh-theme/main/.github/images/zsh_theme_light.png)
+>Status shows "+" for staged changes, "!" for unstaged changes, and "?" for untracked files (configurable).
+
+> ![brown theme screenshot](https://raw.githubusercontent.com/Moarram/zsh-theme/main/.github/images/zsh_theme_brown.png)
+> Optional contextual symbols.
+
+> ![dark theme screenshot](https://raw.githubusercontent.com/Moarram/zsh-theme/main/.github/images/zsh_theme_dark.png)
+> Path truncated to fit in available space.
+
 
 ## Installation
 ### Dependencies
-* `zsh` – shell
-* `python` – [git status](https://travis-ci.org/olivierverdier/zsh-git-status) component
+Requires ZSH (obviously), Git, and Python (for [Git status](https://github.com/olivierverdier/zsh-git-prompt) retrieval).
 
 ### Download
 Clone the repository.
