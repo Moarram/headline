@@ -1,20 +1,23 @@
 #!/bin/zsh
 # To install, source this file from your .zshrc file
 
-# Prompt config options
-DO_LINE='auto' # yes|no|auto
-CHAR_LINE_ACCENT='_'
-CHAR_LINE_FILL='_'
-# SYM_USER=' '
-# SYM_MACHINE=' '
-# SYM_PATH=' '
-# SYM_GIT_BRANCH=' '
+# Dependencies
+RELATIVE="$(dirname ${(%):-%x})"
+source "$RELATIVE/deps/zsh-git-status.sh"
+
+
+
+# Constants for zsh
+setopt PROMPT_SP # always start prompt on new line
 
 # Flags
 ! [ -z "$SSH_TTY$SSH_CONNECTION$SSH_CLIENT" ]
 IS_SSH=$?
 
+
+
 # Formatting aliases
+# (add more if you need)
 reset=$'\e[0m'
 bold=$'\e[1m'
 faint=$'\e[2m'
@@ -24,6 +27,7 @@ invert=$'\e[7m'
 # ...
 
 # Foreground color aliases
+# (dont change these definitions, apply them below)
 black=$'\e[30m'
 red=$'\e[31m'
 green=$'\e[32m'
@@ -42,6 +46,7 @@ light_cyan=$'\e[96m'
 light_white=$'\e[97m'
 
 # Background color aliases
+# (dont change these definitions, apply them below)
 black_back=$'\e[40m'
 red_back=$'\e[41m'
 green_back=$'\e[42m'
@@ -59,7 +64,20 @@ light_magenta_back=$'\e[105m'
 light_cyan_back=$'\e[106m'
 light_white_back=$'\e[107m'
 
+
+
+# Prompt config options
+# (customization encouraged)
+DO_LINE='auto' # yes|no|auto
+CHAR_LINE_ACCENT='_'
+CHAR_LINE_FILL='_'
+# SYM_USER=' ' # optional
+# SYM_MACHINE=' ' # optional
+# SYM_PATH=' ' # optional
+# SYM_GIT=' ' # optional
+
 # Styles
+# (customization encouraged)
 STYLE_DEFAULT="" # optional style applied to each part
 STYLE_LINE=$light_black
 STYLE_JOINTS=$light_black
@@ -80,9 +98,8 @@ STYLE_GIT_BRANCH_LINE=$STYLE_GIT_BRANCH
 STYLE_GIT_STATUS=$bold$magenta
 STYLE_GIT_STATUS_LINE=$STYLE_GIT_STATUS
 
-# Git status
-RELATIVE="$(dirname ${(%):-%x})"
-source "$RELATIVE/deps/zsh-prompt-git.sh"
+# Git status characters
+# (customization encouraged)
 ZSH_PROMPT_GIT_STAGED="+"
 ZSH_PROMPT_GIT_CONFLICTS="✘"
 ZSH_PROMPT_GIT_CHANGED="!"
@@ -91,19 +108,7 @@ ZSH_PROMPT_GIT_BEHIND="↓"
 ZSH_PROMPT_GIT_AHEAD="↑"
 ZSH_PROMPT_GIT_CLEAN=""
 
-# Constants for zsh
-HISTFILE=~/.histfile
-HISTSIZE=1000
-SAVEHIST=1000
-bindkey -e
-unsetopt PROMPT_SP
 
-# Completion
-zstyle ':completion:*' matcher-list 'm:{[:lower:][:upper:]}={[:upper:][:lower:]}' 'm:{[:lower:][:upper:]}={[:upper:][:lower:]} l:|=* r:|=*' 
-zstyle ':completion:*' list-suffixes
-zstyle ':completion:*' expand prefix suffix
-autoload -Uz compinit && compinit
-setopt MENU_COMPLETE
 
 # Prompt length calculator
 prompt_len() {
@@ -152,7 +157,7 @@ precmd() {
   local git_branch=$(git_prompt_branch)
   local git_branch_str=""
   if ! [[ -z $git_branch ]]; then
-    git_branch_str="%{$S_GIT_BRANCH%}$SYM_GIT_BRANCH$git_branch"
+    git_branch_str="%{$S_GIT_BRANCH%}$SYM_GIT$git_branch"
   fi
   prompt_len $git_branch_str
   local -i git_branch_str_len=$REPLY
@@ -187,7 +192,7 @@ precmd() {
   local -i host_name_len=$REPLY
 
   # Cropping
-  if (( $user_name_len + $host_name_len + 3 > $COLUMNS / 3 || $COLUMNS < 40 )); then
+  if (( $user_name_len + $host_name_len + $git_str_len > $COLUMNS / 2 || $COLUMNS < 40 )); then
     user_name="${user_name:0:1}"
     host_name="${host_name:0:1}"
   fi
@@ -205,7 +210,9 @@ precmd() {
   local machine_line="%{$S_MACHINE_LINE%}${(r:(( $machine_str_len * 2 - 4 ))::$A:)}%{$S_JOINTS_LINE%}$L$L"
 
   # <path>
-  local remainder_len=$(( $COLUMNS - $user_str_len - $machine_str_len - ($git_str_len ? ($git_str_len + 3) : 0) ))
+  prompt_len $SYM_PATH
+  local -i path_sym_len=$REPLY
+  local remainder_len=$(( $COLUMNS - $user_str_len - $machine_str_len - $path_sym_len - ($git_str_len ? ($git_str_len + 3) : 0) ))
   local path_str="%{$S_PATH%}$SYM_PATH%$remainder_len<...<%~%<<%b"
   prompt_len $path_str
   local -i path_str_len=$REPLY
@@ -216,7 +223,7 @@ precmd() {
   local pad="%{$S_JOINTS%}${(l:$spaces:: :)}"
   local pad_line="%{$S_LINE%}${(l:(( $spaces * 2 ))::$L:)}"
   if (( $git_str_len > 0 )) && (( $spaces < 4 )); then
-    pad=" %{$S_JOINTS%}| "
+    pad="%{$S_JOINTS%} | "
     pad_line="%{$S_JOINTS_LINE%}$L$L$L"
   fi
 
@@ -228,6 +235,9 @@ precmd() {
 
   # <user> @ <machine>: <path>  padding  <branch> [<status>]
   print -rP "$user_str$machine_str$path_str$pad$git_str$reset"
+
+  # Debug
+  # print "COLS: $COLUMNS, user: $user_str_len, machine: $machine_str_len, path: $path_str_len, pad: $spaces, git: $git_str_len, total: $(( $user_str_len + $machine_str_len + $path_str_len + $spaces + $git_str_len ))"
 }
 
 # Prompt line 3
