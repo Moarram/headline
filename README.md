@@ -7,8 +7,6 @@ Screenshots taken from iTerm2. Using FiraCode font for the connected underscores
 
 ![light theme screenshot](.github/images/zsh_theme_light.png)
 
-![brown theme screenshot](.github/images/zsh_theme_brown.png)
-
 ```
 ________________________________________________________________________________
 <user> @ <machine>: <path>                                   <branch> [<status>]
