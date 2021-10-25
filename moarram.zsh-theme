@@ -1,11 +1,22 @@
 #!/bin/zsh
 # To install, source this file from your .zshrc file
+# Customization variables begin at line 80
+
+# ____________________________________________________________________
+# <user> @ <host>: <path>                          <branch> [<status>]
+# $
+
+
 
 # Dependencies
 RELATIVE="$(dirname ${(%):-%x})"
-source "$RELATIVE/deps/zsh-git-status.sh"
-
-
+GIT_STATUS_FILEPATH="$RELATIVE/deps/zsh-git-status.sh" # required for <branch> and <status>
+if [[ -e $GIT_STATUS_FILEPATH ]]; then
+  source $GIT_STATUS_FILEPATH
+else
+  git_prompt_branch() { echo "" }
+  git_prompt_status() { echo "" }
+fi
 
 # Constants for zsh
 setopt PROMPT_SP # always start prompt on new line
@@ -69,16 +80,16 @@ light_white_back=$'\e[107m'
 # Prompt config options
 # (customization encouraged)
 DO_LINE='auto' # yes|no|auto
-CHAR_LINE_ACCENT='_'
-CHAR_LINE_FILL='_'
+CHAR_LINE_ACCENT='_' # line above info parts (user, host, path, etc)
+CHAR_LINE_FILL='_' # line above joints and spaces
 # SYM_USER=' ' # optional
-# SYM_MACHINE=' ' # optional
+# SYM_HOST=' ' # optional
 # SYM_PATH=' ' # optional
 # SYM_GIT=' ' # optional
 
 # Styles
 # (customization encouraged)
-STYLE_DEFAULT="" # optional style applied to each part
+STYLE_DEFAULT="" # optional style applied to entire information line
 STYLE_LINE=$light_black
 STYLE_JOINTS=$light_black
 STYLE_JOINTS_LINE=$light_black
@@ -89,8 +100,8 @@ else
   STYLE_USER=$bold$red
   STYLE_USER_LINE=$STYLE_USER
 fi
-STYLE_MACHINE=$bold$yellow
-STYLE_MACHINE_LINE=$STYLE_MACHINE
+STYLE_HOST=$bold$yellow
+STYLE_HOST_LINE=$STYLE_HOST
 STYLE_PATH=$bold$blue
 STYLE_PATH_LINE=$STYLE_PATH
 STYLE_GIT_BRANCH=$bold$cyan
@@ -106,7 +117,7 @@ ZSH_PROMPT_GIT_CHANGED="!"
 ZSH_PROMPT_GIT_UNTRACKED="?"
 ZSH_PROMPT_GIT_BEHIND="↓"
 ZSH_PROMPT_GIT_AHEAD="↑"
-ZSH_PROMPT_GIT_CLEAN=""
+ZSH_PROMPT_GIT_CLEAN="" # consider "✔"
 
 
 
@@ -144,7 +155,7 @@ setopt PROMPT_SUBST
 precmd() {
   # Prepend each style with reset and default styles
   local S_LINE=$reset$STYLE_LINE
-  for part in USER MACHINE PATH GIT_BRANCH GIT_STATUS JOINTS; do
+  for part in USER HOST PATH GIT_BRANCH GIT_STATUS JOINTS; do
     eval local S_${part}="\$reset\$STYLE_DEFAULT\$STYLE_${part}"
     eval local S_${part}_LINE="\$reset\$STYLE_${part}_LINE"
   done
@@ -203,23 +214,23 @@ precmd() {
   local -i user_str_len=$REPLY
   local user_line="%{$S_USER_LINE%}${(r:(( $user_str_len * 2 - 6 ))::$A:)}%{$S_JOINTS_LINE%}$L$L$L"
 
-  # <machine>:
-  local machine_str="%{$S_MACHINE%}$SYM_MACHINE$host_name%{$S_JOINTS%}: "
-  prompt_len $machine_str
-  local -i machine_str_len=$REPLY
-  local machine_line="%{$S_MACHINE_LINE%}${(r:(( $machine_str_len * 2 - 4 ))::$A:)}%{$S_JOINTS_LINE%}$L$L"
+  # <host>:
+  local host_str="%{$S_HOST%}$SYM_HOST$host_name%{$S_JOINTS%}: "
+  prompt_len $host_str
+  local -i host_str_len=$REPLY
+  local host_line="%{$S_HOST_LINE%}${(r:(( $host_str_len * 2 - 4 ))::$A:)}%{$S_JOINTS_LINE%}$L$L"
 
   # <path>
   prompt_len $SYM_PATH
   local -i path_sym_len=$REPLY
-  local remainder_len=$(( $COLUMNS - $user_str_len - $machine_str_len - $path_sym_len - ($git_str_len ? ($git_str_len + 3) : 0) ))
+  local remainder_len=$(( $COLUMNS - $user_str_len - $host_str_len - $path_sym_len - ($git_str_len ? ($git_str_len + 3) : 0) ))
   local path_str="%{$S_PATH%}$SYM_PATH%$remainder_len<...<%~%<<%b"
   prompt_len $path_str
   local -i path_str_len=$REPLY
   local path_line="%{$S_PATH_LINE%}${(l:(( $path_str_len * 2 ))::$A:)}"
 
   # Padding
-  local spaces=$(( $COLUMNS - $user_str_len - $machine_str_len - $path_str_len - $git_str_len ))
+  local spaces=$(( $COLUMNS - $user_str_len - $host_str_len - $path_str_len - $git_str_len ))
   local pad="%{$S_JOINTS%}${(l:$spaces:: :)}"
   local pad_line="%{$S_LINE%}${(l:(( $spaces * 2 ))::$L:)}"
   if (( $git_str_len > 0 )) && (( $spaces < 4 )); then
@@ -229,15 +240,15 @@ precmd() {
 
   # _____
   if [[ $DO_LINE == 'yes' || ($DO_LINE == 'auto' && $do_separator == 0 ) ]]; then
-    print -rP "$user_line$machine_line$path_line$pad_line$git_line$reset"
+    print -rP "$user_line$host_line$path_line$pad_line$git_line$reset"
   fi
   do_separator=0
 
-  # <user> @ <machine>: <path>  padding  <branch> [<status>]
-  print -rP "$user_str$machine_str$path_str$pad$git_str$reset"
+  # <user> @ <host>: <path>  padding  <branch> [<status>]
+  print -rP "$user_str$host_str$path_str$pad$git_str$reset"
 
   # Debug
-  # print "COLS: $COLUMNS, user: $user_str_len, machine: $machine_str_len, path: $path_str_len, pad: $spaces, git: $git_str_len, total: $(( $user_str_len + $machine_str_len + $path_str_len + $spaces + $git_str_len ))"
+  # print "COLS: $COLUMNS, user: $user_str_len, host: $host_str_len, path: $path_str_len, pad: $spaces, git: $git_str_len, total: $(( $user_str_len + $host_str_len + $path_str_len + $spaces + $git_str_len ))"
 }
 
 # Prompt line 3
