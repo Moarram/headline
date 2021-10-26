@@ -43,7 +43,8 @@ If you don't want Git status info, you only need `moarram.zsh-theme`. But if you
 
 
 ## Customization
-Edit the `moarram.zsh-theme` file to customize colors, styles, and symbols. You could also define the variables in your `~/.zshrc`. Options are summarized here.
+Edit the `moarram.zsh-theme` file to customize colors, styles, and symbols. You could also define the variables in your `~/.zshrc`. 
+<!-- Options are summarized here.
 
 ### Separator Line
 `____________`
@@ -63,4 +64,4 @@ As configured, the Git status info shows "+" for staged changes, "!" for unstage
 ### Prompt
 `$ `
 
-As configured, the prompt shows "$" normally and "#" for root. This can be customized by changing `PROMPT` (if you prefer "%" for example).
+As configured, the prompt shows "$" normally and "#" for root. This can be customized by changing `PROMPT` (if you prefer "%" for example). -->
