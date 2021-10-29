@@ -64,4 +64,8 @@ As configured, the Git status info shows "+" for staged changes, "!" for unstage
 ### Prompt
 `$ `
 
-As configured, the prompt shows "$" normally and "#" for root. This can be customized by changing `PROMPT` (if you prefer "%" for example). -->
+As configured, the prompt shows "$" normally and "#" for root. This can be customized by changing `PROMPT` (if you prefer "%" for example). 
+
+## Resources
+
+*	https://unix.stackexchange.com/questions/675237/repeat-char-n-times-in-zsh-prompt-->

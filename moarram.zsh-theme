@@ -14,8 +14,8 @@ GIT_STATUS_FILEPATH="$RELATIVE/deps/zsh-git-status.sh" # required for <branch> a
 if [[ -e $GIT_STATUS_FILEPATH ]]; then
   source $GIT_STATUS_FILEPATH
 else
-  git_prompt_branch() { echo "" }
-  git_prompt_status() { echo "" }
+  git_prompt_branch() { echo '' }
+  git_prompt_status() { echo '' }
 fi
 
 # Constants for zsh
@@ -80,8 +80,19 @@ light_white_back=$'\e[107m'
 # Prompt config options
 # (customization encouraged)
 DO_LINE='auto' # yes|no|auto
+
+# Strings
+# (customization encouraged, no styles here)
 CHAR_LINE_ACCENT='_' # line above info parts (user, host, path, etc)
 CHAR_LINE_FILL='_' # line above joints and spaces
+JOINT_USER_BEGIN=''
+JOINT_USER_TO_HOST=' @ '
+JOINT_HOST_TO_PATH=': '
+JOINT_PATH_TO_BRANCH=' | ' # used when no padding between <path> and <branch>
+JOINT_PATH_TO_PAD='' # used if padding between <path> and <branch>
+JOINT_PAD_TO_BRANCH='' # used if padding between <path> and <branch>
+JOINT_BRANCH_TO_STATUS=' ['
+JOINT_STATUS_END=']'
 # SYM_USER=' ' # optional
 # SYM_HOST=' ' # optional
 # SYM_PATH=' ' # optional
@@ -89,7 +100,7 @@ CHAR_LINE_FILL='_' # line above joints and spaces
 
 # Styles
 # (customization encouraged)
-STYLE_DEFAULT="" # optional style applied to entire information line
+STYLE_DEFAULT='' # optional style applied to entire information line
 STYLE_LINE=$light_black
 STYLE_JOINTS=$light_black
 STYLE_JOINTS_LINE=$light_black
@@ -111,18 +122,18 @@ STYLE_GIT_STATUS_LINE=$STYLE_GIT_STATUS
 
 # Git status characters
 # (customization encouraged)
-ZSH_PROMPT_GIT_STAGED="+"
-ZSH_PROMPT_GIT_CONFLICTS="✘"
-ZSH_PROMPT_GIT_CHANGED="!"
-ZSH_PROMPT_GIT_UNTRACKED="?"
-ZSH_PROMPT_GIT_BEHIND="↓"
-ZSH_PROMPT_GIT_AHEAD="↑"
-ZSH_PROMPT_GIT_CLEAN="" # consider "✔"
+ZSH_PROMPT_GIT_STAGED='+'
+ZSH_PROMPT_GIT_CONFLICTS='✘'
+ZSH_PROMPT_GIT_CHANGED='!'
+ZSH_PROMPT_GIT_UNTRACKED='?'
+ZSH_PROMPT_GIT_BEHIND='↓'
+ZSH_PROMPT_GIT_AHEAD='↑'
+ZSH_PROMPT_GIT_CLEAN='' # consider "✔"
 
 
 
-# Prompt length calculator
-prompt_len() {
+# Calculate length of string in prompt (excludes formatting characters)
+prompt_len() { # (str)
   emulate -L zsh
   local -i COLUMNS=${2:-COLUMNS}
   local -i x y=${#1} m
@@ -136,16 +147,17 @@ prompt_len() {
     (( ${${(%):-$1%$m(l.x.y)}[-1]} = m ))
     done
   fi
-  typeset -g REPLY=$x
+  print $x
+  # typeset -g REPLY=$x
 }
 
 # Logic for line 1
-do_separator=1 # is set true after prompting
+do_separator=1 # false, is set true after prompting
 if [ $IS_SSH = 0 ]; then
 	do_separator=0 # assume it's not a fresh window
 fi
 preexec() {
-  if [ "$2" = "clear" ]; then
+  if [[ $2 == 'clear' ]]; then
     do_separator=1
   fi
 }
@@ -163,79 +175,77 @@ precmd() {
   # Aliases
   local A=$CHAR_LINE_ACCENT
   local L=$CHAR_LINE_FILL
+  local J0=$JOINT_USER_BEGIN
+  local J1=$JOINT_USER_TO_HOST
+  local J2=$JOINT_HOST_TO_PATH
+  local J3=$JOINT_PATH_TO_BRANCH
+  local J3a=$JOINT_PATH_TO_PAD
+  local J3b=$JOINT_PAD_TO_BRANCH
+  local J4=$JOINT_BRANCH_TO_STATUS
+  local J5=$JOINT_STATUS_END
 
   # <branch>
   local git_branch=$(git_prompt_branch)
-  local git_branch_str=""
+  local git_branch_str=''
   if ! [[ -z $git_branch ]]; then
     git_branch_str="%{$S_GIT_BRANCH%}$SYM_GIT$git_branch"
   fi
-  prompt_len $git_branch_str
-  local -i git_branch_str_len=$REPLY
+  local git_branch_str_len=$(prompt_len $git_branch_str)
   local git_branch_line="%{$S_GIT_BRANCH_LINE%}${(l:(( $git_branch_str_len * 2 ))::$A:)}"
 
   # <status>
   local git_status_str="%{$S_GIT_STATUS%}$(git_prompt_status)"
-  prompt_len $git_status_str
-  local -i git_status_str_len=$REPLY
-  local git_status_line="%{$S_GIT_STATUS_LINE%}${(l:(( $git_status_str_len * 2 ))::$A:)}"
+  local git_status_str_len=$(prompt_len $git_status_str)
+  local git_status_line="%{$S_GIT_STATUS_LINE%}${(pl:$git_status_str_len::$A:)}"
 
   # [<status>]
   if [ $git_status_str_len -gt 0 ]; then
-    git_status_str_len=$(( $git_status_str_len + 3 ))
-    git_status_str="%{$S_JOINTS%} [$git_status_str%{$S_JOINTS%}]"
-    git_status_line="%{$S_JOINTS_LINE%}$L$L$git_status_line%{$S_JOINTS_LINE%}$L"
+    git_status_str="%{$S_JOINTS%}$J4$git_status_str%{$S_JOINTS%}$J5"
+    git_status_str_len=$(( ${#J4} + $git_status_str_len + ${#J5} ))
+    local jl4="%{$S_JOINTS_LINE%}${(pl:${#J4}::$L:)}"
+    local jl5="%{$S_JOINTS_LINE%}${(pl:${#J5}::$L:)}"
+    git_status_line="$jl4$git_status_line$jl5"
   fi
 
-  # <branch> (<status>)
+  # <branch> [<status>]
   local git_str_len=$(( $git_branch_str_len + $git_status_str_len ))
   local git_str="$git_branch_str$git_status_str"
   local git_line="$git_branch_line$git_status_line"
 
-  # Username
+  # User & Host
   local user_name=$USER
-  prompt_len $user_name
-  local -i user_name_len=$REPLY
-
-  # Hostname
   local host_name=$(hostname -s)
-  prompt_len $host_name
-  local -i host_name_len=$REPLY
-
-  # Cropping
-  if (( $user_name_len + $host_name_len + $git_str_len > $COLUMNS / 2 || $COLUMNS < 40 )); then
+  if (( ${#user_name} + ${#host_name} + $git_str_len > $COLUMNS / 2 || $COLUMNS < 40 )); then
     user_name="${user_name:0:1}"
     host_name="${host_name:0:1}"
   fi
 
   # <user> @
-  local user_str="%{$S_USER%}$SYM_USER$user_name%{$S_JOINTS%} @ "
-  prompt_len $user_str
-  local -i user_str_len=$REPLY
-  local user_line="%{$S_USER_LINE%}${(r:(( $user_str_len * 2 - 6 ))::$A:)}%{$S_JOINTS_LINE%}$L$L$L"
+  local user_str="%{$S_JOINTS%}$J0%{$S_USER%}$SYM_USER$user_name%{$S_JOINTS%}$J1"
+  local user_str_len=$(prompt_len $user_str)
+  local jl0="%{$S_JOINTS_LINE%}${(pl:${#J0}::$L:)}"
+  local jl1="%{$S_JOINTS_LINE%}${(pl:${#J1}::$L:)}"
+  local user_line="$jl0%{$S_USER_LINE%}${(pl:(( $user_str_len - ${#J0} - ${#J1} ))::$A:)}$jl1"
 
   # <host>:
-  local host_str="%{$S_HOST%}$SYM_HOST$host_name%{$S_JOINTS%}: "
-  prompt_len $host_str
-  local -i host_str_len=$REPLY
-  local host_line="%{$S_HOST_LINE%}${(r:(( $host_str_len * 2 - 4 ))::$A:)}%{$S_JOINTS_LINE%}$L$L"
+  local host_str="%{$S_HOST%}$SYM_HOST$host_name%{$S_JOINTS%}$J2"
+  local host_str_len=$(prompt_len $host_str)
+  local jl2="%{$S_JOINTS_LINE%}${(pl:${#J2}::$L:)}"
+  local host_line="%{$S_HOST_LINE%}${(pl:(( $host_str_len - ${#J2} ))::$A:)}$jl2"
 
   # <path>
-  prompt_len $SYM_PATH
-  local -i path_sym_len=$REPLY
-  local remainder_len=$(( $COLUMNS - $user_str_len - $host_str_len - $path_sym_len - ($git_str_len ? ($git_str_len + 3) : 0) ))
+  local remainder_len=$(( $COLUMNS - $user_str_len - $host_str_len - ${#SYM_PATH} - ($git_str_len ? ($git_str_len + ${#J3}) : 0) ))
   local path_str="%{$S_PATH%}$SYM_PATH%$remainder_len<...<%~%<<%b"
-  prompt_len $path_str
-  local -i path_str_len=$REPLY
-  local path_line="%{$S_PATH_LINE%}${(l:(( $path_str_len * 2 ))::$A:)}"
+  local path_str_len=$(prompt_len $path_str)
+  local path_line="%{$S_PATH_LINE%}${(pl:$path_str_len::$A:)}"
 
   # Padding
   local spaces=$(( $COLUMNS - $user_str_len - $host_str_len - $path_str_len - $git_str_len ))
-  local pad="%{$S_JOINTS%}${(l:$spaces:: :)}"
-  local pad_line="%{$S_LINE%}${(l:(( $spaces * 2 ))::$L:)}"
-  if (( $git_str_len > 0 )) && (( $spaces < 4 )); then
-    pad="%{$S_JOINTS%} | "
-    pad_line="%{$S_JOINTS_LINE%}$L$L$L"
+  local pad="%{$S_JOINTS%}$J3a${(l:(( $spaces - ${#J3a} - ${#J3b} )):: :)}$J3b"
+  local pad_line="%{$S_LINE%}${(pl:$spaces::$L:)}"
+  if (( $git_str_len > 0 )) && (( $spaces <= ${#J3} )); then
+    pad="%{$S_JOINTS%}$J3"
+    pad_line="%{$S_JOINTS_LINE%}${(pl:${#J3}::$L:)}"
   fi
 
   # _____
@@ -252,5 +262,5 @@ precmd() {
 }
 
 # Prompt line 3
-PROMPT="%(#.#.%(!.!.$)) "
-PROMPT_EOL_MARK=""
+PROMPT="%(#.#.%(!.!.$)) " # double quote necessary
+PROMPT_EOL_MARK=''
