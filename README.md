@@ -5,13 +5,13 @@ A ZSH theme featuring Git status information and a colored line above the prompt
 ## Screenshots
 Screenshots of theme in [iTerm2](https://iterm2.com/index.html). Using [FiraCode Nerd Font](https://github.com/ryanoasis/nerd-fonts/tree/master/patched-fonts/FiraCode) for connected line and fancy icons.
 
-> ![light theme screenshot](https://raw.githubusercontent.com/Moarram/zsh-theme/main/.github/images/zsh_theme_light.png)
+> ![light theme screenshot](https://raw.githubusercontent.com/moarram/moarram.zsh-theme/main/.github/images/zsh_theme_light.png)
 > Status showing "+" for staged changes, "!" for unstaged changes, and "?" for untracked files (configurable).
 
-> ![brown theme screenshot](https://raw.githubusercontent.com/Moarram/zsh-theme/main/.github/images/zsh_theme_brown.png)
+> ![brown theme screenshot](https://raw.githubusercontent.com/moarram/moarram.zsh-theme/main/.github/images/zsh_theme_brown.png)
 > Optional icons, special font needed.
 
-> ![dark theme screenshot](https://raw.githubusercontent.com/Moarram/zsh-theme/main/.github/images/zsh_theme_dark.png)
+> ![dark theme screenshot](https://raw.githubusercontent.com/moarram/moarram.zsh-theme/main/.github/images/zsh_theme_dark.png)
 > Path truncated to fit in available space.
 
 
@@ -22,10 +22,10 @@ Requires ZSH (obviously), Git, and Python (for [Git status](https://github.com/o
 ### Standard Install
 Clone the repository.
 ```
-git clone https://github.com/moarram/zsh-theme.git
+git clone https://github.com/moarram/moarram.zsh-theme.git
 ```
 
-In your `~/.zshrc`, source `moarram.zsh-theme` from the repository.
+In your `~/.zshrc`, source the `moarram.zsh-theme` file in the repository.
 ```
 source your/path/to/moarram.zsh-theme
 ```
@@ -33,7 +33,7 @@ source your/path/to/moarram.zsh-theme
 ### [Antigen](https://github.com/zsh-users/antigen) Install
 Add the following line before `antigen apply` in your `~/.zshrc`.
 ```
-antigen bundle moarram/zsh-theme@main
+antigen bundle moarram/moarram.zsh-theme@main
 ```
 
 ### Other Installs

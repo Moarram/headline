@@ -1,6 +1,6 @@
 #!/bin/zsh
 # To install, source this file from your .zshrc file
-# Customization variables begin at line 80
+# Customization variables begin around line 80
 
 # ____________________________________________________________________
 # <user> @ <host>: <path>                          <branch> [<status>]
