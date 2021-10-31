@@ -1,6 +1,6 @@
 #!/bin/zsh
 # To install, source this file from your .zshrc file
-# Customization variables begin around line 80
+# Customization variables begin around line 90
 
 # ____________________________________________________________________
 # <user> @ <host>: <path>                          <branch> [<status>]
@@ -8,18 +8,24 @@
 
 
 
-# Dependencies
+# Git branch and status functions
 RELATIVE="$(dirname ${(%):-%x})"
-GIT_STATUS_FILEPATH="$RELATIVE/deps/zsh-git-status.sh" # required for <branch> and <status>
+GIT_STATUS_FILEPATH="$RELATIVE/deps/zsh-git-status.sh" # required for <status>, slower prompt
 if [[ -e $GIT_STATUS_FILEPATH ]]; then
   source $GIT_STATUS_FILEPATH
-else
-  git_prompt_branch() { echo '' }
+else # branch only, no status
+  autoload -Uz vcs_info
+  zstyle ':vcs_info:git:*' formats '%b'
+  git_prompt_branch() {
+    vcs_info
+    echo $vcs_info_msg_0_
+  }
   git_prompt_status() { echo '' }
 fi
 
 # Constants for zsh
 setopt PROMPT_SP # always start prompt on new line
+setopt PROMPT_SUBST # substitutions
 
 # Flags
 ! [ -z "$SSH_TTY$SSH_CONNECTION$SSH_CLIENT" ]
@@ -75,32 +81,48 @@ light_magenta_back=$'\e[105m'
 light_cyan_back=$'\e[106m'
 light_white_back=$'\e[107m'
 
+# User defined colors
+# REF: https://en.wikipedia.org/wiki/ANSI_escape_code#SGR_(Select_Graphic_Rendition)_parameters
+# orange_yellow=$'\e[38;5;214m' # example 8-bit color
+# orange_brown=$'\e[38;2;191;116;46m' # example rgb color
+# ...
 
+
+
+# ------------------------------------------------------------------------------
+# Customization
+# I recommend setting these variables in your ~/.zshrc after sourcing this file
+# The style aliases (defined above) can be used there too.
 
 # Prompt config options
-# (customization encouraged)
-DO_LINE='auto' # yes|no|auto
+DO_LINE='auto' # on|auto|off
 
-# Strings
-# (customization encouraged, no styles here)
+# Repeated characters (no styles here)
 CHAR_LINE_ACCENT='_' # line above info parts (user, host, path, etc)
 CHAR_LINE_FILL='_' # line above joints and spaces
+
+# Decoration strings (no styles here)
 JOINT_USER_BEGIN=''
+PRE_USER='' # consider " "
+POST_USER=''
 JOINT_USER_TO_HOST=' @ '
+PRE_HOST='' # consider " "
+POST_HOST=''
 JOINT_HOST_TO_PATH=': '
+PRE_PATH='' # consider " "
+POST_PATH=''
 JOINT_PATH_TO_BRANCH=' | ' # used when no padding between <path> and <branch>
 JOINT_PATH_TO_PAD='' # used if padding between <path> and <branch>
 JOINT_PAD_TO_BRANCH='' # used if padding between <path> and <branch>
+PRE_GIT_BRANCH='' # consider " "
+POST_GIT_BRANCH=''
 JOINT_BRANCH_TO_STATUS=' ['
+PRE_GIT_STATUS=''
+POST_GIT_STATUS=''
 JOINT_STATUS_END=']'
-# SYM_USER=' ' # optional
-# SYM_HOST=' ' # optional
-# SYM_PATH=' ' # optional
-# SYM_GIT=' ' # optional
 
 # Styles
-# (customization encouraged)
-STYLE_DEFAULT='' # optional style applied to entire information line
+STYLE_DEFAULT='' # style applied to entire info line
 STYLE_LINE=$light_black
 STYLE_JOINTS=$light_black
 STYLE_JOINTS_LINE=$light_black
@@ -121,7 +143,6 @@ STYLE_GIT_STATUS=$bold$magenta
 STYLE_GIT_STATUS_LINE=$STYLE_GIT_STATUS
 
 # Git status characters
-# (customization encouraged)
 ZSH_PROMPT_GIT_STAGED='+'
 ZSH_PROMPT_GIT_CONFLICTS='✘'
 ZSH_PROMPT_GIT_CHANGED='!'
@@ -129,6 +150,8 @@ ZSH_PROMPT_GIT_UNTRACKED='?'
 ZSH_PROMPT_GIT_BEHIND='↓'
 ZSH_PROMPT_GIT_AHEAD='↑'
 ZSH_PROMPT_GIT_CLEAN='' # consider "✔"
+
+# ------------------------------------------------------------------------------
 
 
 
@@ -163,7 +186,6 @@ preexec() {
 }
 
 # Prompt line 1 and 2
-setopt PROMPT_SUBST
 precmd() {
   # Prepend each style with reset and default styles
   local S_LINE=$reset$STYLE_LINE
@@ -188,13 +210,13 @@ precmd() {
   local git_branch=$(git_prompt_branch)
   local git_branch_str=''
   if ! [[ -z $git_branch ]]; then
-    git_branch_str="%{$S_GIT_BRANCH%}$SYM_GIT$git_branch"
+    git_branch_str="%{$S_GIT_BRANCH%}$PRE_GIT_BRANCH$git_branch$POST_GIT_BRANCH"
   fi
   local git_branch_str_len=$(prompt_len $git_branch_str)
   local git_branch_line="%{$S_GIT_BRANCH_LINE%}${(l:(( $git_branch_str_len * 2 ))::$A:)}"
 
   # <status>
-  local git_status_str="%{$S_GIT_STATUS%}$(git_prompt_status)"
+  local git_status_str="%{$S_GIT_STATUS%}$PRE_GIT_STATUS$(git_prompt_status)$POST_GIT_STATUS"
   local git_status_str_len=$(prompt_len $git_status_str)
   local git_status_line="%{$S_GIT_STATUS_LINE%}${(pl:$git_status_str_len::$A:)}"
 
@@ -221,21 +243,21 @@ precmd() {
   fi
 
   # <user> @
-  local user_str="%{$S_JOINTS%}$J0%{$S_USER%}$SYM_USER$user_name%{$S_JOINTS%}$J1"
+  local user_str="%{$S_JOINTS%}$J0%{$S_USER%}$PRE_USER$user_name$POST_USER%{$S_JOINTS%}$J1"
   local user_str_len=$(prompt_len $user_str)
   local jl0="%{$S_JOINTS_LINE%}${(pl:${#J0}::$L:)}"
   local jl1="%{$S_JOINTS_LINE%}${(pl:${#J1}::$L:)}"
   local user_line="$jl0%{$S_USER_LINE%}${(pl:(( $user_str_len - ${#J0} - ${#J1} ))::$A:)}$jl1"
 
   # <host>:
-  local host_str="%{$S_HOST%}$SYM_HOST$host_name%{$S_JOINTS%}$J2"
+  local host_str="%{$S_HOST%}$PRE_HOST$host_name$POST_HOST%{$S_JOINTS%}$J2"
   local host_str_len=$(prompt_len $host_str)
   local jl2="%{$S_JOINTS_LINE%}${(pl:${#J2}::$L:)}"
   local host_line="%{$S_HOST_LINE%}${(pl:(( $host_str_len - ${#J2} ))::$A:)}$jl2"
 
   # <path>
-  local remainder_len=$(( $COLUMNS - $user_str_len - $host_str_len - ${#SYM_PATH} - ($git_str_len ? ($git_str_len + ${#J3}) : 0) ))
-  local path_str="%{$S_PATH%}$SYM_PATH%$remainder_len<...<%~%<<%b"
+  local remainder_len=$(( $COLUMNS - $user_str_len - $host_str_len - ${#PRE_PATH} - ${#POST_PATH} - ($git_str_len ? ($git_str_len + ${#J3}) : 0) ))
+  local path_str="%{$S_PATH%}$PRE_PATH%$remainder_len<...<%~%<<$POST_PATH"
   local path_str_len=$(prompt_len $path_str)
   local path_line="%{$S_PATH_LINE%}${(pl:$path_str_len::$A:)}"
 
@@ -249,7 +271,7 @@ precmd() {
   fi
 
   # _____
-  if [[ $DO_LINE == 'yes' || ($DO_LINE == 'auto' && $do_separator == 0 ) ]]; then
+  if [[ $DO_LINE == 'on' || ($DO_LINE == 'auto' && $do_separator == 0 ) ]]; then
     print -rP "$user_line$host_line$path_line$pad_line$git_line$reset"
   fi
   do_separator=0
