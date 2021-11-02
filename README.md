@@ -46,8 +46,6 @@ Download the `headline.zsh-theme` file alone and source it in your `~/.zshrc`. T
 ### Other Installs
 I haven't tested with other frameworks. If you have success with another install method, let me know so I can add it to the README.
 
-If you want Git status info, you need `deps/zsh-git-status.sh` and `deps/gitstatus.py` available to `headline.zsh-theme`. Otherwise, you can use the `headline.zsh-theme` by itself.
-
 
 ## Features
 ### Separator Line
