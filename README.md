@@ -5,13 +5,13 @@ A responsive ZSH theme featuring Git status information and a colored line above
 ## Screenshots
 Screenshots of theme in [iTerm2](https://iterm2.com/index.html). Using [FiraCode Nerd Font](https://github.com/ryanoasis/nerd-fonts/tree/master/patched-fonts/FiraCode) for connected line and fancy icons.
 
-> ![light theme screenshot](https://raw.githubusercontent.com/moarram/headline-zsh-theme/main/.github/images/zsh_theme_light.png)
+> ![light theme screenshot](https://raw.githubusercontent.com/moarram/headline-zsh-theme/assets/images/zsh_theme_light.png)
 > Status showing `+` for staged changes, `!` for unstaged changes, and `?` for untracked files (configurable).
 
-> ![brown theme screenshot](https://raw.githubusercontent.com/moarram/headline-zsh-theme/main/.github/images/zsh_theme_brown.png)
+> ![brown theme screenshot](https://raw.githubusercontent.com/moarram/headline-zsh-theme/assets/images/zsh_theme_brown.png)
 > Optional icons, special font needed.
 
-> ![dark theme screenshot](https://raw.githubusercontent.com/moarram/headline-zsh-theme/main/.github/images/zsh_theme_dark.png)
+> ![dark theme screenshot](https://raw.githubusercontent.com/moarram/headline-zsh-theme/assets/images/zsh_theme_dark.png)
 > Path truncated to fit in available space.
 
 
