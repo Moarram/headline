@@ -4,7 +4,7 @@
 
 # ____________________________________________________________________
 # <user> @ <host>: <path>                          <branch> [<status>]
-# $
+# $ git clone -b main https://github.com/Moarram/headline-zsh-theme
 
 
 
@@ -26,6 +26,7 @@ fi
 # Constants for zsh
 setopt PROMPT_SP # always start prompt on new line
 setopt PROMPT_SUBST # substitutions
+autoload -U add-zsh-hook
 
 # Flags
 ! [ -z "$SSH_TTY$SSH_CONNECTION$SSH_CLIENT" ]
@@ -155,8 +156,8 @@ ZSH_PROMPT_GIT_CLEAN='' # consider "✔"
 
 
 
-# Calculate length of string in prompt (excludes formatting characters)
-prompt_len() { # (str)
+# Calculate length of string as if in prompt (excludes formatting characters)
+prompt_len() {
   emulate -L zsh
   local -i COLUMNS=${2:-COLUMNS}
   local -i x y=${#1} m
@@ -171,7 +172,6 @@ prompt_len() { # (str)
     done
   fi
   print $x
-  # typeset -g REPLY=$x
 }
 
 # Logic for line 1
@@ -179,14 +179,16 @@ do_separator=1 # false, is set true after prompting
 if [ $IS_SSH = 0 ]; then
 	do_separator=0 # assume it's not a fresh window
 fi
-preexec() {
+add-zsh-hook preexec preexec_headline
+preexec_headline() {
   if [[ $2 == 'clear' ]]; then
     do_separator=1
   fi
 }
 
 # Prompt line 1 and 2
-precmd() {
+add-zsh-hook precmd precmd_headline
+precmd_headline() {
   # Prepend each style with reset and default styles
   local S_LINE=$reset$STYLE_LINE
   for part in USER HOST PATH GIT_BRANCH GIT_STATUS JOINTS; do
@@ -276,7 +278,7 @@ precmd() {
   fi
   do_separator=0
 
-  # <user> @ <host>: <path>  padding  <branch> [<status>]
+  # <user> @ <host>: <path>|---padding---|<branch> [<status>]
   print -rP "$user_str$host_str$path_str$pad$git_str$reset"
 
   # Debug

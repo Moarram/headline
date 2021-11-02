@@ -1,1 +1,0 @@
-moarram.zsh-theme
