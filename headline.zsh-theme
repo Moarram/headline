@@ -4,16 +4,16 @@
 
 # ____________________________________________________________________
 # <user> @ <host>: <path>                          <branch> [<status>]
-# $ git clone -b main https://github.com/Moarram/headline-zsh-theme
+# $ git clone https://github.com/moarram/headline
 
 
 
 # Git branch and status functions
-RELATIVE="$(dirname ${(%):-%x})"
-GIT_STATUS_FILEPATH="$RELATIVE/deps/zsh-git-status.sh" # required for <status>, slower prompt
+RELATIVE=${${(%):-%x}:A:h} # REF: https://stackoverflow.com/questions/9901210/bash-source0-equivalent-in-zsh
+GIT_STATUS_FILEPATH="$RELATIVE/deps/zsh-git-status.sh" # required for <status>
 if [[ -e $GIT_STATUS_FILEPATH ]]; then
   source $GIT_STATUS_FILEPATH
-else # branch only, no status
+else # branch only, no status (this prompt is faster)
   autoload -Uz vcs_info
   zstyle ':vcs_info:git:*' formats '%b'
   git_prompt_branch() {
@@ -218,12 +218,13 @@ precmd_headline() {
   local git_branch_line="%{$S_GIT_BRANCH_LINE%}${(l:(( $git_branch_str_len * 2 ))::$A:)}"
 
   # <status>
-  local git_status_str="%{$S_GIT_STATUS%}$PRE_GIT_STATUS$(git_prompt_status)$POST_GIT_STATUS"
+  local git_status=$(git_prompt_status)
+  local git_status_str="%{$S_GIT_STATUS%}$PRE_GIT_STATUS$git_status$POST_GIT_STATUS"
   local git_status_str_len=$(prompt_len $git_status_str)
   local git_status_line="%{$S_GIT_STATUS_LINE%}${(pl:$git_status_str_len::$A:)}"
 
   # [<status>]
-  if [ $git_status_str_len -gt 0 ]; then
+  if [ ${#git_status} -gt 0 ]; then
     git_status_str="%{$S_JOINTS%}$J4$git_status_str%{$S_JOINTS%}$J5"
     git_status_str_len=$(( ${#J4} + $git_status_str_len + ${#J5} ))
     local jl4="%{$S_JOINTS_LINE%}${(pl:${#J4}::$L:)}"

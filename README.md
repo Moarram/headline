@@ -5,13 +5,13 @@ A responsive ZSH theme featuring Git status information and a colored line above
 ## Screenshots
 Screenshots of theme in [iTerm2](https://iterm2.com/index.html). Using [FiraCode Nerd Font](https://github.com/ryanoasis/nerd-fonts/tree/master/patched-fonts/FiraCode) for connected line and fancy icons.
 
-> ![light theme screenshot](https://raw.githubusercontent.com/moarram/headline-zsh-theme/assets/images/zsh_theme_light.png)
+> ![light theme screenshot](https://raw.githubusercontent.com/moarram/headline/assets/images/zsh_theme_light.png)
 > Status showing `+` for staged changes, `!` for unstaged changes, and `?` for untracked files (configurable).
 
-> ![brown theme screenshot](https://raw.githubusercontent.com/moarram/headline-zsh-theme/assets/images/zsh_theme_brown.png)
+> ![brown theme screenshot](https://raw.githubusercontent.com/moarram/headline/assets/images/zsh_theme_brown.png)
 > Optional icons, special font needed.
 
-> ![dark theme screenshot](https://raw.githubusercontent.com/moarram/headline-zsh-theme/assets/images/zsh_theme_dark.png)
+> ![dark theme screenshot](https://raw.githubusercontent.com/moarram/headline/assets/images/zsh_theme_dark.png)
 > Path truncated to fit in available space.
 
 
@@ -24,7 +24,7 @@ Screenshots of theme in [iTerm2](https://iterm2.com/index.html). Using [FiraCode
 ### Standard Install
 Clone the repository.
 ```
-git clone -b main https://github.com/moarram/headline-zsh-theme.git
+git clone https://github.com/moarram/headline.git
 ```
 
 In your `~/.zshrc`, source the `headline.zsh-theme` file in the repository.
@@ -32,10 +32,23 @@ In your `~/.zshrc`, source the `headline.zsh-theme` file in the repository.
 source your/path/to/headline.zsh-theme
 ```
 
-### [Antigen](https://github.com/zsh-users/antigen) Install
-Add the following line before `antigen apply` in your `~/.zshrc`.
+### [Oh-My-Zsh](https://github.com/ohmyzsh/ohmyzsh) Install
+Clone the repository into your themes directory.
 ```
-antigen bundle moarram/headline-zsh-theme@main
+git clone https://github.com/moarram/headline.git $ZSH_CUSTOM/themes/headline
+```
+
+Create a symlink to the theme (optional).
+```
+ln -s $ZSH_CUSTOM/themes/headline/headline.zsh-theme $ZSH_CUSTOM/themes/headline.zsh-theme
+```
+
+Set the theme in your `~/.zshrc` with `ZSH_THEME="headline"`, or with `ZSH_THEME="headline/headline"` if you didn't symlink.
+
+### [Antigen](https://github.com/zsh-users/antigen) Install
+Add the following line to your `~/.zshrc`.
+```
+antigen bundle moarram/headline@main
 ```
 
 ### Minimal Install
@@ -66,7 +79,7 @@ By default, the Git status info shows `+` for staged changes, `!` for unstaged c
 ### Prompt
 ```$```
 
-The prompt shows `$` normally and `#` for root. This can be customized by changing `PROMPT` (if you prefer `%` for example). 
+The prompt shows `$` normally and `#` for root. This can be customized by setting `PROMPT`. 
 
 
 ## Customization
