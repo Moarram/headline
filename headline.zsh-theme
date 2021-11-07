@@ -95,6 +95,9 @@ light_white_back=$'\e[107m'
 # I recommend setting these variables in your ~/.zshrc after sourcing this file
 # The style aliases (defined above) can be used there too.
 
+# Prompt character
+HEADLINE_PROMPT="%(#.#.%(!.!.$)) " # consider "%#"
+
 # Prompt config options
 HEADLINE_SEPARATOR_MODE='auto' # on|auto|off
 HEADLINE_DO_GIT_STATUS_NUMS='false' # true|false (whether to show number next to status)
@@ -175,19 +178,22 @@ prompt_len() {
   print $x
 }
 
-# Logic for line 1
-do_separator=1 # false, is set true after prompting
+# Variables
+HEADLINE_INFORMATION=''
+HEADLINE_DO_SEPARATOR='false'
 if [ $IS_SSH = 0 ]; then
-	do_separator=0 # assume it's not a fresh window
+  HEADLINE_DO_SEPARATOR='true' # assume it's not a fresh window
 fi
+
+# Before executing command
 add-zsh-hook preexec preexec_headline
 preexec_headline() {
   if [[ $2 == 'clear' ]]; then
-    do_separator=1
+    HEADLINE_DO_SEPARATOR='false'
   fi
 }
 
-# Prompt line 1 and 2
+# Before prompting
 add-zsh-hook precmd precmd_headline
 precmd_headline() {
   # Prepend each style with reset and default styles
@@ -216,7 +222,7 @@ precmd_headline() {
     git_branch_str="%{$S_GIT_BRANCH%}$HEADLINE_PRE_GIT_BRANCH$git_branch$HEADLINE_POST_GIT_BRANCH"
   fi
   local git_branch_str_len=$(prompt_len $git_branch_str)
-  local git_branch_line="%{$S_GIT_BRANCH_LINE%}${(l:(( $git_branch_str_len * 2 ))::$A:)}"
+  local git_branch_line="%{$S_GIT_BRANCH_LINE%}${(pl:$git_branch_str_len::$A:)}"
 
   # <status>
   local git_status=$(git_prompt_status)
@@ -275,18 +281,22 @@ precmd_headline() {
   fi
 
   # _____
-  if [[ $HEADLINE_SEPARATOR_MODE == 'on' || ($HEADLINE_SEPARATOR_MODE == 'auto' && $do_separator == 0 ) ]]; then
+  if [[ $HEADLINE_SEPARATOR_MODE == 'on' || ($HEADLINE_SEPARATOR_MODE == 'auto' && $HEADLINE_DO_SEPARATOR == 'true' ) ]]; then
     print -rP "$user_line$host_line$path_line$pad_line$git_line$reset"
   fi
-  do_separator=0
+  HEADLINE_DO_SEPARATOR='true'
 
   # <user> @ <host>: <path>|---padding---|<branch> [<status>]
-  print -rP "$user_str$host_str$path_str$pad$git_str$reset"
+  HEADLINE_INFORMATION="$user_str$host_str$path_str$pad$git_str$reset" # printed as part of PROMPT so it shows with Ctrl+L
 
   # Debug
   # print "COLS: $COLUMNS, user: $user_str_len, host: $host_str_len, path: $path_str_len, pad: $spaces, git: $git_str_len, total: $(( $user_str_len + $host_str_len + $path_str_len + $spaces + $git_str_len ))"
 }
 
-# Prompt line 3
-PROMPT="%(#.#.%(!.!.$)) " # double quote necessary
+# Prompt
+prompt_headline() {
+  print -rP $HEADLINE_INFORMATION
+  print -rP $HEADLINE_PROMPT
+}
+PROMPT='$(prompt_headline)'
 PROMPT_EOL_MARK=''

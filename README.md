@@ -45,7 +45,7 @@ All the Git status symbols can be customized. The defaults are below:
 | (none) | clean branch     |
 
 ### Prompt
-The prompt shows `$` normally and `#` for root. This can be changed to `%` and `#` by setting `PROMPT="%#"`.
+The prompt shows `$` normally and `#` for root. This can be changed to `%` and `#` by setting `HEADLINE_PROMPT="%#"`.
 
 <br/>
 
