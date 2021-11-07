@@ -1,8 +1,6 @@
 # Headline ZSH Theme
 <img src="https://raw.githubusercontent.com/moarram/headline/assets/images/slice.png" width="600"/>
 
-A responsive ZSH theme featuring Git status information and a colored line above the prompt.
-
 <br/>
 
 
@@ -24,7 +22,7 @@ A responsive ZSH theme featuring Git status information and a colored line above
 ### Separator Line
 `_____________________________________________`
 
-A line above the prompt info text with matching colors. It can be disabled if you want by setting `DO_LINE=no`
+A line above the prompt info text with matching colors. It can be disabled by setting `HEADLINE_SEPARATOR_MODE=off`.
 
 ### Information Line
 `<user> @ <host>: <path> | <branch> [<status>]`
@@ -103,7 +101,7 @@ Create a symlink to the theme (optional).
 ln -s $ZSH_CUSTOM/themes/headline/headline.zsh-theme $ZSH_CUSTOM/themes/headline.zsh-theme
 ```
 
-Set the theme in your `~/.zshrc` with `ZSH_THEME="headline"`, or with `ZSH_THEME="headline/headline"` if you didn't symlink.
+Set the theme in your `~/.zshrc` with `ZSH_THEME="headline"` (or with `ZSH_THEME="headline/headline"` if you didn't symlink).
 
 ### [Antigen](https://github.com/zsh-users/antigen) Install
 Add the following line to your `~/.zshrc`.
