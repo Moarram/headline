@@ -9,7 +9,6 @@
 * [Screenshots](#screenshots)
 * [Installation](#installation)
 	* [Standard Install](#standard-install)
-	* [Minimal Install](#minimal-install)
 	* [Oh-My-Zsh](#oh-my-zsh-install)
 	* [Antigen](#antigen-install)
 	* [Other Installs](#other-installs)
@@ -30,7 +29,7 @@ A line above the prompt info text with matching colors. It can be disabled by se
 This line is responsive, meaning it won't overflow when it gets too long. Each part of the information line can be individually styled using [ANSI SGR codes](https://en.wikipedia.org/wiki/ANSI_escape_code#SGR_(Select_Graphic_Rendition)_parameters) (which are conveniently aliased in the theme file).
 
 ### Git Status
-`[+!?↓↑✘]`
+`[+!?↓↑↕*✘]`
 
 All the Git status symbols can be customized. The defaults are below:
 
@@ -41,6 +40,8 @@ All the Git status symbols can be customized. The defaults are below:
 | `?`    | untracked files  |
 | `↓`    | commits behind   |
 | `↑`    | commits ahead    |
+| `↕`    | commits diverged |
+| `*`    | stashed files    |
 | `✘`    | conflicts        |
 | (none) | clean branch     |
 
@@ -69,10 +70,7 @@ Screenshots of theme in [iTerm2](https://iterm2.com/index.html). Using [FiraCode
 
 
 ## Installation
-### Dependencies
-* [ZSH](https://zsh.sourceforge.io/) – required
-* [Git](https://git-scm.com/) – for installation (optional)
-* [Python 3](https://www.python.org/) – for [Git status](https://github.com/olivierverdier/zsh-git-prompt) retrieval (optional)
+Download the `headline.zsh-theme` file and source it in your `~/.zshrc`.
 
 ### Standard Install
 Clone the repository.
@@ -84,11 +82,6 @@ In your `~/.zshrc`, source the `headline.zsh-theme` file in the repository.
 ```
 source your/path/to/headline.zsh-theme
 ```
-
-### Minimal Install
-*No Python, only shows branch for Git*
-
-Download the `headline.zsh-theme` file alone and source it in your `~/.zshrc`. The prompt won't show all the Git information, only the branch, but it's faster and contained in a single file.
 
 ### [Oh-My-Zsh](https://github.com/ohmyzsh/ohmyzsh) Install
 Clone the repository into your themes directory.

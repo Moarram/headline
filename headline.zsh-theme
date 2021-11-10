@@ -1,27 +1,8 @@
 #!/bin/zsh
 # To install, source this file from your .zshrc file
-# Customization variables begin around line 90
-
-# ____________________________________________________________________
-# <user> @ <host>: <path>                          <branch> [<status>]
-# $ git clone https://github.com/moarram/headline
+# Customization variables begin around line ??
 
 
-
-# Git branch and status functions
-HEADLINE_RELATIVE=${${(%):-%x}:A:h} # REF: https://stackoverflow.com/questions/9901210/bash-source0-equivalent-in-zsh
-HEADLINE_GIT_STATUS_FILEPATH="$HEADLINE_RELATIVE/deps/zsh-git-status.sh" # required for <status>
-if [[ -e $HEADLINE_GIT_STATUS_FILEPATH ]]; then
-  source $HEADLINE_GIT_STATUS_FILEPATH
-else # branch only, no status (this prompt is faster)
-  autoload -Uz vcs_info
-  zstyle ':vcs_info:git:*' formats '%b'
-  git_prompt_branch() {
-    vcs_info
-    echo $vcs_info_msg_0_
-  }
-  git_prompt_status() { echo '' }
-fi
 
 # Constants for zsh
 setopt PROMPT_SP # always start prompt on new line
@@ -33,6 +14,9 @@ autoload -U add-zsh-hook
 IS_SSH=$?
 
 
+
+# Character aliases
+newline=$'\n'
 
 # Formatting aliases
 # (add more if you need)
@@ -95,16 +79,15 @@ light_white_back=$'\e[107m'
 # I recommend setting these variables in your ~/.zshrc after sourcing this file
 # The style aliases (defined above) can be used there too.
 
+# Prompt options
+HEADLINE_SEPARATOR_MODE='auto' # on|auto|off (whether to print the separator)
+
 # Prompt character
 HEADLINE_PROMPT="%(#.#.%(!.!.$)) " # consider "%#"
 
-# Prompt config options
-HEADLINE_SEPARATOR_MODE='auto' # on|auto|off
-HEADLINE_DO_GIT_STATUS_NUMS='false' # true|false (whether to show number next to status)
-
 # Repeated characters (no styles here)
 HEADLINE_SEPARATOR_CHAR_ACCENT='_' # line above info parts (user, host, path, etc)
-HEADLINE_SEPARATOR_CHAR_FILL='_' # line above joints and spaces
+HEADLINE_SEPARATOR_CHAR_FILL='_' # line above joints and spaces, consider " "
 
 # Decoration strings (no styles here)
 HEADLINE_JOINT_USER_BEGIN=''
@@ -147,21 +130,159 @@ HEADLINE_STYLE_GIT_BRANCH_LINE=$HEADLINE_STYLE_GIT_BRANCH
 HEADLINE_STYLE_GIT_STATUS=$bold$magenta
 HEADLINE_STYLE_GIT_STATUS_LINE=$HEADLINE_STYLE_GIT_STATUS
 
-# Git status characters
-HEADLINE_PRE_GIT_STAGED='+'
-HEADLINE_PRE_GIT_CONFLICTS='✘'
-HEADLINE_PRE_GIT_CHANGED='!'
-HEADLINE_PRE_GIT_UNTRACKED='?'
-HEADLINE_PRE_GIT_BEHIND='↓'
-HEADLINE_PRE_GIT_AHEAD='↑'
-HEADLINE_PRE_GIT_CLEAN='' # consider "✔"
+# Git branch characters
+HEADLINE_GIT_HASH=':' # prefix
+
+# Git status styles and characters
+# To set individual status styles use "%{<style>%}<char>"
+HEADLINE_GIT_STAGED='+' # added or renamed
+HEADLINE_GIT_CHANGED='!' # modified or deleted
+HEADLINE_GIT_UNTRACKED='?'
+HEADLINE_GIT_BEHIND='↓'
+HEADLINE_GIT_AHEAD='↑'
+HEADLINE_GIT_DIVERGED='↕'
+HEADLINE_GIT_STASHED='*'
+HEADLINE_GIT_CONFLICTS='✘'
+HEADLINE_GIT_CLEAN='' # consider "✓" or "✔"
 
 # ------------------------------------------------------------------------------
 
 
 
+# Git command wrapper
+# adapted from Oh-My-Zsh under MIT License
+headline_git() {
+  GIT_OPTIONAL_LOCKS=0 command git "$@"
+}
+
+# Git branch (or hash)
+# adapted from Oh-My-Zsh under MIT License
+headline_git_branch() {
+  local ref
+  ref=$(headline_git symbolic-ref --quiet HEAD 2> /dev/null)
+  local ret=$?
+  if [[ $ret == 0 ]]; then
+		echo ${ref#refs/heads/} # remove "refs/heads/" to get branch
+  else # not on a branch
+		[[ $ret == 128 ]] && return  # not a git repo
+    ref=$(headline_git rev-parse --short HEAD 2> /dev/null) || return
+		echo "$HEADLINE_GIT_HASH$ref" # hash prefixed to distingush from branch
+	fi
+}
+
+# Git status
+# adapted from Oh-My-Zsh under MIT License
+headline_git_status() {
+  # Maps a git status prefix to an internal constant
+  # This cannot use the prompt constants, as they may be empty
+  local -A prefix_constant_map
+  prefix_constant_map=(
+    '\?\? '     'UNTRACKED'
+    'A  '       'STAGED' # added
+    'M  '       'STAGED' # added
+    'MM '       'CHANGED' # modified
+    ' M '       'CHANGED' # modified
+    'AM '       'CHANGED' # modified
+    ' T '       'CHANGED' # modified
+    'R  '       'STAGED' # renamed
+    ' D '       'CHANGED' # deleted
+    'D  '       'STAGED' # deleted
+    'UU '       'CONFLICT' # unmerged
+    'ahead'     'AHEAD'
+    'behind'    'BEHIND'
+    'diverged'  'DIVERGED'
+    'stashed'   'STASHED'
+  )
+
+  # Maps the internal constant to the prompt theme
+  local -A constant_prompt_map
+  constant_prompt_map=(
+    'UNTRACKED' "$HEADLINE_GIT_UNTRACKED"
+    'STAGED'    "$HEADLINE_GIT_STAGED"
+    'CHANGED'   "$HEADLINE_GIT_CHANGED"
+    'CONFLICT'  "$HEADLINE_GIT_CONFLICT"
+    'AHEAD'     "$HEADLINE_GIT_AHEAD"
+    'BEHIND'    "$HEADLINE_GIT_BEHIND"
+    'DIVERGED'  "$HEADLINE_GIT_DIVERGED"
+    'STASHED'   "$HEADLINE_GIT_STASHED"
+  )
+
+  # The order that the prompt displays should be added to the prompt
+  local status_constants
+  status_constants=(STAGED CHANGED UNTRACKED BEHIND AHEAD DIVERGED STASHED CONFLICT)
+
+  # Retrieve status (note the --porcelain flag)
+  local status_text
+  status_text="$(headline_git status --porcelain -b 2> /dev/null)"
+  if [[ $? == 128 ]]; then
+    return 1 # catastrophic failure, abort
+  fi
+
+  # A lookup table of each git status encountered
+  local -A statuses_seen
+
+  # Check for stashes
+  if $(headline_git rev-parse --verify refs/stash &> /dev/null); then
+    statuses_seen[STASHED]=$(headline_git rev-list --walk-reflogs --count refs/stash)
+  fi
+
+  local status_lines
+  status_lines=("${(@f)${status_text}}")
+
+  # If the tracking line exists, get and parse it
+  if [[ "$status_lines[1]" =~ "^## [^ ]+ \[(.*)\]" ]]; then
+    local branch_statuses
+    branch_statuses=("${(@s/,/)match}")
+    for branch_status in $branch_statuses; do
+      if [[ ! $branch_status =~ "(behind|diverged|ahead) ([0-9]+)?" ]]; then
+        continue
+      fi
+      local last_parsed_status=$prefix_constant_map[$match[1]]
+      statuses_seen[$last_parsed_status]=$match[2]
+    done
+  fi
+
+  # For each status prefix, do a regex comparison
+  for status_prefix in ${(k)prefix_constant_map}; do
+    local status_constant="${prefix_constant_map[$status_prefix]}"
+    local status_regex=$'(^|\n)'"$status_prefix"
+    if [[ "$status_text" =~ $status_regex ]]; then
+      statuses_seen[$status_constant]=1 # TODO number of occurences
+    fi
+  done
+
+  # Display the seen statuses in the order specified
+  local status_prompt
+  for status_constant in $status_constants; do
+    if (( ${+statuses_seen[$status_constant]} )); then
+      local symbol=$constant_prompt_map[$status_constant]
+      status_prompt="$status_prompt$symbol"
+      # local value=$statuses_seen[$status_constant]
+      # status_prompt="$status_prompt$value$symbol"
+    fi
+  done
+
+  # Return
+  if (( ${#status_prompt} )); then
+    echo $status_prompt
+  else
+    echo $HEADLINE_GIT_CLEAN
+  fi
+}
+
+# # Git branch only, using vcs_info
+# autoload -Uz vcs_info
+# zstyle ':vcs_info:git:*' formats '%b'
+# headline_git_branch() {
+#   vcs_info
+#   echo $vcs_info_msg_0_
+# }
+# headline_git_status() { echo '' }
+
+
+
 # Calculate length of string, excluding formatting characters
-prompt_len() {
+headline_prompt_len() {
   emulate -L zsh
   local -i COLUMNS=${2:-COLUMNS}
   local -i x y=${#1} m
@@ -178,24 +299,24 @@ prompt_len() {
   print $x
 }
 
-# Variables
-HEADLINE_INFORMATION=''
-HEADLINE_DO_SEPARATOR='false'
+# Local variables
+headline_info='' # information line ouptut
+headline_do_sep='false' # whether to show separator this time
 if [ $IS_SSH = 0 ]; then
-  HEADLINE_DO_SEPARATOR='true' # assume it's not a fresh window
+  headline_do_sep='true' # assume it's not a fresh window
 fi
 
 # Before executing command
-add-zsh-hook preexec preexec_headline
-preexec_headline() {
+add-zsh-hook preexec headline_preexec
+headline_preexec() {
   if [[ $2 == 'clear' ]]; then
-    HEADLINE_DO_SEPARATOR='false'
+    headline_do_sep='false'
   fi
 }
 
 # Before prompting
-add-zsh-hook precmd precmd_headline
-precmd_headline() {
+add-zsh-hook precmd headline_precmd
+headline_precmd() { # updates $headline_info and $headline_do_sep
   # Prepend each style with reset and default styles
   local S_LINE=$reset$HEADLINE_STYLE_LINE
   for part in USER HOST PATH GIT_BRANCH GIT_STATUS JOINTS; do
@@ -216,18 +337,18 @@ precmd_headline() {
   local J5=$HEADLINE_JOINT_STATUS_END
 
   # <branch>
-  local git_branch=$(git_prompt_branch)
+  local git_branch=$(headline_git_branch)
   local git_branch_str=''
   if ! [[ -z $git_branch ]]; then
     git_branch_str="%{$S_GIT_BRANCH%}$HEADLINE_PRE_GIT_BRANCH$git_branch$HEADLINE_POST_GIT_BRANCH"
   fi
-  local git_branch_str_len=$(prompt_len $git_branch_str)
+  local git_branch_str_len=$(headline_prompt_len $git_branch_str)
   local git_branch_line="%{$S_GIT_BRANCH_LINE%}${(pl:$git_branch_str_len::$A:)}"
 
   # <status>
-  local git_status=$(git_prompt_status)
+  local git_status=$(headline_git_status)
   local git_status_str="%{$S_GIT_STATUS%}$HEADLINE_PRE_GIT_STATUS$git_status$HEADLINE_POST_GIT_STATUS"
-  local git_status_str_len=$(prompt_len $git_status_str)
+  local git_status_str_len=$(headline_prompt_len $git_status_str)
   local git_status_line="%{$S_GIT_STATUS_LINE%}${(pl:$git_status_str_len::$A:)}"
 
   # [<status>]
@@ -254,21 +375,21 @@ precmd_headline() {
 
   # <user> @
   local user_str="%{$S_JOINTS%}$J0%{$S_USER%}$HEADLINE_PRE_USER$user_name$HEADLINE_POST_USER%{$S_JOINTS%}$J1"
-  local user_str_len=$(prompt_len $user_str)
+  local user_str_len=$(headline_prompt_len $user_str)
   local jl0="%{$S_JOINTS_LINE%}${(pl:${#J0}::$L:)}"
   local jl1="%{$S_JOINTS_LINE%}${(pl:${#J1}::$L:)}"
   local user_line="$jl0%{$S_USER_LINE%}${(pl:(( $user_str_len - ${#J0} - ${#J1} ))::$A:)}$jl1"
 
   # <host>:
   local host_str="%{$S_HOST%}$HEADLINE_PRE_HOST$host_name$HEADLINE_POST_HOST%{$S_JOINTS%}$J2"
-  local host_str_len=$(prompt_len $host_str)
+  local host_str_len=$(headline_prompt_len $host_str)
   local jl2="%{$S_JOINTS_LINE%}${(pl:${#J2}::$L:)}"
   local host_line="%{$S_HOST_LINE%}${(pl:(( $host_str_len - ${#J2} ))::$A:)}$jl2"
 
   # <path>
   local remainder_len=$(( $COLUMNS - $user_str_len - $host_str_len - ${#HEADLINE_PRE_PATH} - ${#HEADLINE_POST_PATH} - ($git_str_len ? ($git_str_len + ${#J3}) : 0) ))
   local path_str="%{$S_PATH%}$HEADLINE_PRE_PATH%$remainder_len<...<%~%<<$HEADLINE_POST_PATH"
-  local path_str_len=$(prompt_len $path_str)
+  local path_str_len=$(headline_prompt_len $path_str)
   local path_line="%{$S_PATH_LINE%}${(pl:$path_str_len::$A:)}"
 
   # Padding
@@ -281,22 +402,22 @@ precmd_headline() {
   fi
 
   # _____
-  if [[ $HEADLINE_SEPARATOR_MODE == 'on' || ($HEADLINE_SEPARATOR_MODE == 'auto' && $HEADLINE_DO_SEPARATOR == 'true' ) ]]; then
+  if [[ $HEADLINE_SEPARATOR_MODE == 'on' || ($HEADLINE_SEPARATOR_MODE == 'auto' && $headline_do_sep == 'true' ) ]]; then
     print -rP "$user_line$host_line$path_line$pad_line$git_line$reset"
   fi
-  HEADLINE_DO_SEPARATOR='true'
+  headline_do_sep='true'
 
   # <user> @ <host>: <path>|---padding---|<branch> [<status>]
-  HEADLINE_INFORMATION="$user_str$host_str$path_str$pad$git_str$reset" # printed as part of PROMPT so it shows with Ctrl+L
+  headline_info="$user_str$host_str$path_str$pad$git_str$reset" # printed as part of PROMPT so it shows with Ctrl+L
 
   # Debug
   # print "COLS: $COLUMNS, user: $user_str_len, host: $host_str_len, path: $path_str_len, pad: $spaces, git: $git_str_len, total: $(( $user_str_len + $host_str_len + $path_str_len + $spaces + $git_str_len ))"
 }
 
 # Prompt
-prompt_headline() {
-  print -rP $HEADLINE_INFORMATION
+headline_output() {
+  print -rP $headline_info
   print -rP $HEADLINE_PROMPT
 }
-PROMPT='$(prompt_headline)'
+PROMPT='$(headline_output)'
 PROMPT_EOL_MARK=''
