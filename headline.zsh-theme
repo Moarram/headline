@@ -1,17 +1,10 @@
 #!/bin/zsh
+
+# Headline ZSH Prompt
+# Copyright (c) 2021 Moarram under the MIT License
+
 # To install, source this file from your .zshrc file
-# Customization variables begin around line ??
-
-
-
-# Constants for zsh
-setopt PROMPT_SP # always start prompt on new line
-setopt PROMPT_SUBST # substitutions
-autoload -U add-zsh-hook
-
-# Flags
-! [ -z "$SSH_TTY$SSH_CONNECTION$SSH_CLIENT" ]
-IS_SSH=$?
+# Customization variables begin around line 80
 
 
 
@@ -74,61 +67,67 @@ light_white_back=$'\e[107m'
 
 
 
+# Flags
+! [ -z "$SSH_TTY$SSH_CONNECTION$SSH_CLIENT" ]
+IS_SSH=$?
+
+
+
 # ------------------------------------------------------------------------------
 # Customization
 # I recommend setting these variables in your ~/.zshrc after sourcing this file
-# The style aliases (defined above) can be used there too.
+# The style aliases for ANSI SGR codes (defined above) can be used there too
 
 # Prompt options
-HEADLINE_SEPARATOR_MODE='auto' # on|auto|off (whether to print the separator)
+HEADLINE_LINE_MODE='auto' # on|auto|off (whether to print the line above the prompt)
+HEADLINE_INFO_MODE='precmd' # precmd|prompt (whether info line is in $PROMPT or printed by precmd)
+  # use "precmd" for window resize to work properly (Ctrl+L doesn't show info line)
+  # use "prompt" for Ctrl+L to clear properly (window resize eats previous output)
 
 # Prompt character
 HEADLINE_PROMPT="%(#.#.%(!.!.$)) " # consider "%#"
 
 # Repeated characters (no styles here)
-HEADLINE_SEPARATOR_CHAR_ACCENT='_' # line above info parts (user, host, path, etc)
-HEADLINE_SEPARATOR_CHAR_FILL='_' # line above joints and spaces, consider " "
+HEADLINE_LINE_CHAR='_' # line above information
+HEADLINE_PAD_CHAR=' ' # space between <path> and <branch>
 
-# Decoration strings (no styles here)
-HEADLINE_JOINT_USER_BEGIN=''
-HEADLINE_PRE_USER='' # consider " "
-HEADLINE_POST_USER=''
-HEADLINE_JOINT_USER_TO_HOST=' @ '
-HEADLINE_PRE_HOST='' # consider " "
-HEADLINE_POST_HOST=''
-HEADLINE_JOINT_HOST_TO_PATH=': '
-HEADLINE_PRE_PATH='' # consider " "
-HEADLINE_POST_PATH=''
-HEADLINE_JOINT_PATH_TO_BRANCH=' | ' # used when no padding between <path> and <branch>
-HEADLINE_JOINT_PATH_TO_PAD='' # used if padding between <path> and <branch>
-HEADLINE_JOINT_PAD_TO_BRANCH='' # used if padding between <path> and <branch>
-HEADLINE_PRE_GIT_BRANCH='' # consider " "
-HEADLINE_POST_GIT_BRANCH=''
-HEADLINE_JOINT_BRANCH_TO_STATUS=' ['
-HEADLINE_PRE_GIT_STATUS=''
-HEADLINE_POST_GIT_STATUS=''
-HEADLINE_JOINT_STATUS_END=']'
+# Prefixes (optional)
+HEADLINE_USER_PREFIX='' # consider " "
+HEADLINE_HOST_PREFIX='' # consider " "
+HEADLINE_PATH_PREFIX='' # consider " "
+HEADLINE_BRANCH_PREFIX='' # consider " "
+
+# Joints
+HEADLINE_USER_BEGIN=''
+HEADLINE_USER_TO_HOST=' @ '
+HEADLINE_HOST_TO_PATH=': '
+HEADLINE_PATH_TO_BRANCH=' | ' # only used when no padding between <path> and <branch>
+HEADLINE_PATH_TO_PAD='' # used if padding between <path> and <branch>
+HEADLINE_PAD_TO_BRANCH='' # used if padding between <path> and <branch>
+HEADLINE_BRANCH_TO_STATUS=' ['
+HEADLINE_STATUS_END=']'
 
 # Styles (ANSI SGR codes)
 HEADLINE_STYLE_DEFAULT='' # style applied to entire info line
 HEADLINE_STYLE_LINE=$light_black
-HEADLINE_STYLE_JOINTS=$light_black
-HEADLINE_STYLE_JOINTS_LINE=$light_black
+HEADLINE_STYLE_JOINT=$light_black
 if [ $IS_SSH = 0 ]; then
   HEADLINE_STYLE_USER=$bold$magenta
-  HEADLINE_STYLE_USER_LINE=$HEADLINE_STYLE_USER
 else
   HEADLINE_STYLE_USER=$bold$red
-  HEADLINE_STYLE_USER_LINE=$HEADLINE_STYLE_USER
 fi
 HEADLINE_STYLE_HOST=$bold$yellow
-HEADLINE_STYLE_HOST_LINE=$HEADLINE_STYLE_HOST
 HEADLINE_STYLE_PATH=$bold$blue
+HEADLINE_STYLE_BRANCH=$bold$cyan
+HEADLINE_STYLE_STATUS=$bold$magenta
+
+# Line styles
+HEADLINE_STYLE_JOINT_LINE=$HEADLINE_STYLE_JOINT
+HEADLINE_STYLE_USER_LINE=$HEADLINE_STYLE_USER
+HEADLINE_STYLE_HOST_LINE=$HEADLINE_STYLE_HOST
 HEADLINE_STYLE_PATH_LINE=$HEADLINE_STYLE_PATH
-HEADLINE_STYLE_GIT_BRANCH=$bold$cyan
-HEADLINE_STYLE_GIT_BRANCH_LINE=$HEADLINE_STYLE_GIT_BRANCH
-HEADLINE_STYLE_GIT_STATUS=$bold$magenta
-HEADLINE_STYLE_GIT_STATUS_LINE=$HEADLINE_STYLE_GIT_STATUS
+HEADLINE_STYLE_BRANCH_LINE=$HEADLINE_STYLE_BRANCH
+HEADLINE_STYLE_STATUS_LINE=$HEADLINE_STYLE_STATUS
 
 # Git branch characters
 HEADLINE_GIT_HASH=':' # prefix
@@ -146,6 +145,40 @@ HEADLINE_GIT_CONFLICTS='✘'
 HEADLINE_GIT_CLEAN='' # consider "✓" or "✔"
 
 # ------------------------------------------------------------------------------
+
+
+
+# Constants for zsh
+setopt PROMPT_SP # always start prompt on new line
+setopt PROMPT_SUBST # substitutions
+autoload -U add-zsh-hook
+
+# Local variables
+_HEADLINE_LINE_OUTPUT='' # separator line
+_HEADLINE_INFO_OUTPUT='' # text line
+_HEADLINE_DO_SEP='false' # whether to show divider this time
+if [ $IS_SSH = 0 ]; then
+  _HEADLINE_DO_SEP='true' # assume it's not a fresh window
+fi
+
+# Calculate length of string, excluding formatting characters
+# REF: https://old.reddit.com/r/zsh/comments/cgbm24/multiline_prompt_the_missing_ingredient/
+headline_prompt_len() {
+  emulate -L zsh
+  local -i COLUMNS=${2:-COLUMNS}
+  local -i x y=${#1} m
+  if (( y )); then
+    while (( ${${(%):-$1%$y(l.1.0)}[-1]} )); do
+    x=y
+    (( y *= 2 ))
+    done
+    while (( y > x + 1 )); do
+    (( m = x + (y - x) / 2 ))
+    (( ${${(%):-$1%$m(l.x.y)}[-1]} = m ))
+    done
+  fi
+  print $x
+}
 
 
 
@@ -281,143 +314,105 @@ headline_git_status() {
 
 
 
-# Calculate length of string, excluding formatting characters
-headline_prompt_len() {
-  emulate -L zsh
-  local -i COLUMNS=${2:-COLUMNS}
-  local -i x y=${#1} m
-  if (( y )); then
-    while (( ${${(%):-$1%$y(l.1.0)}[-1]} )); do
-    x=y
-    (( y *= 2 ))
-    done
-    while (( y > x + 1 )); do
-    (( m = x + (y - x) / 2 ))
-    (( ${${(%):-$1%$m(l.x.y)}[-1]} = m ))
-    done
-  fi
-  print $x
-}
-
-# Local variables
-headline_info='' # information line ouptut
-headline_do_sep='false' # whether to show separator this time
-if [ $IS_SSH = 0 ]; then
-  headline_do_sep='true' # assume it's not a fresh window
-fi
-
 # Before executing command
 add-zsh-hook preexec headline_preexec
 headline_preexec() {
   if [[ $2 == 'clear' ]]; then
-    headline_do_sep='false'
+    _HEADLINE_DO_SEP='false'
   fi
 }
 
 # Before prompting
 add-zsh-hook precmd headline_precmd
-headline_precmd() { # updates $headline_info and $headline_do_sep
-  # Prepend each style with reset and default styles
-  local S_LINE=$reset$HEADLINE_STYLE_LINE
-  for part in USER HOST PATH GIT_BRANCH GIT_STATUS JOINTS; do
-    eval local S_${part}="\$reset\$HEADLINE_STYLE_DEFAULT\$HEADLINE_STYLE_${part}"
-    eval local S_${part}_LINE="\$reset\$HEADLINE_STYLE_${part}_LINE"
-  done
+headline_precmd() {
+  # Information
+  local user_str=$USER
+  local host_str=$(hostname -s)
+  local path_str=$(print -rP '%~')
+  local branch_str=$(headline_git_branch)
+  local status_str=$(headline_git_status)
 
-  # Aliases
-  local A=$HEADLINE_SEPARATOR_CHAR_ACCENT
-  local L=$HEADLINE_SEPARATOR_CHAR_FILL
-  local J0=$HEADLINE_JOINT_USER_BEGIN
-  local J1=$HEADLINE_JOINT_USER_TO_HOST
-  local J2=$HEADLINE_JOINT_HOST_TO_PATH
-  local J3=$HEADLINE_JOINT_PATH_TO_BRANCH
-  local J3a=$HEADLINE_JOINT_PATH_TO_PAD
-  local J3b=$HEADLINE_JOINT_PAD_TO_BRANCH
-  local J4=$HEADLINE_JOINT_BRANCH_TO_STATUS
-  local J5=$HEADLINE_JOINT_STATUS_END
+  # Shared variables
+  _HEADLINE_INFO=''
+  _HEADLINE_LINE=''
+  _HEADLINE_LEN=0
+  _HEADLINE_LEN_SUM=0
+  _HEADLINE_INFO_LEFT=''
+  _HEADLINE_LINE_LEFT=''
+  _HEADLINE_INFO_RIGHT=''
+  _HEADLINE_LINE_RIGHT=''
 
-  # <branch>
-  local git_branch=$(headline_git_branch)
-  local git_branch_str=''
-  if ! [[ -z $git_branch ]]; then
-    git_branch_str="%{$S_GIT_BRANCH%}$HEADLINE_PRE_GIT_BRANCH$git_branch$HEADLINE_POST_GIT_BRANCH"
+  # Prompt construction
+  local git_str_len remain
+  if (( ${#status_str} > 0 )); then
+    _headline_part JOINT "$HEADLINE_STATUS_END" right
+    _headline_part STATUS "$HEADLINE_STATUS_PREFIX$status_str" right
+    _headline_part JOINT "$HEADLINE_BRANCH_TO_STATUS" right
   fi
-  local git_branch_str_len=$(headline_prompt_len $git_branch_str)
-  local git_branch_line="%{$S_GIT_BRANCH_LINE%}${(pl:$git_branch_str_len::$A:)}"
-
-  # <status>
-  local git_status=$(headline_git_status)
-  local git_status_str="%{$S_GIT_STATUS%}$HEADLINE_PRE_GIT_STATUS$git_status$HEADLINE_POST_GIT_STATUS"
-  local git_status_str_len=$(headline_prompt_len $git_status_str)
-  local git_status_line="%{$S_GIT_STATUS_LINE%}${(pl:$git_status_str_len::$A:)}"
-
-  # [<status>]
-  if [ ${#git_status} -gt 0 ]; then
-    git_status_str="%{$S_JOINTS%}$J4$git_status_str%{$S_JOINTS%}$J5"
-    git_status_str_len=$(( ${#J4} + $git_status_str_len + ${#J5} ))
-    local jl4="%{$S_JOINTS_LINE%}${(pl:${#J4}::$L:)}"
-    local jl5="%{$S_JOINTS_LINE%}${(pl:${#J5}::$L:)}"
-    git_status_line="$jl4$git_status_line$jl5"
+  if (( ${#branch_str} > 0 )); then
+    _headline_part BRANCH "$HEADLINE_BRANCH_PREFIX$branch_str" right
   fi
-
-  # <branch> [<status>]
-  local git_str_len=$(( $git_branch_str_len + $git_status_str_len ))
-  local git_str="$git_branch_str$git_status_str"
-  local git_line="$git_branch_line$git_status_line"
-
-  # User & Host
-  local user_name=$USER
-  local host_name=$(hostname -s)
-  if (( ${#user_name} + ${#host_name} + $git_str_len > $COLUMNS / 2 || $COLUMNS < 40 )); then
-    user_name="${user_name:0:1}"
-    host_name="${host_name:0:1}"
+  git_str_len=$_HEADLINE_LEN_SUM
+  if (( $git_str_len + ${#user_str} + ${#host_str} > $COLUMNS / 2 || $COLUMNS < 40 )); then
+    user_str="${user_str:0:1}"
+    host_str="${host_str:0:1}"
+  fi
+  _headline_part JOINT "$HEADLINE_USER_BEGIN" left
+  _headline_part USER "$HEADLINE_USER_PREFIX$user_str" left
+  _headline_part JOINT "$HEADLINE_USER_TO_HOST" left
+  _headline_part HOST "$HEADLINE_HOST_PREFIX$host_str" left
+  _headline_part JOINT "$HEADLINE_HOST_TO_PATH" left
+  remain=$(( $COLUMNS - $_HEADLINE_LEN_SUM - ( $git_str_len ? ${#HEADLINE_PATH_TO_BRANCH} : 0 ) ))
+  _headline_part PATH "$HEADLINE_PATH_PREFIX%$remain<...<$path_str%<<" left
+  remain=$(( $COLUMNS - $_HEADLINE_LEN_SUM - ${#HEADLINE_PATH_TO_PAD} - ${#HEADLINE_PAD_TO_BRANCH} ))
+  if (( $git_str_len && $COLUMNS - $_HEADLINE_LEN_SUM <= ${#HEADLINE_PATH_TO_BRANCH} )); then
+    _headline_part JOINT "$HEADLINE_PATH_TO_BRANCH" left
+  else
+    _headline_part JOINT "$HEADLINE_PATH_TO_PAD" left
+    _headline_part JOINT "${(pl:$remain::$HEADLINE_PAD_CHAR:)}" left
+    _headline_part JOINT "$HEADLINE_PAD_TO_BRANCH" left
   fi
 
-  # <user> @
-  local user_str="%{$S_JOINTS%}$J0%{$S_USER%}$HEADLINE_PRE_USER$user_name$HEADLINE_POST_USER%{$S_JOINTS%}$J1"
-  local user_str_len=$(headline_prompt_len $user_str)
-  local jl0="%{$S_JOINTS_LINE%}${(pl:${#J0}::$L:)}"
-  local jl1="%{$S_JOINTS_LINE%}${(pl:${#J1}::$L:)}"
-  local user_line="$jl0%{$S_USER_LINE%}${(pl:(( $user_str_len - ${#J0} - ${#J1} ))::$A:)}$jl1"
-
-  # <host>:
-  local host_str="%{$S_HOST%}$HEADLINE_PRE_HOST$host_name$HEADLINE_POST_HOST%{$S_JOINTS%}$J2"
-  local host_str_len=$(headline_prompt_len $host_str)
-  local jl2="%{$S_JOINTS_LINE%}${(pl:${#J2}::$L:)}"
-  local host_line="%{$S_HOST_LINE%}${(pl:(( $host_str_len - ${#J2} ))::$A:)}$jl2"
-
-  # <path>
-  local remainder_len=$(( $COLUMNS - $user_str_len - $host_str_len - ${#HEADLINE_PRE_PATH} - ${#HEADLINE_POST_PATH} - ($git_str_len ? ($git_str_len + ${#J3}) : 0) ))
-  local path_str="%{$S_PATH%}$HEADLINE_PRE_PATH%$remainder_len<...<%~%<<$HEADLINE_POST_PATH"
-  local path_str_len=$(headline_prompt_len $path_str)
-  local path_line="%{$S_PATH_LINE%}${(pl:$path_str_len::$A:)}"
-
-  # Padding
-  local spaces=$(( $COLUMNS - $user_str_len - $host_str_len - $path_str_len - $git_str_len ))
-  local pad="%{$S_JOINTS%}$J3a${(l:(( $spaces - ${#J3a} - ${#J3b} )):: :)}$J3b"
-  local pad_line="%{$S_LINE%}${(pl:$spaces::$L:)}"
-  if (( $git_str_len > 0 )) && (( $spaces <= ${#J3} )); then
-    pad="%{$S_JOINTS%}$J3"
-    pad_line="%{$S_JOINTS_LINE%}${(pl:${#J3}::$L:)}"
+  # Separator line
+  _HEADLINE_LINE_OUTPUT="$_HEADLINE_LINE_LEFT$_HEADLINE_LINE_RIGHT$reset"
+  if [[ $HEADLINE_LINE_MODE == 'on' || ($HEADLINE_LINE_MODE == 'auto' && $_HEADLINE_DO_SEP == 'true' ) ]]; then
+    print -rP $_HEADLINE_LINE_OUTPUT
   fi
+  _HEADLINE_DO_SEP='true'
 
-  # _____
-  if [[ $HEADLINE_SEPARATOR_MODE == 'on' || ($HEADLINE_SEPARATOR_MODE == 'auto' && $headline_do_sep == 'true' ) ]]; then
-    print -rP "$user_line$host_line$path_line$pad_line$git_line$reset"
+  # Information line
+  _HEADLINE_INFO_OUTPUT="$_HEADLINE_INFO_LEFT$_HEADLINE_INFO_RIGHT$reset"
+  if [[ $HEADLINE_INFO_MODE == 'precmd' ]]; then
+    print -rP $_HEADLINE_INFO_OUTPUT
   fi
-  headline_do_sep='true'
+}
 
-  # <user> @ <host>: <path>|---padding---|<branch> [<status>]
-  headline_info="$user_str$host_str$path_str$pad$git_str$reset" # printed as part of PROMPT so it shows with Ctrl+L
-
-  # Debug
-  # print "COLS: $COLUMNS, user: $user_str_len, host: $host_str_len, path: $path_str_len, pad: $spaces, git: $git_str_len, total: $(( $user_str_len + $host_str_len + $path_str_len + $spaces + $git_str_len ))"
+# Create a part of the prompt
+_headline_part() { # (name, content, side)
+  local style
+  eval style="\$reset\$HEADLINE_STYLE_DEFAULT\$HEADLINE_STYLE_${1}"
+  _HEADLINE_INFO="%{$style%}$2"
+  _HEADLINE_LEN=$(headline_prompt_len $_HEADLINE_INFO)
+  _HEADLINE_LEN_SUM=$(( $_HEADLINE_LEN_SUM + $_HEADLINE_LEN ))
+  eval style="\$reset\$HEADLINE_STYLE_${1}_LINE"
+  _HEADLINE_LINE="%{$style%}${(pl:$_HEADLINE_LEN::$HEADLINE_LINE_CHAR:)}"
+  if [[ $3 == 'left' ]]; then
+    _HEADLINE_INFO_LEFT="$_HEADLINE_INFO_LEFT$_HEADLINE_INFO"
+    _HEADLINE_LINE_LEFT="$_HEADLINE_LINE_LEFT$_HEADLINE_LINE"
+  else
+    _HEADLINE_INFO_RIGHT="$_HEADLINE_INFO$_HEADLINE_INFO_RIGHT"
+    _HEADLINE_LINE_RIGHT="$_HEADLINE_LINE$_HEADLINE_LINE_RIGHT"
+  fi
 }
 
 # Prompt
 headline_output() {
-  print -rP $headline_info
+  print -rP $_HEADLINE_INFO_OUTPUT
   print -rP $HEADLINE_PROMPT
 }
-PROMPT='$(headline_output)'
+if [[ $HEADLINE_INFO_MODE == 'precmd' ]]; then
+  PROMPT=$HEADLINE_PROMPT
+else
+  PROMPT='$(headline_output)'
+fi
 PROMPT_EOL_MARK=''

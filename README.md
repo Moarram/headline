@@ -21,7 +21,7 @@
 ### Separator Line
 `_____________________________________________`
 
-A line above the prompt info text with matching colors. It can be disabled by setting `HEADLINE_SEPARATOR_MODE=off`.
+A line above the prompt info text with matching colors. It can be disabled by setting `HEADLINE_LINE_MODE=off`.
 
 ### Information Line
 `<user> @ <host>: <path> | <branch> [<status>]`
