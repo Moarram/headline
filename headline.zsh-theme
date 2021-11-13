@@ -8,9 +8,6 @@
 
 
 
-# Character aliases
-newline=$'\n'
-
 # Formatting aliases
 # (add more if you need)
 reset=$'\e[0m'
@@ -78,11 +75,18 @@ IS_SSH=$?
 # I recommend setting these variables in your ~/.zshrc after sourcing this file
 # The style aliases for ANSI SGR codes (defined above) can be used there too
 
-# Prompt options
+# Options
 HEADLINE_LINE_MODE='auto' # on|auto|off (whether to print the line above the prompt)
 HEADLINE_INFO_MODE='precmd' # precmd|prompt (whether info line is in $PROMPT or printed by precmd)
-  # use "precmd" for window resize to work properly (Ctrl+L doesn't show info line)
-  # use "prompt" for Ctrl+L to clear properly (window resize eats previous output)
+  # use "precmd" for window resize to work properly (but Ctrl+L doesn't show info line)
+  # use "prompt" for Ctrl+L to clear properly (but window resize eats previous output)
+
+# Segments
+HEADLINE_DO_USER='true'
+HEADLINE_DO_HOST='true'
+HEADLINE_DO_PATH='true'
+HEADLINE_DO_GIT_BRANCH='true'
+HEADLINE_DO_GIT_STATUS='true'
 
 # Prompt character
 HEADLINE_PROMPT="%(#.#.%(!.!.$)) " # consider "%#"
@@ -130,18 +134,18 @@ HEADLINE_STYLE_BRANCH_LINE=$HEADLINE_STYLE_BRANCH
 HEADLINE_STYLE_STATUS_LINE=$HEADLINE_STYLE_STATUS
 
 # Git branch characters
-HEADLINE_GIT_HASH=':' # prefix
+HEADLINE_GIT_HASH=':' # hash prefix to distinguish from branch
 
 # Git status styles and characters
 # To set individual status styles use "%{<style>%}<char>"
 HEADLINE_GIT_STAGED='+' # added or renamed
-HEADLINE_GIT_CHANGED='!' # modified or deleted
+HEADLINE_GIT_CHANGED='!'
 HEADLINE_GIT_UNTRACKED='?'
 HEADLINE_GIT_BEHIND='↓'
 HEADLINE_GIT_AHEAD='↑'
 HEADLINE_GIT_DIVERGED='↕'
 HEADLINE_GIT_STASHED='*'
-HEADLINE_GIT_CONFLICTS='✘'
+HEADLINE_GIT_CONFLICTS='✘' # consider "%{$red%}✘"
 HEADLINE_GIT_CLEAN='' # consider "✓" or "✔"
 
 # ------------------------------------------------------------------------------
@@ -195,12 +199,12 @@ headline_git_branch() {
   ref=$(headline_git symbolic-ref --quiet HEAD 2> /dev/null)
   local ret=$?
   if [[ $ret == 0 ]]; then
-		echo ${ref#refs/heads/} # remove "refs/heads/" to get branch
+    echo ${ref#refs/heads/} # remove "refs/heads/" to get branch
   else # not on a branch
-		[[ $ret == 128 ]] && return  # not a git repo
+    [[ $ret == 128 ]] && return  # not a git repo
     ref=$(headline_git rev-parse --short HEAD 2> /dev/null) || return
-		echo "$HEADLINE_GIT_HASH$ref" # hash prefixed to distingush from branch
-	fi
+    echo "$HEADLINE_GIT_HASH$ref" # hash prefixed to distingush from branch
+  fi
 }
 
 # Git status
@@ -280,7 +284,7 @@ headline_git_status() {
     local status_constant="${prefix_constant_map[$status_prefix]}"
     local status_regex=$'(^|\n)'"$status_prefix"
     if [[ "$status_text" =~ $status_regex ]]; then
-      statuses_seen[$status_constant]=1 # TODO number of occurences
+      statuses_seen[$status_constant]=1 # TODO number of occurrences
     fi
   done
 
@@ -303,15 +307,6 @@ headline_git_status() {
   fi
 }
 
-# # Git branch only, using vcs_info
-# autoload -Uz vcs_info
-# zstyle ':vcs_info:git:*' formats '%b'
-# headline_git_branch() {
-#   vcs_info
-#   echo $vcs_info_msg_0_
-# }
-# headline_git_status() { echo '' }
-
 
 
 # Before executing command
@@ -326,11 +321,20 @@ headline_preexec() {
 add-zsh-hook precmd headline_precmd
 headline_precmd() {
   # Information
-  local user_str=$USER
-  local host_str=$(hostname -s)
-  local path_str=$(print -rP '%~')
-  local branch_str=$(headline_git_branch)
-  local status_str=$(headline_git_status)
+  local user_str host_str path_str branch_str status_str
+  [[ $HEADLINE_DO_USER == 'true' ]] && user_str=$USER
+  [[ $HEADLINE_DO_HOST == 'true' ]] && host_str=$(hostname -s)
+  [[ $HEADLINE_DO_PATH == 'true' ]] && path_str=$(print -rP '%~')
+  [[ $HEADLINE_DO_GIT_BRANCH == 'true' ]] && branch_str=$(headline_git_branch)
+  [[ $HEADLINE_DO_GIT_STATUS == 'true' ]] && status_str=$(headline_git_status)
+
+  # Trimming
+  if (( $COLUMNS < 35 && ${#path_str} )); then
+    user_str=''; host_str=''
+  elif (( $COLUMNS < 55 )); then
+    user_str="${user_str:0:1}"
+    host_str="${host_str:0:1}"
+  fi
 
   # Shared variables
   _HEADLINE_INFO=''
@@ -343,33 +347,39 @@ headline_precmd() {
   _HEADLINE_LINE_RIGHT=''
 
   # Prompt construction
-  local git_str_len remain
-  if (( ${#status_str} > 0 )); then
+  local git_len len
+  if (( ${#status_str} )); then
     _headline_part JOINT "$HEADLINE_STATUS_END" right
     _headline_part STATUS "$HEADLINE_STATUS_PREFIX$status_str" right
     _headline_part JOINT "$HEADLINE_BRANCH_TO_STATUS" right
   fi
-  if (( ${#branch_str} > 0 )); then
+  if (( ${#branch_str} )); then
     _headline_part BRANCH "$HEADLINE_BRANCH_PREFIX$branch_str" right
   fi
-  git_str_len=$_HEADLINE_LEN_SUM
-  if (( $git_str_len + ${#user_str} + ${#host_str} > $COLUMNS / 2 || $COLUMNS < 40 )); then
-    user_str="${user_str:0:1}"
-    host_str="${host_str:0:1}"
+  git_len=$_HEADLINE_LEN_SUM
+  if (( ${#user_str} )); then
+    _headline_part JOINT "$HEADLINE_USER_BEGIN" left
+    _headline_part USER "$HEADLINE_USER_PREFIX$user_str" left
   fi
-  _headline_part JOINT "$HEADLINE_USER_BEGIN" left
-  _headline_part USER "$HEADLINE_USER_PREFIX$user_str" left
-  _headline_part JOINT "$HEADLINE_USER_TO_HOST" left
-  _headline_part HOST "$HEADLINE_HOST_PREFIX$host_str" left
-  _headline_part JOINT "$HEADLINE_HOST_TO_PATH" left
-  remain=$(( $COLUMNS - $_HEADLINE_LEN_SUM - ( $git_str_len ? ${#HEADLINE_PATH_TO_BRANCH} : 0 ) ))
-  _headline_part PATH "$HEADLINE_PATH_PREFIX%$remain<...<$path_str%<<" left
-  remain=$(( $COLUMNS - $_HEADLINE_LEN_SUM - ${#HEADLINE_PATH_TO_PAD} - ${#HEADLINE_PAD_TO_BRANCH} ))
-  if (( $git_str_len && $COLUMNS - $_HEADLINE_LEN_SUM <= ${#HEADLINE_PATH_TO_BRANCH} )); then
+  if (( ${#host_str} )); then
+    if (( ${#_HEADLINE_INFO_LEFT} )); then
+      _headline_part JOINT "$HEADLINE_USER_TO_HOST" left
+    fi
+    _headline_part HOST "$HEADLINE_HOST_PREFIX$host_str" left
+  fi
+  if (( ${#path_str} )); then
+    if (( ${#_HEADLINE_INFO_LEFT} )); then
+      _headline_part JOINT "$HEADLINE_HOST_TO_PATH" left
+    fi
+    len=$(( $COLUMNS - $_HEADLINE_LEN_SUM - ( $git_len ? ${#HEADLINE_PATH_TO_BRANCH} + ${#HEADLINE_PATH_PREFIX} : 0 ) ))
+    _headline_part PATH "$HEADLINE_PATH_PREFIX%$len<...<$path_str%<<" left
+  fi
+  len=$(( $COLUMNS - $_HEADLINE_LEN_SUM - ${#HEADLINE_PATH_TO_PAD} - ${#HEADLINE_PAD_TO_BRANCH} ))
+  if (( $git_len && $COLUMNS - $_HEADLINE_LEN_SUM <= ${#HEADLINE_PATH_TO_BRANCH} )); then
     _headline_part JOINT "$HEADLINE_PATH_TO_BRANCH" left
   else
     _headline_part JOINT "$HEADLINE_PATH_TO_PAD" left
-    _headline_part JOINT "${(pl:$remain::$HEADLINE_PAD_CHAR:)}" left
+    _headline_part JOINT "${(pl:$len::$HEADLINE_PAD_CHAR:)}" left
     _headline_part JOINT "$HEADLINE_PAD_TO_BRANCH" left
   fi
 
@@ -396,12 +406,12 @@ _headline_part() { # (name, content, side)
   _HEADLINE_LEN_SUM=$(( $_HEADLINE_LEN_SUM + $_HEADLINE_LEN ))
   eval style="\$reset\$HEADLINE_STYLE_${1}_LINE"
   _HEADLINE_LINE="%{$style%}${(pl:$_HEADLINE_LEN::$HEADLINE_LINE_CHAR:)}"
-  if [[ $3 == 'left' ]]; then
-    _HEADLINE_INFO_LEFT="$_HEADLINE_INFO_LEFT$_HEADLINE_INFO"
-    _HEADLINE_LINE_LEFT="$_HEADLINE_LINE_LEFT$_HEADLINE_LINE"
-  else
+  if [[ $3 == 'right' ]]; then
     _HEADLINE_INFO_RIGHT="$_HEADLINE_INFO$_HEADLINE_INFO_RIGHT"
     _HEADLINE_LINE_RIGHT="$_HEADLINE_LINE$_HEADLINE_LINE_RIGHT"
+  else
+    _HEADLINE_INFO_LEFT="$_HEADLINE_INFO_LEFT$_HEADLINE_INFO"
+    _HEADLINE_LINE_LEFT="$_HEADLINE_LINE_LEFT$_HEADLINE_LINE"
   fi
 }
 
@@ -411,8 +421,8 @@ headline_output() {
   print -rP $HEADLINE_PROMPT
 }
 if [[ $HEADLINE_INFO_MODE == 'precmd' ]]; then
-  PROMPT=$HEADLINE_PROMPT
+  PROMPT=$HEADLINE_PROMPT # line and info printed by precmd
 else
-  PROMPT='$(headline_output)'
+  PROMPT='$(headline_output)' # only line printed by precmd
 fi
 PROMPT_EOL_MARK=''
