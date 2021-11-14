@@ -81,6 +81,12 @@ HEADLINE_INFO_MODE='precmd' # precmd|prompt (whether info line is in $PROMPT or 
   # use "precmd" for window resize to work properly (but Ctrl+L doesn't show info line)
   # use "prompt" for Ctrl+L to clear properly (but window resize eats previous output)
 
+# Exit codes
+HEADLINE_DO_ERR='true' # whether to show non-zero exit codes above prompt
+HEADLINE_DO_ERR_INFO='true' # whether to show exit code meaning as well
+HEADLINE_ERR_PREFIX='-> '
+HEADLINE_STYLE_ERR=$italic$red
+
 # Segments
 HEADLINE_DO_USER='true'
 HEADLINE_DO_HOST='true'
@@ -113,7 +119,6 @@ HEADLINE_STATUS_END=']'
 
 # Styles (ANSI SGR codes)
 HEADLINE_STYLE_DEFAULT='' # style applied to entire info line
-HEADLINE_STYLE_LINE=$light_black
 HEADLINE_STYLE_JOINT=$light_black
 if [ $IS_SSH = 0 ]; then
   HEADLINE_STYLE_USER=$bold$magenta
@@ -182,6 +187,32 @@ headline_prompt_len() {
     done
   fi
   print $x
+}
+
+headline_exit_meaning() { # (num)
+  # REF: https://tldp.org/LDP/abs/html/exitcodes.html
+  # REF: https://man7.org/linux/man-pages/man7/signal.7.html
+  # NOTE: these meanings are not standardized
+  case $1 in
+    126) print 'Command cannot execute';;
+    127) print 'Command not found';;
+    129) print 'Hangup';;
+    130) print 'Interrupted';;
+    131) print 'Quit';;
+    132) print 'Illegal instruction';;
+    133) print 'Trapped';;
+    134) print 'Aborted';;
+    135) print 'Bus error';;
+    136) print 'Arithmetic error';;
+    137) print 'Killed';;
+    138) print 'User signal 1';;
+    139) print 'Segmentation fault';;
+    140) print 'User signal 2';;
+    141) print 'Pipe error';;
+    142) print 'Alarm';;
+    143) print 'Terminated';;
+    *) ;;
+  esac
 }
 
 
@@ -320,6 +351,8 @@ headline_preexec() {
 # Before prompting
 add-zsh-hook precmd headline_precmd
 headline_precmd() {
+  local err=$?
+
   # Information
   local user_str host_str path_str branch_str status_str
   [[ $HEADLINE_DO_USER == 'true' ]] && user_str=$USER
@@ -381,6 +414,16 @@ headline_precmd() {
     _headline_part JOINT "$HEADLINE_PATH_TO_PAD" left
     _headline_part JOINT "${(pl:$len::$HEADLINE_PAD_CHAR:)}" left
     _headline_part JOINT "$HEADLINE_PAD_TO_BRANCH" left
+  fi
+
+  # Error line
+  if [[ $HEADLINE_DO_ERR == 'true' ]] && (( $err )); then
+    local meaning msg
+    if [[ $HEADLINE_DO_ERR_INFO == 'true' ]]; then
+      meaning=$(headline_exit_meaning $err)
+      (( ${#meaning} )) && msg=" ($meaning)"
+    fi
+    print -rP "$HEADLINE_STYLE_ERR$HEADLINE_ERR_PREFIX$err$msg"
   fi
 
   # Separator line
