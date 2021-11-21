@@ -1,7 +1,7 @@
 # Headline ZSH Theme
 <img src="https://raw.githubusercontent.com/moarram/headline/assets/images/slice.png" width="600"/>
 
-Headline. A stylish theme with thoughtful use of space. Requires no dependencies. Easily customizable.
+Headline. A stylish theme with deliberate use of space. Requires no dependencies. Easily customizable.
 
 <br>
 
@@ -12,6 +12,7 @@ Headline. A stylish theme with thoughtful use of space. Requires no dependencies
 * [Customization](#customization)
 * [Terminal Setup](#terminal-setup)
 * [Screenshots](#screenshots)
+* [Credits](#credits)
 
 <br>
 
@@ -68,16 +69,13 @@ More details on the wiki page: [Customization](https://github.com/Moarram/headli
 
 
 ## Terminal Setup
-### Continuous Line
-For the continuous separator line above the prompt you need a font with ligatures (and a terminal that supports them). I know [Fira Code](https://github.com/tonsky/FiraCode) works well, but any font that joins adjacent underscores will do.
+For the continuous line above the prompt, use a font with ligatures such as [Fira Code](https://github.com/tonsky/FiraCode).
 
-### Symbols
-For symbols you could use a font patched with [Nerd Fonts](https://www.nerdfonts.com/), such as [FiraCode Nerd Font](https://github.com/ryanoasis/nerd-fonts/tree/master/patched-fonts/FiraCode).
+If you want symbols, use a font that has them such as [FiraCode Nerd Font](https://github.com/ryanoasis/nerd-fonts/tree/master/patched-fonts/FiraCode) and assign your desired symbols to the prefix variables.
 
-Specify your symbols of choice by assigning to the variables `HEADLINE_USER_PREFIX`, `HEADLINE_HOST_PREFIX`, `HEADLINE_PATH_PREFIX`, and `HEADLINE_BRANCH_PREFIX`.
+More details on the wiki page: [Terminal Setup](https://github.com/Moarram/headline/wiki/Terminal-Setup)
 
-### Colors
-Although the colors of the theme are customized with [ANSI SGR codes](https://en.wikipedia.org/wiki/ANSI_escape_code#SGR_(Select_Graphic_Rendition)_parameters), your terminal ultimately decides the exact color each code represents. Also, the background and cursor colors are set by the terminal.
+
 
 <br>
 
@@ -98,3 +96,8 @@ Screenshots of theme in [iTerm2](https://iterm2.com/index.html). Using [FiraCode
 > Path truncated to fit in available space, user and host hidden.
 
 <br>
+
+
+## Credits
+* Headline's Git status functions borrow code from `git.zsh` in [Oh-My-Zsh's core library](https://github.com/ohmyzsh/ohmyzsh/blob/master/lib).
+* Thanks to u/romkatv for their [Reddit post](https://old.reddit.com/r/zsh/comments/cgbm24/multiline_prompt_the_missing_ingredient/) describing how to calculate prompt string display length .
