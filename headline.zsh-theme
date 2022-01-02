@@ -136,6 +136,7 @@ HEADLINE_GIT_HASH=':' # hash prefix to distinguish from branch
 
 # Git status options
 HEADLINE_DO_GIT_STATUS_COUNTS='false' # set "true" to show count of each status
+HEADLINE_DO_GIT_STATUS_OMIT_ONE='false' # set "true" to omit the status number when it is 1
 
 # Git status styles and characters
 # To set individual status styles use "%{$reset<style>%}<char>"
@@ -182,7 +183,7 @@ headline_prompt_len() {
     (( ${${(%):-$1%$m(l.x.y)}[-1]} = m ))
     done
   fi
-  print $x
+  echo $x
 }
 
 
@@ -225,10 +226,10 @@ headline_git_status() {
   lines=(${(@f)raw})
 
   # Process tracking line
-  if [[ ${lines[1]} =~ "^## [^ ]+ \[(.*)\]" ]]; then
+  if [[ ${lines[1]} =~ '^## [^ ]+ \[(.*)\]' ]]; then
     local items=("${(@s/,/)match}")
     for item in $items; do
-      if [[ $item =~ "(behind|ahead|diverged) ([0-9]+)?" ]]; then
+      if [[ $item =~ '(behind|ahead|diverged) ([0-9]+)?' ]]; then
         case $match[1] in
           'behind') totals[BEHIND]=$match[2];;
           'ahead') totals[AHEAD]=$match[2];;
@@ -240,20 +241,18 @@ headline_git_status() {
 
   # Process status lines
   for line in $lines; do
-    local c1="${line:0:1}"
-    local c2="${line:1:1}"
-    if [[ '##' == "$c1$c2" || '!!' == "$c1$c2" ]]; then
+    if [[ $line =~ '^##|^!!' ]]; then
       continue
-    elif [[ 'U' == $c1 || 'U' == $c2 || 'DD' == "$c1$c2" || 'AA' == "$c1$c2" ]]; then
+    elif [[ $line =~ '^U[AD]|^[AD]U|^AA|^DD' ]]; then
       totals[CONFLICTS]=$(( ${totals[CONFLICTS]} + 1 ))
-    elif [[ '??' == "$c1$c2" ]]; then
+    elif [[ $line =~ '^\?\?' ]]; then
       totals[UNTRACKED]=$(( ${totals[UNTRACKED]} + 1 ))
-    elif [[ $c1 != ' ' ]]; then
+    elif [[ $line =~ '^[MTADRC] ' ]]; then
       totals[STAGED]=$(( ${totals[STAGED]} + 1 ))
-      if [[ $c2 != ' ' ]]; then
-        totals[CHANGED]=$(( ${totals[CHANGED]} + 1 ))
-      fi
-    elif [[ $c2 != ' ' ]]; then
+    elif [[ $line =~ '^[MTARC][MTD]' ]]; then
+      totals[STAGED]=$(( ${totals[STAGED]} + 1 ))
+      totals[CHANGED]=$(( ${totals[CHANGED]} + 1 ))
+    elif [[ $line =~ '^ [MTADRC]' ]]; then
       totals[CHANGED]=$(( ${totals[CHANGED]} + 1 ))
     fi
   done
@@ -269,11 +268,17 @@ headline_git_status() {
   for key in $order; do
     if (( ${totals[$key]} > 0 )); then
       if (( ${#HEADLINE_STATUS_TO_STATUS} && ${#status_str} )); then # not first iteration
-        status_str="$status_str%{$reset$HEADLINE_STYLE_JOINT%}$HEADLINE_STATUS_TO_STATUS%{$reset$HEADLINE_STYLE_STATUS%}"
+        local style_joint="$reset$HEADLINE_STYLE_DEFAULT$HEADLINE_STYLE_JOINT"
+        local style_status="$resetHEADLINE_STYLE_DEFAULT$HEADLINE_STYLE_STATUS"
+        status_str="$status_str%{$style_joint%}$HEADLINE_STATUS_TO_STATUS%{$style_status%}"
       fi
       eval prefix="\$HEADLINE_GIT_${key}"
       if [[ $HEADLINE_DO_GIT_STATUS_COUNTS == 'true' ]]; then
-        status_str="$status_str${totals[$key]}$prefix"
+        if [[ $HEADLINE_DO_GIT_STATUS_OMIT_ONE == 'true' && (( ${totals[$key]} == 1 )) ]]; then
+          status_str="$status_str$prefix"
+        else
+          status_str="$status_str${totals[$key]}$prefix"
+        fi
       else
         status_str="$status_str$prefix"
       fi
@@ -282,9 +287,9 @@ headline_git_status() {
 
   # Return
   if (( ${#status_str} )); then
-    print $status_str
+    echo $status_str
   else
-    print $HEADLINE_GIT_CLEAN
+    echo $HEADLINE_GIT_CLEAN
   fi
 }
 
@@ -319,8 +324,6 @@ headline_precmd() {
   fi
 
   # Shared variables
-  _HEADLINE_INFO=''
-  _HEADLINE_LINE=''
   _HEADLINE_LEN=0
   _HEADLINE_LEN_SUM=0
   _HEADLINE_INFO_LEFT=''
@@ -381,19 +384,19 @@ headline_precmd() {
 
 # Create a part of the prompt
 _headline_part() { # (name, content, side)
-  local style
+  local style info line
   eval style="\$reset\$HEADLINE_STYLE_DEFAULT\$HEADLINE_STYLE_${1}"
-  _HEADLINE_INFO="%{$style%}$2"
-  _HEADLINE_LEN=$(headline_prompt_len $_HEADLINE_INFO)
+  info="%{$style%}$2"
+  _HEADLINE_LEN=$(headline_prompt_len $info)
   _HEADLINE_LEN_SUM=$(( $_HEADLINE_LEN_SUM + $_HEADLINE_LEN ))
   eval style="\$reset\$HEADLINE_STYLE_${1}_LINE"
-  _HEADLINE_LINE="%{$style%}${(pl:$_HEADLINE_LEN::$HEADLINE_LINE_CHAR:)}"
+  line="%{$style%}${(pl:$_HEADLINE_LEN::$HEADLINE_LINE_CHAR:)}"
   if [[ $3 == 'right' ]]; then
-    _HEADLINE_INFO_RIGHT="$_HEADLINE_INFO$_HEADLINE_INFO_RIGHT"
-    _HEADLINE_LINE_RIGHT="$_HEADLINE_LINE$_HEADLINE_LINE_RIGHT"
+    _HEADLINE_INFO_RIGHT="$info$_HEADLINE_INFO_RIGHT"
+    _HEADLINE_LINE_RIGHT="$line$_HEADLINE_LINE_RIGHT"
   else
-    _HEADLINE_INFO_LEFT="$_HEADLINE_INFO_LEFT$_HEADLINE_INFO"
-    _HEADLINE_LINE_LEFT="$_HEADLINE_LINE_LEFT$_HEADLINE_LINE"
+    _HEADLINE_INFO_LEFT="$_HEADLINE_INFO_LEFT$info"
+    _HEADLINE_LINE_LEFT="$_HEADLINE_LINE_LEFT$line"
   fi
 }
 

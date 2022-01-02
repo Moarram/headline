@@ -1,7 +1,7 @@
 # Headline ZSH Theme
 <img src="https://raw.githubusercontent.com/moarram/headline/assets/images/slice.png" width="600"/>
 
-Headline. A stylish theme with deliberate use of space. Requires no dependencies. Easily customizable.
+Headline. A stylish theme with deliberate use of space. No dependencies. Easily customizable.
 
 <br>
 
@@ -19,7 +19,7 @@ Headline. A stylish theme with deliberate use of space. Requires no dependencies
 
 ## Features
 ### Separator Line
-A line above the prompt info text with matching colors. Disable with `HEADLINE_LINE_MODE=off` for a more compact prompt.
+A line above the prompt info text with matching colors. May be disabled with `HEADLINE_LINE_MODE=off` for a more compact prompt.
 
 ### Information Line
 `<user> @ <host>: <path> | <branch> [<status>]`
@@ -61,7 +61,7 @@ More details on the wiki page: [Installation](https://github.com/Moarram/headlin
 
 
 ## Customization
-Set the variables, as described in `headline.zsh-theme`, in your `~/.zshrc` after the theme is sourced to customize behavior, colors, styles, symbols, etc. Play around with it and make it your own!
+The `headline.zsh-theme` file describes variables ([around line 70](https://github.com/Moarram/headline/blob/main/headline.zsh-theme#L70)) for customizing prompt behavior, colors, styles, symbols, etc. Set these variables in your `~/.zshrc` *after* sourcing the theme to override the defaults. Play around with it and make it your own!
 
 More details on the wiki page: [Customization](https://github.com/Moarram/headline/wiki/Customization)
 
@@ -100,4 +100,4 @@ Screenshots of theme in [iTerm2](https://iterm2.com/index.html). Using [FiraCode
 
 ## Credits
 * Headline's Git status functions borrow code from `git.zsh` in [Oh-My-Zsh's core library](https://github.com/ohmyzsh/ohmyzsh/blob/master/lib).
-* Thanks to u/romkatv for their [Reddit post](https://old.reddit.com/r/zsh/comments/cgbm24/multiline_prompt_the_missing_ingredient/) describing how to calculate prompt string display length .
+* Thanks to u/romkatv (author of [Powerlevel10k](https://github.com/romkatv/powerlevel10k)) for the [Reddit post](https://old.reddit.com/r/zsh/comments/cgbm24/multiline_prompt_the_missing_ingredient/) describing how to calculate prompt string display length.
