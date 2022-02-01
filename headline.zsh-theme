@@ -154,7 +154,7 @@ HEADLINE_GIT_CLEAN='' # consider "✓" or "✔"
 
 
 
-# Constants for zsh
+# Options for zsh
 setopt PROMPT_SP # always start prompt on new line
 setopt PROMPT_SUBST # substitutions
 autoload -U add-zsh-hook
@@ -175,15 +175,25 @@ headline_prompt_len() {
   local -i x y=${#1} m
   if (( y )); then
     while (( ${${(%):-$1%$y(l.1.0)}[-1]} )); do
-    x=y
-    (( y *= 2 ))
+      x=y
+      (( y *= 2 ))
     done
     while (( y > x + 1 )); do
-    (( m = x + (y - x) / 2 ))
-    (( ${${(%):-$1%$m(l.x.y)}[-1]} = m ))
+      (( m = x + (y - x) / 2 ))
+      (( ${${(%):-$1%$m(l.x.y)}[-1]} = m ))
     done
   fi
   echo $x
+}
+
+# Repeat character a number of times
+# (replacing the "${(pl:$num::$char:)}" expansion)
+headline_repeat_char() { # (char, num)
+  local str=''
+  for (( i = 0; i < $2; i++ )); do
+    str+=$1
+  done
+  echo $str
 }
 
 
@@ -210,7 +220,7 @@ headline_git_branch() {
 # Git status
 headline_git_status() {
   # Data structures
-  local order=('STAGED' 'CHANGED' 'UNTRACKED' 'BEHIND' 'AHEAD' 'DIVERGED' 'STASHED' 'CONFLICTS')
+  local order; order=('STAGED' 'CHANGED' 'UNTRACKED' 'BEHIND' 'AHEAD' 'DIVERGED' 'STASHED' 'CONFLICTS')
   local -A totals
   for key in $order; do
     totals+=($key 0)
@@ -243,7 +253,7 @@ headline_git_status() {
   for line in $lines; do
     if [[ $line =~ '^##|^!!' ]]; then
       continue
-    elif [[ $line =~ '^U[AD]|^[AD]U|^AA|^DD' ]]; then
+    elif [[ $line =~ '^U[ADU]|^[AD]U|^AA|^DD' ]]; then
       totals[CONFLICTS]=$(( ${totals[CONFLICTS]} + 1 ))
     elif [[ $line =~ '^\?\?' ]]; then
       totals[UNTRACKED]=$(( ${totals[UNTRACKED]} + 1 ))
@@ -364,7 +374,7 @@ headline_precmd() {
     _headline_part JOINT "$HEADLINE_PATH_TO_BRANCH" left
   else
     _headline_part JOINT "$HEADLINE_PATH_TO_PAD" left
-    _headline_part JOINT "${(pl:$len::$HEADLINE_PAD_CHAR:)}" left
+    _headline_part JOINT "$(headline_repeat_char $HEADLINE_PAD_CHAR $len)" left
     _headline_part JOINT "$HEADLINE_PAD_TO_BRANCH" left
   fi
 
@@ -387,10 +397,10 @@ _headline_part() { # (name, content, side)
   local style info line
   eval style="\$reset\$HEADLINE_STYLE_DEFAULT\$HEADLINE_STYLE_${1}"
   info="%{$style%}$2"
-  _HEADLINE_LEN=$(headline_prompt_len $info)
+  _HEADLINE_LEN=$(headline_prompt_len $info 9999)
   _HEADLINE_LEN_SUM=$(( $_HEADLINE_LEN_SUM + $_HEADLINE_LEN ))
   eval style="\$reset\$HEADLINE_STYLE_${1}_LINE"
-  line="%{$style%}${(pl:$_HEADLINE_LEN::$HEADLINE_LINE_CHAR:)}"
+  line="%{$style%}$(headline_repeat_char $HEADLINE_LINE_CHAR $_HEADLINE_LEN)"
   if [[ $3 == 'right' ]]; then
     _HEADLINE_INFO_RIGHT="$info$_HEADLINE_INFO_RIGHT"
     _HEADLINE_LINE_RIGHT="$line$_HEADLINE_LINE_RIGHT"
