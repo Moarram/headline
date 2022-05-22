@@ -82,7 +82,7 @@ HEADLINE_INFO_MODE='precmd' # precmd|prompt (whether info line is in $PROMPT or 
 # Exit codes
 HEADLINE_DO_ERR='true' # whether to show non-zero exit codes above prompt
 HEADLINE_DO_ERR_INFO='true' # whether to show exit code meaning as well
-HEADLINE_ERR_PREFIX='-> '
+HEADLINE_ERR_PREFIX='→ '
 HEADLINE_STYLE_ERR=$italic$faint
 
 # Segments

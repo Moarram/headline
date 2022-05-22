@@ -19,6 +19,11 @@ Headline. A stylish theme with deliberate use of space. No dependencies. Easily 
 
 
 ## Features
+### Exit Code
+`→ <code> (<meaning>)`
+
+Non-zero exit codes are printed ahead of the prompt. Use `HEADLINE_DO_ERR_INFO='false'` to omit the presumed meaning.
+
 ### Separator Line
 A line above the prompt info text with matching colors. May be disabled with `HEADLINE_LINE_MODE=off` for a more compact prompt.
 
@@ -48,7 +53,7 @@ All the Git status symbols are customizable. The defaults are below:
 ## Installation
 Download the `headline.zsh-theme` file.
 ```
-wget https://raw.githubusercontent.com/moarram/headline/main/headline.zsh-theme
+wget https://raw.githubusercontent.com/moarram/headline/feature-exit-code/headline.zsh-theme
 ```
 
 In your `~/.zshrc`, source the `headline.zsh-theme` file.
