@@ -4,7 +4,7 @@
 # Copyright (c) 2021 Moarram under the MIT License
 
 # To install, source this file from your .zshrc file
-# Customization variables begin around line 80
+# Customization variables begin around line 70
 
 
 
@@ -62,8 +62,6 @@ light_white_back=$'\e[107m'
 # orange_brown=$'\e[38;2;191;116;46m' # example rgb color
 # ...
 
-
-
 # Flags
 ! [ -z "$SSH_TTY$SSH_CONNECTION$SSH_CLIENT" ]
 IS_SSH=$?
@@ -85,7 +83,7 @@ HEADLINE_INFO_MODE='precmd' # precmd|prompt (whether info line is in $PROMPT or 
 HEADLINE_DO_ERR='true' # whether to show non-zero exit codes above prompt
 HEADLINE_DO_ERR_INFO='true' # whether to show exit code meaning as well
 HEADLINE_ERR_PREFIX='-> '
-HEADLINE_STYLE_ERR=$italic$red
+HEADLINE_STYLE_ERR=$italic$faint
 
 # Segments
 HEADLINE_DO_USER='true'
@@ -115,9 +113,10 @@ HEADLINE_PATH_TO_BRANCH=' | ' # only used when no padding between <path> and <br
 HEADLINE_PATH_TO_PAD='' # used if padding between <path> and <branch>
 HEADLINE_PAD_TO_BRANCH='' # used if padding between <path> and <branch>
 HEADLINE_BRANCH_TO_STATUS=' ['
+HEADLINE_STATUS_TO_STATUS='' # between each status section, consider "]"
 HEADLINE_STATUS_END=']'
 
-# Styles (ANSI SGR codes)
+# Info styles (ANSI SGR codes)
 HEADLINE_STYLE_DEFAULT='' # style applied to entire info line
 HEADLINE_STYLE_JOINT=$light_black
 if [ $IS_SSH = 0 ]; then
@@ -141,9 +140,13 @@ HEADLINE_STYLE_STATUS_LINE=$HEADLINE_STYLE_STATUS
 # Git branch characters
 HEADLINE_GIT_HASH=':' # hash prefix to distinguish from branch
 
+# Git status options
+HEADLINE_DO_GIT_STATUS_COUNTS='false' # set "true" to show count of each status
+HEADLINE_DO_GIT_STATUS_OMIT_ONE='false' # set "true" to omit the status number when it is 1
+
 # Git status styles and characters
-# To set individual status styles use "%{<style>%}<char>"
-HEADLINE_GIT_STAGED='+' # added or renamed
+# To set individual status styles use "%{$reset<style>%}<char>"
+HEADLINE_GIT_STAGED='+'
 HEADLINE_GIT_CHANGED='!'
 HEADLINE_GIT_UNTRACKED='?'
 HEADLINE_GIT_BEHIND='↓'
@@ -157,7 +160,7 @@ HEADLINE_GIT_CLEAN='' # consider "✓" or "✔"
 
 
 
-# Constants for zsh
+# Options for zsh
 setopt PROMPT_SP # always start prompt on new line
 setopt PROMPT_SUBST # substitutions
 autoload -U add-zsh-hook
@@ -178,15 +181,25 @@ headline_prompt_len() {
   local -i x y=${#1} m
   if (( y )); then
     while (( ${${(%):-$1%$y(l.1.0)}[-1]} )); do
-    x=y
-    (( y *= 2 ))
+      x=y
+      (( y *= 2 ))
     done
     while (( y > x + 1 )); do
-    (( m = x + (y - x) / 2 ))
-    (( ${${(%):-$1%$m(l.x.y)}[-1]} = m ))
+      (( m = x + (y - x) / 2 ))
+      (( ${${(%):-$1%$m(l.x.y)}[-1]} = m ))
     done
   fi
-  print $x
+  echo $x
+}
+
+# Repeat character a number of times
+# (replacing the "${(pl:$num::$char:)}" expansion)
+headline_repeat_char() { # (char, num)
+  local str=''
+  for (( i = 0; i < $2; i++ )); do
+    str+=$1
+  done
+  echo $str
 }
 
 headline_exit_meaning() { # (num)
@@ -218,13 +231,11 @@ headline_exit_meaning() { # (num)
 
 
 # Git command wrapper
-# adapted from Oh-My-Zsh under MIT License
 headline_git() {
   GIT_OPTIONAL_LOCKS=0 command git "$@"
 }
 
 # Git branch (or hash)
-# adapted from Oh-My-Zsh under MIT License
 headline_git_branch() {
   local ref
   ref=$(headline_git symbolic-ref --quiet HEAD 2> /dev/null)
@@ -239,100 +250,86 @@ headline_git_branch() {
 }
 
 # Git status
-# adapted from Oh-My-Zsh under MIT License
 headline_git_status() {
-  # Maps a git status prefix to an internal constant
-  # This cannot use the prompt constants, as they may be empty
-  local -A prefix_constant_map
-  prefix_constant_map=(
-    '\?\? '     'UNTRACKED'
-    'A  '       'STAGED' # added
-    'M  '       'STAGED' # added
-    'MM '       'CHANGED' # modified
-    ' M '       'CHANGED' # modified
-    'AM '       'CHANGED' # modified
-    ' T '       'CHANGED' # modified
-    'R  '       'STAGED' # renamed
-    ' D '       'CHANGED' # deleted
-    'D  '       'STAGED' # deleted
-    'UU '       'CONFLICT' # unmerged
-    'ahead'     'AHEAD'
-    'behind'    'BEHIND'
-    'diverged'  'DIVERGED'
-    'stashed'   'STASHED'
-  )
+  # Data structures
+  local order; order=('STAGED' 'CHANGED' 'UNTRACKED' 'BEHIND' 'AHEAD' 'DIVERGED' 'STASHED' 'CONFLICTS')
+  local -A totals
+  for key in $order; do
+    totals+=($key 0)
+  done
 
-  # Maps the internal constant to the prompt theme
-  local -A constant_prompt_map
-  constant_prompt_map=(
-    'UNTRACKED' "$HEADLINE_GIT_UNTRACKED"
-    'STAGED'    "$HEADLINE_GIT_STAGED"
-    'CHANGED'   "$HEADLINE_GIT_CHANGED"
-    'CONFLICT'  "$HEADLINE_GIT_CONFLICT"
-    'AHEAD'     "$HEADLINE_GIT_AHEAD"
-    'BEHIND'    "$HEADLINE_GIT_BEHIND"
-    'DIVERGED'  "$HEADLINE_GIT_DIVERGED"
-    'STASHED'   "$HEADLINE_GIT_STASHED"
-  )
-
-  # The order that the prompt displays should be added to the prompt
-  local status_constants
-  status_constants=(STAGED CHANGED UNTRACKED BEHIND AHEAD DIVERGED STASHED CONFLICT)
-
-  # Retrieve status (note the --porcelain flag)
-  local status_text
-  status_text="$(headline_git status --porcelain -b 2> /dev/null)"
+  # Retrieve status
+  # REF: https://git-scm.com/docs/git-status
+  local raw lines
+  raw="$(headline_git status --porcelain -b 2> /dev/null)"
   if [[ $? == 128 ]]; then
     return 1 # catastrophic failure, abort
   fi
+  lines=(${(@f)raw})
 
-  # A lookup table of each git status encountered
-  local -A statuses_seen
-
-  # Check for stashes
-  if $(headline_git rev-parse --verify refs/stash &> /dev/null); then
-    statuses_seen[STASHED]=$(headline_git rev-list --walk-reflogs --count refs/stash)
-  fi
-
-  local status_lines
-  status_lines=("${(@f)${status_text}}")
-
-  # If the tracking line exists, get and parse it
-  if [[ "$status_lines[1]" =~ "^## [^ ]+ \[(.*)\]" ]]; then
-    local branch_statuses
-    branch_statuses=("${(@s/,/)match}")
-    for branch_status in $branch_statuses; do
-      if [[ ! $branch_status =~ "(behind|diverged|ahead) ([0-9]+)?" ]]; then
-        continue
+  # Process tracking line
+  if [[ ${lines[1]} =~ '^## [^ ]+ \[(.*)\]' ]]; then
+    local items=("${(@s/,/)match}")
+    for item in $items; do
+      if [[ $item =~ '(behind|ahead|diverged) ([0-9]+)?' ]]; then
+        case $match[1] in
+          'behind') totals[BEHIND]=$match[2];;
+          'ahead') totals[AHEAD]=$match[2];;
+          'diverged') totals[DIVERGED]=$match[2];;
+        esac
       fi
-      local last_parsed_status=$prefix_constant_map[$match[1]]
-      statuses_seen[$last_parsed_status]=$match[2]
     done
   fi
 
-  # For each status prefix, do a regex comparison
-  for status_prefix in ${(k)prefix_constant_map}; do
-    local status_constant="${prefix_constant_map[$status_prefix]}"
-    local status_regex=$'(^|\n)'"$status_prefix"
-    if [[ "$status_text" =~ $status_regex ]]; then
-      statuses_seen[$status_constant]=1 # TODO number of occurrences
+  # Process status lines
+  for line in $lines; do
+    if [[ $line =~ '^##|^!!' ]]; then
+      continue
+    elif [[ $line =~ '^U[ADU]|^[AD]U|^AA|^DD' ]]; then
+      totals[CONFLICTS]=$(( ${totals[CONFLICTS]} + 1 ))
+    elif [[ $line =~ '^\?\?' ]]; then
+      totals[UNTRACKED]=$(( ${totals[UNTRACKED]} + 1 ))
+    elif [[ $line =~ '^[MTADRC] ' ]]; then
+      totals[STAGED]=$(( ${totals[STAGED]} + 1 ))
+    elif [[ $line =~ '^[MTARC][MTD]' ]]; then
+      totals[STAGED]=$(( ${totals[STAGED]} + 1 ))
+      totals[CHANGED]=$(( ${totals[CHANGED]} + 1 ))
+    elif [[ $line =~ '^ [MTADRC]' ]]; then
+      totals[CHANGED]=$(( ${totals[CHANGED]} + 1 ))
     fi
   done
 
-  # Display the seen statuses in the order specified
-  local status_prompt
-  for status_constant in $status_constants; do
-    if (( ${+statuses_seen[$status_constant]} )); then
-      local symbol=$constant_prompt_map[$status_constant]
-      status_prompt="$status_prompt$symbol"
-      # local value=$statuses_seen[$status_constant]
-      # status_prompt="$status_prompt$value$symbol"
+  # Check for stashes
+  if $(headline_git rev-parse --verify refs/stash &> /dev/null); then
+    totals[STASHED]=$(headline_git rev-list --walk-reflogs --count refs/stash 2> /dev/null)
+  fi
+
+  # Build string
+  local prefix status_str
+  status_str=''
+  for key in $order; do
+    if (( ${totals[$key]} > 0 )); then
+      if (( ${#HEADLINE_STATUS_TO_STATUS} && ${#status_str} )); then # not first iteration
+        local style_joint="$reset$HEADLINE_STYLE_DEFAULT$HEADLINE_STYLE_JOINT"
+        local style_status="$resetHEADLINE_STYLE_DEFAULT$HEADLINE_STYLE_STATUS"
+        status_str="$status_str%{$style_joint%}$HEADLINE_STATUS_TO_STATUS%{$style_status%}"
+      fi
+      eval prefix="\$HEADLINE_GIT_${key}"
+      if [[ $HEADLINE_DO_GIT_STATUS_COUNTS == 'true' ]]; then
+        if [[ $HEADLINE_DO_GIT_STATUS_OMIT_ONE == 'true' && (( ${totals[$key]} == 1 )) ]]; then
+          status_str="$status_str$prefix"
+        else
+          status_str="$status_str${totals[$key]}$prefix"
+        fi
+      else
+        status_str="$status_str$prefix"
+      fi
     fi
   done
 
   # Return
-  if (( ${#status_prompt} )); then
-    echo $status_prompt
+  if (( ${#status_str} )); then
+    echo $status_str
   else
     echo $HEADLINE_GIT_CLEAN
   fi
@@ -343,6 +340,7 @@ headline_git_status() {
 # Before executing command
 add-zsh-hook preexec headline_preexec
 headline_preexec() {
+  # TODO better way of knowing the prompt is at the top of the terminal
   if [[ $2 == 'clear' ]]; then
     _HEADLINE_DO_SEP='false'
   fi
@@ -370,8 +368,6 @@ headline_precmd() {
   fi
 
   # Shared variables
-  _HEADLINE_INFO=''
-  _HEADLINE_LINE=''
   _HEADLINE_LEN=0
   _HEADLINE_LEN_SUM=0
   _HEADLINE_INFO_LEFT=''
@@ -412,7 +408,7 @@ headline_precmd() {
     _headline_part JOINT "$HEADLINE_PATH_TO_BRANCH" left
   else
     _headline_part JOINT "$HEADLINE_PATH_TO_PAD" left
-    _headline_part JOINT "${(pl:$len::$HEADLINE_PAD_CHAR:)}" left
+    _headline_part JOINT "$(headline_repeat_char $HEADLINE_PAD_CHAR $len)" left
     _headline_part JOINT "$HEADLINE_PAD_TO_BRANCH" left
   fi
 
@@ -442,19 +438,19 @@ headline_precmd() {
 
 # Create a part of the prompt
 _headline_part() { # (name, content, side)
-  local style
+  local style info line
   eval style="\$reset\$HEADLINE_STYLE_DEFAULT\$HEADLINE_STYLE_${1}"
-  _HEADLINE_INFO="%{$style%}$2"
-  _HEADLINE_LEN=$(headline_prompt_len $_HEADLINE_INFO)
+  info="%{$style%}$2"
+  _HEADLINE_LEN=$(headline_prompt_len $info 9999)
   _HEADLINE_LEN_SUM=$(( $_HEADLINE_LEN_SUM + $_HEADLINE_LEN ))
   eval style="\$reset\$HEADLINE_STYLE_${1}_LINE"
-  _HEADLINE_LINE="%{$style%}${(pl:$_HEADLINE_LEN::$HEADLINE_LINE_CHAR:)}"
+  line="%{$style%}$(headline_repeat_char $HEADLINE_LINE_CHAR $_HEADLINE_LEN)"
   if [[ $3 == 'right' ]]; then
-    _HEADLINE_INFO_RIGHT="$_HEADLINE_INFO$_HEADLINE_INFO_RIGHT"
-    _HEADLINE_LINE_RIGHT="$_HEADLINE_LINE$_HEADLINE_LINE_RIGHT"
+    _HEADLINE_INFO_RIGHT="$info$_HEADLINE_INFO_RIGHT"
+    _HEADLINE_LINE_RIGHT="$line$_HEADLINE_LINE_RIGHT"
   else
-    _HEADLINE_INFO_LEFT="$_HEADLINE_INFO_LEFT$_HEADLINE_INFO"
-    _HEADLINE_LINE_LEFT="$_HEADLINE_LINE_LEFT$_HEADLINE_LINE"
+    _HEADLINE_INFO_LEFT="$_HEADLINE_INFO_LEFT$info"
+    _HEADLINE_LINE_LEFT="$_HEADLINE_LINE_LEFT$line"
   fi
 }
 
