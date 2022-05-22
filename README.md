@@ -12,6 +12,7 @@ Headline. A stylish theme with deliberate use of space. No dependencies. Easily 
 * [Customization](#customization)
 * [Terminal Setup](#terminal-setup)
 * [Screenshots](#screenshots)
+* [Related](#related)
 * [Credits](#credits)
 
 <br>
@@ -94,6 +95,12 @@ Screenshots of theme in [iTerm2](https://iterm2.com/index.html). Using [FiraCode
 > <img src="https://raw.githubusercontent.com/moarram/headline/assets/images/zsh_theme_dark.png" width="600"/>
 > 
 > Path truncated to fit in available space, user and host hidden.
+
+<br>
+
+
+## Related
+* [Headline Oh My Posh Theme](https://github.com/wathhr/headline-omp)
 
 <br>
 
