@@ -22,7 +22,7 @@ Headline. A stylish theme with deliberate use of space. No dependencies. Easily 
 ### Exit Code
 `→ <code> (<meaning>)`
 
-Non-zero exit codes are printed ahead of the prompt. Use `HEADLINE_DO_ERR_INFO='false'` to omit the presumed meaning.
+Non-zero exit codes are printed ahead of the prompt. The exit code meaning is merely a guess for the semi-standard exit codes (in the range 126-143).
 
 ### Separator Line
 A line above the prompt info text with matching colors. May be disabled with `HEADLINE_LINE_MODE=off` for a more compact prompt.
@@ -100,6 +100,10 @@ Screenshots of theme in [iTerm2](https://iterm2.com/index.html). Using [FiraCode
 > <img src="https://raw.githubusercontent.com/moarram/headline/assets/images/zsh_theme_dark.png" width="600"/>
 > 
 > Path truncated to fit in available space, user and host hidden.
+
+> <img src="https://raw.githubusercontent.com/moarram/headline/assets/images/zsh_theme_purple.png" width="600"/>
+> 
+> Error code and presumed meaning.
 
 <br>
 
