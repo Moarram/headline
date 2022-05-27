@@ -366,7 +366,7 @@ headline_precmd() {
     if (( ${#_HEADLINE_INFO_LEFT} )); then
       _headline_part JOINT "$HEADLINE_HOST_TO_PATH" left
     fi
-    len=$(( $COLUMNS - $_HEADLINE_LEN_SUM - ( $git_len ? ${#HEADLINE_PATH_TO_BRANCH} + ${#HEADLINE_PATH_PREFIX} : 0 ) ))
+    len=$(( $COLUMNS - $_HEADLINE_LEN_SUM - ${#HEADLINE_PATH_PREFIX} - ( $git_len ? ${#HEADLINE_PATH_TO_BRANCH} : 0 ) ))
     _headline_part PATH "$HEADLINE_PATH_PREFIX%$len<...<$path_str%<<" left
   fi
   len=$(( $COLUMNS - $_HEADLINE_LEN_SUM - ${#HEADLINE_PATH_TO_PAD} - ${#HEADLINE_PAD_TO_BRANCH} ))
