@@ -334,7 +334,6 @@ headline_precmd() {
   fi
 
   # Shared variables
-  _HEADLINE_LEN=0
   _HEADLINE_LEN_SUM=0
   _HEADLINE_INFO_LEFT=''
   _HEADLINE_LINE_LEFT=''
@@ -394,13 +393,13 @@ headline_precmd() {
 
 # Create a part of the prompt
 _headline_part() { # (name, content, side)
-  local style info line
+  local style info info_len line
   eval style="\$reset\$HEADLINE_STYLE_DEFAULT\$HEADLINE_STYLE_${1}"
   info="%{$style%}$2"
-  _HEADLINE_LEN=$(headline_prompt_len $info 9999)
-  _HEADLINE_LEN_SUM=$(( $_HEADLINE_LEN_SUM + $_HEADLINE_LEN ))
+  info_len=$(headline_prompt_len $info 9999)
+  _HEADLINE_LEN_SUM=$(( $_HEADLINE_LEN_SUM + $info_len ))
   eval style="\$reset\$HEADLINE_STYLE_${1}_LINE"
-  line="%{$style%}$(headline_repeat_char $HEADLINE_LINE_CHAR $_HEADLINE_LEN)"
+  line="%{$style%}$(headline_repeat_char $HEADLINE_LINE_CHAR $info_len)"
   if [[ $3 == 'right' ]]; then
     _HEADLINE_INFO_RIGHT="$info$_HEADLINE_INFO_RIGHT"
     _HEADLINE_LINE_RIGHT="$line$_HEADLINE_LINE_RIGHT"
