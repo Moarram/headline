@@ -70,7 +70,8 @@ IS_SSH=$?
 
 # ------------------------------------------------------------------------------
 # Customization
-# I recommend setting these variables in your ~/.zshrc after sourcing this file
+# Use the following variables to customize the theme
+# These variables can also be set in your ~/.zshrc after sourcing this file
 # The style aliases for ANSI SGR codes (defined above) can be used there too
 
 # Options
