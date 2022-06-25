@@ -70,7 +70,8 @@ IS_SSH=$?
 
 # ------------------------------------------------------------------------------
 # Customization
-# I recommend setting these variables in your ~/.zshrc after sourcing this file
+# Use the following variables to customize the theme
+# These variables can also be set in your ~/.zshrc after sourcing this file
 # The style aliases for ANSI SGR codes (defined above) can be used there too
 
 # Options
@@ -368,7 +369,6 @@ headline_precmd() {
   fi
 
   # Shared variables
-  _HEADLINE_LEN=0
   _HEADLINE_LEN_SUM=0
   _HEADLINE_INFO_LEFT=''
   _HEADLINE_LINE_LEFT=''
@@ -400,7 +400,7 @@ headline_precmd() {
     if (( ${#_HEADLINE_INFO_LEFT} )); then
       _headline_part JOINT "$HEADLINE_HOST_TO_PATH" left
     fi
-    len=$(( $COLUMNS - $_HEADLINE_LEN_SUM - ( $git_len ? ${#HEADLINE_PATH_TO_BRANCH} + ${#HEADLINE_PATH_PREFIX} : 0 ) ))
+    len=$(( $COLUMNS - $_HEADLINE_LEN_SUM - ${#HEADLINE_PATH_PREFIX} - ( $git_len ? ${#HEADLINE_PATH_TO_BRANCH} : 0 ) ))
     _headline_part PATH "$HEADLINE_PATH_PREFIX%$len<...<$path_str%<<" left
   fi
   len=$(( $COLUMNS - $_HEADLINE_LEN_SUM - ${#HEADLINE_PATH_TO_PAD} - ${#HEADLINE_PAD_TO_BRANCH} ))
@@ -438,13 +438,13 @@ headline_precmd() {
 
 # Create a part of the prompt
 _headline_part() { # (name, content, side)
-  local style info line
+  local style info info_len line
   eval style="\$reset\$HEADLINE_STYLE_DEFAULT\$HEADLINE_STYLE_${1}"
   info="%{$style%}$2"
-  _HEADLINE_LEN=$(headline_prompt_len $info 9999)
-  _HEADLINE_LEN_SUM=$(( $_HEADLINE_LEN_SUM + $_HEADLINE_LEN ))
+  info_len=$(headline_prompt_len $info 9999)
+  _HEADLINE_LEN_SUM=$(( $_HEADLINE_LEN_SUM + $info_len ))
   eval style="\$reset\$HEADLINE_STYLE_${1}_LINE"
-  line="%{$style%}$(headline_repeat_char $HEADLINE_LINE_CHAR $_HEADLINE_LEN)"
+  line="%{$style%}$(headline_repeat_char $HEADLINE_LINE_CHAR $info_len)"
   if [[ $3 == 'right' ]]; then
     _HEADLINE_INFO_RIGHT="$info$_HEADLINE_INFO_RIGHT"
     _HEADLINE_LINE_RIGHT="$line$_HEADLINE_LINE_RIGHT"

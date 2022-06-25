@@ -61,15 +61,15 @@ In your `~/.zshrc`, source the `headline.zsh-theme` file.
 source your/path/to/headline.zsh-theme
 ```
 
-More details on the wiki page: [Installation](https://github.com/Moarram/headline/wiki/Installation)
+More details in [Installation](docs/Installation.md)
 
 <br>
 
 
 ## Customization
-The `headline.zsh-theme` file describes variables ([around line 70](https://github.com/Moarram/headline/blob/main/headline.zsh-theme#L70)) for customizing prompt behavior, colors, styles, symbols, etc. Set these variables in your `~/.zshrc` *after* sourcing the theme to override the defaults. Play around with it and make it your own!
+The `headline.zsh-theme` file describes variables ([around line 70](headline.zsh-theme#L70)) for customizing prompt behavior, colors, styles, symbols, etc. You can edit the theme file directly or set these variables in your `~/.zshrc` *after* sourcing the theme to override the defaults. Play around with it and make it your own!
 
-More details on the wiki page: [Customization](https://github.com/Moarram/headline/wiki/Customization)
+More details in [Customization](docs/Customization.md)
 
 <br>
 
@@ -79,7 +79,7 @@ For the continuous line above the prompt, use a font with ligatures such as [Fir
 
 If you want symbols, use a font that has them such as [FiraCode Nerd Font](https://github.com/ryanoasis/nerd-fonts/tree/master/patched-fonts/FiraCode) and assign your desired symbols to the prefix variables.
 
-More details on the wiki page: [Terminal Setup](https://github.com/Moarram/headline/wiki/Terminal-Setup)
+More details in [Terminal Setup](docs/Terminal-Setup.md)
 
 
 
@@ -90,15 +90,15 @@ More details on the wiki page: [Terminal Setup](https://github.com/Moarram/headl
 Screenshots of theme in [iTerm2](https://iterm2.com/index.html). Using [FiraCode Nerd Font](https://github.com/ryanoasis/nerd-fonts/tree/master/patched-fonts/FiraCode) for continuous line and fancy icons.
 
 > <img src="https://raw.githubusercontent.com/moarram/headline/assets/images/zsh_theme_light.png" width="600"/>
-> 
+>
 > Status showing `+` for staged changes, `!` for unstaged changes, and `?` for untracked files (configurable).
 
 > <img src="https://raw.githubusercontent.com/moarram/headline/assets/images/zsh_theme_brown.png" width="600"/>
-> 
+>
 > Optional icons, special font needed.
 
 > <img src="https://raw.githubusercontent.com/moarram/headline/assets/images/zsh_theme_dark.png" width="600"/>
-> 
+>
 > Path truncated to fit in available space, user and host hidden.
 
 > <img src="https://raw.githubusercontent.com/moarram/headline/assets/images/zsh_theme_purple.png" width="600"/>
