@@ -79,6 +79,8 @@ The connector strings between information segments.
 | *`HEADLINE_STATUS_TO_STATUS`* | (none)   |
 | *`HEADLINE_STATUS_END`*       | `']'`    |
 
+By default, *`HEADLINE_USER_BEGIN`* is `=>` when `$IS_SSH` is `0` (true).
+
 ### Print Mode
 *`HEADLINE_INFO_MODE`*  
 Whether info line is in `$PROMPT` or printed by `precmd`. This option exists because I can't figure out how to solve both problems at once.
