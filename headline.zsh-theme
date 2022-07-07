@@ -64,7 +64,7 @@ light_white_back=$'\e[107m'
 
 # Flags
 ! [ -z "$SSH_TTY$SSH_CONNECTION$SSH_CLIENT" ]
-IS_SSH=$?
+IS_SSH=$? # 0=true, 1=false
 
 
 
@@ -108,6 +108,7 @@ HEADLINE_BRANCH_PREFIX='' # consider " "
 
 # Joints
 HEADLINE_USER_BEGIN=''
+if [ $IS_SSH = 0 ]; then HEADLINE_USER_BEGIN='=> '; fi
 HEADLINE_USER_TO_HOST=' @ '
 HEADLINE_HOST_TO_PATH=': '
 HEADLINE_PATH_TO_BRANCH=' | ' # only used when no padding between <path> and <branch>
@@ -120,11 +121,7 @@ HEADLINE_STATUS_END=']'
 # Info styles (ANSI SGR codes)
 HEADLINE_STYLE_DEFAULT='' # style applied to entire info line
 HEADLINE_STYLE_JOINT=$light_black
-if [ $IS_SSH = 0 ]; then
-  HEADLINE_STYLE_USER=$bold$magenta
-else
-  HEADLINE_STYLE_USER=$bold$red
-fi
+HEADLINE_STYLE_USER=$bold$red
 HEADLINE_STYLE_HOST=$bold$yellow
 HEADLINE_STYLE_PATH=$bold$blue
 HEADLINE_STYLE_BRANCH=$bold$cyan

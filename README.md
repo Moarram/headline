@@ -6,18 +6,6 @@ Headline. A stylish theme with deliberate use of space. No dependencies. Easily 
 <br>
 
 
-## Contents
-* [Features](#features)
-* [Installation](#installation)
-* [Customization](#customization)
-* [Terminal Setup](#terminal-setup)
-* [Screenshots](#screenshots)
-* [Related](#related)
-* [Credits](#credits)
-
-<br>
-
-
 ## Features
 ### Exit Code
 `→ <code> (<meaning>)`

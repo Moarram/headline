@@ -79,6 +79,8 @@ The connector strings between information segments.
 | *`HEADLINE_STATUS_TO_STATUS`* | (none)   |
 | *`HEADLINE_STATUS_END`*       | `']'`    |
 
+By default, `$HEADLINE_USER_BEGIN` is `=> ` when `$IS_SSH` is `0` (true).
+
 ### Print Mode
 *`HEADLINE_INFO_MODE`*  
 Whether info line is in `$PROMPT` or printed by `precmd`. This option exists because I can't figure out how to solve both problems at once.
@@ -91,7 +93,7 @@ Whether info line is in `$PROMPT` or printed by `precmd`. This option exists bec
 ## Git Status
 ### Toggle Counts
 *`HEADLINE_DO_GIT_STATUS_COUNTS`*  
-Whether to show count of each status. It can make the status segment a bit cluttery, so also consider setting the `HEADLINE_STATUS_TO_STATUS` joint character
+Whether to show count of each status. It can make the status segment a bit cluttery, so also consider setting the `$HEADLINE_STATUS_TO_STATUS` joint character
 * `true` – show counts
 * `false` – don't show counts
 
@@ -124,7 +126,10 @@ Prompt line string, which by default shows `$` normally and `#` for root. Suppor
 
 <br>
 
+
 ## Screenshots
 > <img src="https://raw.githubusercontent.com/moarram/headline/assets/images/customization_demo.png" width="600"/>
 >
 > A sampling of the available customization variables.
+
+<br>
