@@ -20,6 +20,30 @@ By "styles" I mean [ANSI SGR codes](https://en.wikipedia.org/wiki/ANSI_escape_co
 <br>
 
 
+## Exit Code
+### Toggle Exit Code
+*`HEADLINE_DO_ERR`*  
+Whether to show non-zero exit codes
+* `true` – show exit codes
+* `false` – don't show exit codes (or meaning)
+
+### Toggle Exit Code Meaning
+*`HEADLINE_DO_ERR_INFO`*  
+Whether to show guess for exit code meaning
+* `true` – show exit code meaning
+* `false` – don't show exit code meaning
+
+### Prefix
+*`HEADLINE_ERR_PREFIX`*  
+
+```
+HEADLINE_DO_ERR='true' # whether to show non-zero exit codes above prompt
+HEADLINE_DO_ERR_INFO='true' # whether to show exit code meaning as well
+HEADLINE_ERR_PREFIX='→ '
+HEADLINE_STYLE_ERR=$italic$faint
+```
+
+
 ## Separator Line
 ### Toggle Separator
 *`HEADLINE_LINE_MODE`*  

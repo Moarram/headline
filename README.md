@@ -10,7 +10,7 @@ Headline. A stylish theme with deliberate use of space. No dependencies. Easily 
 ### Exit Code
 `→ <code> (<meaning>)`
 
-Non-zero exit codes are printed ahead of the prompt. The exit code meaning is merely a guess for the semi-standard exit codes (in the range 126-143).
+Non-zero exit codes are printed ahead of the prompt. The exit code meaning is merely a guess for the semi-standard exit codes (in the range 126-143) and is often incorrect (may be disabled with `HEADLINE_DO_ERR_INFO=false`).
 
 ### Separator Line
 A line above the prompt info text with matching colors. May be disabled with `HEADLINE_LINE_MODE=off` for a more compact prompt.
@@ -41,7 +41,7 @@ All the Git status symbols are customizable. The defaults are below:
 ## Installation
 Download the `headline.zsh-theme` file.
 ```
-wget https://raw.githubusercontent.com/moarram/headline/feature-exit-code/headline.zsh-theme
+$ wget https://raw.githubusercontent.com/moarram/headline/feature-exit-code/headline.zsh-theme
 ```
 
 In your `~/.zshrc`, source the `headline.zsh-theme` file.
@@ -90,7 +90,7 @@ Screenshots of theme in [iTerm2](https://iterm2.com/index.html). Using [FiraCode
 > Path truncated to fit in available space, user and host hidden.
 
 > <img src="https://raw.githubusercontent.com/moarram/headline/assets/images/zsh_theme_purple.png" width="600"/>
-> 
+>
 > Error code and presumed meaning.
 
 <br>
