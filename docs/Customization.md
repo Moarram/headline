@@ -127,6 +127,24 @@ Prompt line string, which by default shows `$` normally and `#` for root. Suppor
 <br>
 
 
+## Clock
+### Toggle Clock
+*`HEADLINE_DO_CLOCK`*  
+Whether to show the clock in `RPROMPT`
+* `true` – show clock
+* `false` – don't show clock (default)
+
+### Style
+*`HEADLINE_STYLE_CLOCK`*  
+Style to apply to the clock, `$faint` by default
+
+### Format
+*`HEADLINE_CLOCK_FORMAT`*  
+Format of the clock, `%l:%M:%S %p` by default. Use `%+` for complete date and time. See `man strftime` for details.
+
+<br>
+
+
 ## Screenshots
 > <img src="https://raw.githubusercontent.com/moarram/headline/assets/images/customization_demo.png" width="600"/>
 >
