@@ -165,6 +165,8 @@ HEADLINE_GIT_CLEAN='' # consider "✓" or "✔"
 setopt PROMPT_SP # always start prompt on new line
 setopt PROMPT_SUBST # substitutions
 autoload -U add-zsh-hook
+PROMPT_EOL_MARK='' # remove weird % symbol
+ZLE_RPROMPT_INDENT=0 # remove extra space
 
 # Local variables
 _HEADLINE_LINE_OUTPUT='' # separator line
@@ -432,8 +434,18 @@ headline_precmd() {
 
   # Information line
   _HEADLINE_INFO_OUTPUT="$_HEADLINE_INFO_LEFT$_HEADLINE_INFO_RIGHT$reset"
+
+  # Prompt
   if [[ $HEADLINE_INFO_MODE == 'precmd' ]]; then
     print -rP $_HEADLINE_INFO_OUTPUT
+    PROMPT=$HEADLINE_PROMPT
+  else
+    PROMPT='$(print -rP $_HEADLINE_INFO_OUTPUT; print -rP $HEADLINE_PROMPT)'
+  fi
+
+  # Right prompt
+  if [[ $HEADLINE_DO_CLOCK == 'true' ]]; then
+    RPROMPT='%{$HEADLINE_STYLE_CLOCK%}$(date +$HEADLINE_CLOCK_FORMAT)%{$reset%}'
   fi
 }
 
@@ -454,21 +466,3 @@ _headline_part() { # (name, content, side)
     _HEADLINE_LINE_LEFT="$_HEADLINE_LINE_LEFT$line"
   fi
 }
-
-# Prompt
-PROMPT_EOL_MARK=''
-headline_output() {
-  print -rP $_HEADLINE_INFO_OUTPUT
-  print -rP $HEADLINE_PROMPT
-}
-if [[ $HEADLINE_INFO_MODE == 'precmd' ]]; then
-  PROMPT=$HEADLINE_PROMPT # line and info printed by precmd
-else
-  PROMPT='$(headline_output)' # only line printed by precmd
-fi
-
-# Right prompt
-ZLE_RPROMPT_INDENT=0
-if [[ $HEADLINE_DO_CLOCK == 'true' ]]; then
-  RPROMPT='%{$HEADLINE_STYLE_CLOCK%}$(date +$HEADLINE_CLOCK_FORMAT)%{$reset%}'
-fi

@@ -129,7 +129,7 @@ Whether to show guessed meaning alongside exit code
 
 ### Prefix
 *`HEADLINE_ERR_PREFIX`*  
-String to put ahead of exit code, `-> ` by default.
+String to put ahead of exit code, `→ ` by default.
 
 ### Style
 *`HEADLINE_STYLE_ERR`*  
@@ -146,6 +146,8 @@ Prompt line string, which by default shows `$` normally and `#` for root. Suppor
 
 
 ## Clock
+*HINT:* The clock shows the time that the prompt was printed. If you want the clock to stay current by re-printing every second, add `TMOUT=1; TRAPALRM () { zle reset-prompt }` to your `~/.zshrc`. Note that this only works properly with `HEADLINE_INFO_MODE='precmd'`.
+
 ### Toggle Clock
 *`HEADLINE_DO_CLOCK`*  
 Whether to show the clock in `RPROMPT`
