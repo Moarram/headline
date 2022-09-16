@@ -139,8 +139,13 @@ Style applied to exit code line, `$italic$faint` by default.
 
 
 ## Prompt Line
+### Normal Prompt
 *`HEADLINE_PROMPT`*  
 Prompt line string, which by default shows `$` normally and `#` for root. Supports [Zsh prompt expansion](https://zsh.sourceforge.io/Doc/Release/Prompt-Expansion.html), so you could use `"%#"` to get `%` normally and `#` for root.
+
+### Right Prompt
+*`HEADLINE_RPROMPT`*  
+Optional prompt at right of screen, empty by default.
 
 <br>
 

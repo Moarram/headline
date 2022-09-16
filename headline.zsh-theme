@@ -91,10 +91,11 @@ HEADLINE_DO_PATH='true'
 HEADLINE_DO_GIT_BRANCH='true'
 HEADLINE_DO_GIT_STATUS='true'
 
-# Prompt character
+# Prompt
 HEADLINE_PROMPT='%(#.#.%(!.!.$)) ' # consider "%#"
+HEADLINE_RPROMPT=''
 
-# Clock (in RPROMPT)
+# Clock (prepends to RPROMPT)
 HEADLINE_DO_CLOCK='false' # whether to show the clock
 HEADLINE_STYLE_CLOCK=$faint
 HEADLINE_CLOCK_FORMAT='%l:%M:%S %p' # consider "%+" for full date (see man strftime)
@@ -445,7 +446,9 @@ headline_precmd() {
 
   # Right prompt
   if [[ $HEADLINE_DO_CLOCK == 'true' ]]; then
-    RPROMPT='%{$HEADLINE_STYLE_CLOCK%}$(date +$HEADLINE_CLOCK_FORMAT)%{$reset%}'
+    RPROMPT='%{$HEADLINE_STYLE_CLOCK%}$(date +$HEADLINE_CLOCK_FORMAT)%{$reset%}$HEADLINE_RPROMPT'
+  else
+    RPROMPT=$HEADLINE_RPROMPT
   fi
 }
 
