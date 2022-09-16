@@ -30,4 +30,27 @@ The colors of the theme are customized with [ANSI SGR codes](https://en.wikipedi
 ### iTerm2
 The iTerm2 color schemes I use (featured in the screenshots) are available [here](https://github.com/Moarram/dotfiles/tree/main/itermcolors).
 
-<br>
+### Hex Values
+If you just want the main colors for the 3 themes (dark, light, and brown), here they are:
+
+|               | Dark      | Light     | Brown     |
+|---------------|-----------|-----------|-----------|
+| black         | `#212121` | `#252525` | `#432C1A` |
+| red           | `#EE5656` | `#DB4F4F` | `#E34642` |
+| green         | `#84D74B` | `#6FAE44` | `#909B00` |
+| yellow        | `#EFC83D` | `#E49F26` | `#ECA915` |
+| blue          | `#5EAFFF` | `#4C8FDD` | `#4698A3` |
+| magenta       | `#EB6AB9` | `#CD58DC` | `#DA698D` |
+| cyan          | `#5ED7AF` | `#17AA9B` | `#BA7C3E` |
+| white         | `#CCCCCC` | `#E4E1DE` | `#DDC165` |
+| light black   | `#535353` | `#9F9994` | `#896B4C` |
+| light red     | `#FF7B7B` | `#ED7B7B` | `#E17662` |
+| light green   | `#B7F178` | `#96D262` | `#BFC659` |
+| light yellow  | `#FAEF59` | `#E8C138` | `#FFCA1B` |
+| light blue    | `#89DFFF` | `#84B7EA` | `#7CC9CF` |
+| light magenta | `#FFA3D5` | `#F271BF` | `#F492A6` |
+| light cyan    | `#95FFE9` | `#63CBA8` | `#E6A96B` |
+| light white   | `#F4F4F4` | `#F9F8F7` | `#FFEAA3` |
+| background    | `#101010` | `#EFEEEC` | `#33200E` |
+| foreground    | `#E3E3E3` | `#323232` | `#F2D886` |
+| cursor        | `#E3E3E3` | `#8F8C88` | `#EC6F23` |

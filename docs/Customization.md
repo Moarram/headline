@@ -145,7 +145,7 @@ Prompt line string, which by default shows `$` normally and `#` for root. Suppor
 
 ### Right Prompt
 *`HEADLINE_RPROMPT`*  
-Optional prompt at right of screen, empty by default.
+Optional prompt at right of screen, none by default.
 
 <br>
 
@@ -171,7 +171,7 @@ Format of the clock, `%l:%M:%S %p` by default. Use `%+` for complete date and ti
 
 
 ## Screenshots
-> <img src="https://raw.githubusercontent.com/moarram/headline/assets/images/customization_demo.png" width="600"/>
+> <img src="https://raw.githubusercontent.com/moarram/headline/assets/images/customization-demo.png" width="600"/>
 >
 > A sampling of the available customization variables.
 

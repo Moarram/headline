@@ -80,17 +80,21 @@ More details in [Terminal Setup](docs/Terminal-Setup.md)
 ## Screenshots
 Screenshots of theme in [iTerm2](https://iterm2.com/index.html). Using [FiraCode Nerd Font](https://github.com/ryanoasis/nerd-fonts/tree/master/patched-fonts/FiraCode) for continuous line and fancy icons.
 
-> <img src="https://raw.githubusercontent.com/moarram/headline/assets/images/zsh_theme_light.png" width="600"/>
+> <img src="https://raw.githubusercontent.com/moarram/headline/assets/images/theme-light.png" width="600"/>
 >
 > Status showing `+` for staged changes, `!` for unstaged changes, and `?` for untracked files (configurable).
 
-> <img src="https://raw.githubusercontent.com/moarram/headline/assets/images/zsh_theme_brown.png" width="600"/>
+> <img src="https://raw.githubusercontent.com/moarram/headline/assets/images/theme-brown.png" width="600"/>
 >
 > Optional icons, special font needed.
 
-> <img src="https://raw.githubusercontent.com/moarram/headline/assets/images/zsh_theme_dark.png" width="600"/>
+> <img src="https://raw.githubusercontent.com/moarram/headline/assets/images/theme-dark.png" width="600"/>
 >
 > Path truncated to fit in available space, user and host hidden.
+
+> <img src="https://raw.githubusercontent.com/moarram/headline/assets/images/feature-clock-and-exit-code.png" width="600"/>
+>
+> Optionally show clock and exit code.
 
 <br>
 
