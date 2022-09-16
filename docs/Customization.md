@@ -120,6 +120,32 @@ headline_git_status() { echo $(my_git_status) }
 <br>
 
 
+## Exit Code
+### Toggle Exit Code
+*`HEADLINE_DO_ERR`*  
+Whether to show non-zero exit codes
+* `true` – show exit codes
+* `false` – don't show exit codes (default)
+
+### Toggle Exit Code Meaning
+*`HEADLINE_DO_ERR_INFO`*  
+Whether to show guessed meaning alongside exit code
+* `true` – show exit code meaning (default)
+* `false` – don't show exit code meaning
+
+### Prefix
+*`HEADLINE_ERR_PREFIX`*  
+
+```
+HEADLINE_DO_ERR='true' # whether to show non-zero exit codes above prompt
+HEADLINE_DO_ERR_INFO='true' # whether to show exit code meaning as well
+HEADLINE_ERR_PREFIX='→ '
+HEADLINE_STYLE_ERR=$italic$faint
+```
+
+<br>
+
+
 ## Prompt Line
 *`HEADLINE_PROMPT`*  
 Prompt line string, which by default shows `$` normally and `#` for root. Supports [Zsh prompt expansion](https://zsh.sourceforge.io/Doc/Release/Prompt-Expansion.html), so you could use `"%#"` to get `%` normally and `#` for root.

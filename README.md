@@ -13,7 +13,7 @@ A line above the prompt info text with matching colors. May be disabled with `HE
 ### Information Line
 `<user> @ <host>: <path> | <branch> [<status>]`
 
-This line compacts to fit within the terminal width. Individually style each segment of the information line using [ANSI SGR codes](https://en.wikipedia.org/wiki/ANSI_escape_code#SGR_(Select_Graphic_Rendition)_parameters) (which are conveniently aliased in the theme file). You can customize the characters for joining segments and disable segments entirely.
+This line collapses to fit within the terminal width. Individually style each segment of the information line using [ANSI SGR codes](https://en.wikipedia.org/wiki/ANSI_escape_code#SGR_(Select_Graphic_Rendition)_parameters) (which are conveniently aliased in the theme file). You can customize the characters for joining segments and disable segments entirely.
 
 ### Git Status
 All the Git status symbols are customizable. The defaults are below:
@@ -29,6 +29,11 @@ All the Git status symbols are customizable. The defaults are below:
 | `*`    | stashed files    |
 | `✘`    | conflicts        |
 | (none) | clean branch     |
+
+### Exit Code
+`→ <code> (<meaning>)`
+
+When enabled with `HEADLINE_DO_ERR='true'`, non-zero exit codes are printed ahead of the prompt. The exit code meaning is merely a guess for the semi-standard exit codes (in the range 126-143) and is often incorrect.
 
 <br>
 
