@@ -96,6 +96,11 @@ HEADLINE_DO_GIT_STATUS='true'
 # Prompt character
 HEADLINE_PROMPT='%(#.#.%(!.!.$)) ' # consider "%#"
 
+# Clock (in RPROMPT)
+HEADLINE_DO_CLOCK='false'
+HEADLINE_STYLE_CLOCK=$faint
+HEADLINE_CLOCK_FORMAT='%l:%M:%S %p' # consider "%+" for full date (see man strftime)
+
 # Repeated characters (no styles here)
 HEADLINE_LINE_CHAR='_' # line above information
 HEADLINE_PAD_CHAR=' ' # space between <path> and <branch>
@@ -457,8 +462,14 @@ headline_output() {
   print -rP $HEADLINE_PROMPT
 }
 if [[ $HEADLINE_INFO_MODE == 'precmd' ]]; then
-  PROMPT="$HEADLINE_PROMPT" # line and info printed by precmd
+  PROMPT=$HEADLINE_PROMPT # line and info printed by precmd
 else
   PROMPT='$(headline_output)' # only line printed by precmd
 fi
 PROMPT_EOL_MARK=''
+
+# Right prompt
+if [[ $HEADLINE_DO_CLOCK == 'true' ]]; then
+  RPROMPT='%{$HEADLINE_STYLE_CLOCK%}$(date +$HEADLINE_CLOCK_FORMAT)%{$reset%}'
+fi
+ZLE_RPROMPT_INDENT=0
