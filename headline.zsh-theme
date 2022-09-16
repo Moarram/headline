@@ -19,7 +19,6 @@ invert=$'\e[7m'
 # ...
 
 # Foreground color aliases
-# (dont change these definitions, apply them below)
 black=$'\e[30m'
 red=$'\e[31m'
 green=$'\e[32m'
@@ -38,7 +37,6 @@ light_cyan=$'\e[96m'
 light_white=$'\e[97m'
 
 # Background color aliases
-# (dont change these definitions, apply them below)
 black_back=$'\e[40m'
 red_back=$'\e[41m'
 green_back=$'\e[42m'
@@ -56,7 +54,7 @@ light_magenta_back=$'\e[105m'
 light_cyan_back=$'\e[106m'
 light_white_back=$'\e[107m'
 
-# User defined colors
+# Custom colors
 # REF: https://en.wikipedia.org/wiki/ANSI_escape_code#SGR_(Select_Graphic_Rendition)_parameters
 # orange_yellow=$'\e[38;5;214m' # example 8-bit color
 # orange_brown=$'\e[38;2;191;116;46m' # example rgb color
@@ -97,7 +95,7 @@ HEADLINE_DO_GIT_STATUS='true'
 HEADLINE_PROMPT='%(#.#.%(!.!.$)) ' # consider "%#"
 
 # Clock (in RPROMPT)
-HEADLINE_DO_CLOCK='false'
+HEADLINE_DO_CLOCK='false' # whether to show the clock
 HEADLINE_STYLE_CLOCK=$faint
 HEADLINE_CLOCK_FORMAT='%l:%M:%S %p' # consider "%+" for full date (see man strftime)
 
@@ -123,7 +121,7 @@ HEADLINE_BRANCH_TO_STATUS=' ['
 HEADLINE_STATUS_TO_STATUS='' # between each status section, consider "]"
 HEADLINE_STATUS_END=']'
 
-# Info styles (ANSI SGR codes)
+# Info styles
 HEADLINE_STYLE_DEFAULT='' # style applied to entire info line
 HEADLINE_STYLE_JOINT=$light_black
 HEADLINE_STYLE_USER=$bold$red
@@ -205,6 +203,7 @@ headline_repeat_char() { # (char, num)
   echo $str
 }
 
+# Guess the exit code meaning
 headline_exit_meaning() { # (num)
   # REF: https://tldp.org/LDP/abs/html/exitcodes.html
   # REF: https://man7.org/linux/man-pages/man7/signal.7.html
@@ -457,6 +456,7 @@ _headline_part() { # (name, content, side)
 }
 
 # Prompt
+PROMPT_EOL_MARK=''
 headline_output() {
   print -rP $_HEADLINE_INFO_OUTPUT
   print -rP $HEADLINE_PROMPT
@@ -466,10 +466,9 @@ if [[ $HEADLINE_INFO_MODE == 'precmd' ]]; then
 else
   PROMPT='$(headline_output)' # only line printed by precmd
 fi
-PROMPT_EOL_MARK=''
 
 # Right prompt
+ZLE_RPROMPT_INDENT=0
 if [[ $HEADLINE_DO_CLOCK == 'true' ]]; then
   RPROMPT='%{$HEADLINE_STYLE_CLOCK%}$(date +$HEADLINE_CLOCK_FORMAT)%{$reset%}'
 fi
-ZLE_RPROMPT_INDENT=0

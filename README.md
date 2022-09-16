@@ -30,10 +30,13 @@ All the Git status symbols are customizable. The defaults are below:
 | `✘`    | conflicts        |
 | (none) | clean branch     |
 
-### Exit Code
+### *Exit Code*
 `→ <code> (<meaning>)`
 
-When enabled with `HEADLINE_DO_ERR='true'`, non-zero exit codes are printed ahead of the prompt. The exit code meaning is merely a guess for the semi-standard exit codes (in the range 126-143) and is often incorrect.
+When enabled with `HEADLINE_DO_ERR='true'`, print non-zero exit codes ahead of the prompt. The exit code meaning is merely a guess for the semi-standard exit codes (in the range 126-143) and is often incorrect.
+
+### *Clock*
+When enabled with `HEADLINE_DO_CLOCK='true'`, display the time to the right of the prompt.
 
 <br>
 
