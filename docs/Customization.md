@@ -24,12 +24,12 @@ By "styles" I mean [ANSI SGR codes](https://en.wikipedia.org/wiki/ANSI_escape_co
 ### Toggle Separator
 *`HEADLINE_LINE_MODE`*  
 Whether to print the separator line above the prompt.
-* `on` – always print the line
+* `on` – always print the line (default)
 * `auto` – print the line, but not on the first prompt or after the `clear` command (this feature isn't complete)
 * `off` – don't print the line
 
 ### Styles
-Styles to apply to each segment of the separator line.
+Styles applied to each segment of the separator line.
 | Variable                        | Default         |
 |---------------------------------|-----------------|
 | *`HEADLINE_STYLE_JOINT_LINE`*   | `$light_black`  |
@@ -51,10 +51,10 @@ Whether to print each segment of prompt
 
 ### Symbols
 *`HEADLINE_USER_PREFIX`, `HEADLINE_HOST_PREFIX`, `HEADLINE_PATH_PREFIX`, `HEADLINE_BRANCH_PREFIX`*  
-Symbols to prepend to each segment of info line. The symbols are from your font. More details in [Terminal Setup](Terminal-Setup.md).
+Symbols to prepend to each segment of info line. The symbols must be included with your font. More details in [Terminal Setup](Terminal-Setup.md).
 
 ### Styles
-Styles to apply to each segment. The default style applies to the entire information line, although the other styles take precedence.
+Styles applied to each segment. The default style applies to the entire information line, although the other styles take precedence.
 | Variable                   | Default         |
 |----------------------------|-----------------|
 | *`HEADLINE_STYLE_JOINT`*   | `$light_black`  |
@@ -84,7 +84,7 @@ By default, `HEADLINE_USER_BEGIN` is `=> ` when `IS_SSH` is `0` (true).
 ### Print Mode
 *`HEADLINE_INFO_MODE`*  
 Whether info line is in `PROMPT` or printed by `precmd`. This option exists because I can't figure out how to solve both problems at once.
-* `precmd` – window resize works properly, but Ctrl+L won't print the info line
+* `precmd` – window resize works properly, but Ctrl+L won't print the info line (default)
 * `prompt` – Ctrl+L works properly, but window resize eats previous output
 
 <br>
@@ -95,7 +95,7 @@ Whether info line is in `PROMPT` or printed by `precmd`. This option exists beca
 *`HEADLINE_DO_GIT_STATUS_COUNTS`*  
 Whether to show count of each status. It can make the status segment a bit cluttery, so also consider setting the `HEADLINE_STATUS_TO_STATUS` joint character
 * `true` – show counts
-* `false` – don't show counts
+* `false` – don't show counts (default)
 
 ### Status Characters
 Characters used to represent each Git status.
@@ -110,12 +110,6 @@ Characters used to represent each Git status.
 | *`HEADLINE_GIT_STASHED`*   | `*`     | stashed files    |
 | *`HEADLINE_GIT_CONFLICTS`* | `✘`     | conflicts        |
 | *`HEADLINE_GIT_CLEAN`*     | (none)  | clean branch     |
-
-### Function Override
-The Git status information comes from the function `headline_git_status`. To use your own Git status function, such as `my_git_status`, you can re-define `headline_git_status` in your `~/.zshrc` to call it like so:
-```
-headline_git_status() { echo $(my_git_status) }
-```
 
 <br>
 
@@ -135,13 +129,11 @@ Whether to show guessed meaning alongside exit code
 
 ### Prefix
 *`HEADLINE_ERR_PREFIX`*  
+String to put ahead of exit code, `-> ` by default.
 
-```
-HEADLINE_DO_ERR='true' # whether to show non-zero exit codes above prompt
-HEADLINE_DO_ERR_INFO='true' # whether to show exit code meaning as well
-HEADLINE_ERR_PREFIX='→ '
-HEADLINE_STYLE_ERR=$italic$faint
-```
+### Style
+*`HEADLINE_STYLE_ERR`*  
+Style applied to exit code line, `$italic$faint` by default.
 
 <br>
 

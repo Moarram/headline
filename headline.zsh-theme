@@ -75,13 +75,13 @@ IS_SSH=$? # 0=true, 1=false
 # The style aliases for ANSI SGR codes (defined above) can be used there too
 
 # Options
-HEADLINE_LINE_MODE='auto' # on|auto|off (whether to print the line above the prompt)
+HEADLINE_LINE_MODE='on' # on|auto|off (whether to print the line above the prompt)
 HEADLINE_INFO_MODE='precmd' # precmd|prompt (whether info line is in PROMPT or printed by precmd)
   # use "precmd" for window resize to work properly (but Ctrl+L doesn't show info line)
   # use "prompt" for Ctrl+L to clear properly (but window resize eats previous output)
 
 # Exit codes
-HEADLINE_DO_ERR='true' # whether to show non-zero exit codes above prompt
+HEADLINE_DO_ERR='false' # whether to show non-zero exit codes above prompt
 HEADLINE_DO_ERR_INFO='true' # whether to show exit code meaning as well
 HEADLINE_ERR_PREFIX='→ '
 HEADLINE_STYLE_ERR=$italic$faint
