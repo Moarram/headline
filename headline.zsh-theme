@@ -1,7 +1,7 @@
 #!/bin/zsh
 
 # Headline ZSH Prompt
-# Copyright (c) 2021 Moarram under the MIT License
+# Copyright (c) 2022 Moarram under the MIT License
 
 # To install, source this file from your .zshrc file
 # Customization variables begin around line 70
@@ -76,7 +76,7 @@ IS_SSH=$? # 0=true, 1=false
 
 # Options
 HEADLINE_LINE_MODE='auto' # on|auto|off (whether to print the line above the prompt)
-HEADLINE_INFO_MODE='precmd' # precmd|prompt (whether info line is in $PROMPT or printed by precmd)
+HEADLINE_INFO_MODE='precmd' # precmd|prompt (whether info line is in PROMPT or printed by precmd)
   # use "precmd" for window resize to work properly (but Ctrl+L doesn't show info line)
   # use "prompt" for Ctrl+L to clear properly (but window resize eats previous output)
 
@@ -88,7 +88,7 @@ HEADLINE_DO_GIT_BRANCH='true'
 HEADLINE_DO_GIT_STATUS='true'
 
 # Prompt character
-HEADLINE_PROMPT="%(#.#.%(!.!.$)) " # consider "%#"
+HEADLINE_PROMPT='%(#.#.%(!.!.$)) ' # consider "%#"
 
 # Repeated characters (no styles here)
 HEADLINE_LINE_CHAR='_' # line above information
@@ -413,7 +413,7 @@ headline_output() {
   print -rP $HEADLINE_PROMPT
 }
 if [[ $HEADLINE_INFO_MODE == 'precmd' ]]; then
-  PROMPT=$HEADLINE_PROMPT # line and info printed by precmd
+  PROMPT="$HEADLINE_PROMPT" # line and info printed by precmd
 else
   PROMPT='$(headline_output)' # only line printed by precmd
 fi

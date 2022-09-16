@@ -8,12 +8,12 @@ Headline. A stylish theme with deliberate use of space. No dependencies. Easily 
 
 ## Features
 ### Separator Line
-A line above the prompt info text with matching colors. May be disabled with `HEADLINE_LINE_MODE=off` for a more compact prompt.
+A line above the prompt info text with matching colors. May be disabled with `HEADLINE_LINE_MODE='off'` for a more compact prompt.
 
 ### Information Line
 `<user> @ <host>: <path> | <branch> [<status>]`
 
-This line is responsive, meaning it won't overflow when it gets too long. Individually style each segment of the information line using [ANSI SGR codes](https://en.wikipedia.org/wiki/ANSI_escape_code#SGR_(Select_Graphic_Rendition)_parameters) (which are conveniently aliased in the theme file). You can customize the characters for joining segments and disable segments entirely.
+This line compacts to fit within the terminal width. Individually style each segment of the information line using [ANSI SGR codes](https://en.wikipedia.org/wiki/ANSI_escape_code#SGR_(Select_Graphic_Rendition)_parameters) (which are conveniently aliased in the theme file). You can customize the characters for joining segments and disable segments entirely.
 
 ### Git Status
 All the Git status symbols are customizable. The defaults are below:
@@ -36,10 +36,10 @@ All the Git status symbols are customizable. The defaults are below:
 ## Installation
 Download the `headline.zsh-theme` file.
 ```
-wget https://raw.githubusercontent.com/moarram/headline/main/headline.zsh-theme
+$ wget https://raw.githubusercontent.com/moarram/headline/main/headline.zsh-theme
 ```
 
-In your `~/.zshrc`, source the `headline.zsh-theme` file.
+In your `~/.zshrc`, source the `headline.zsh-theme`.
 ```
 source your/path/to/headline.zsh-theme
 ```
