@@ -21,6 +21,11 @@ By "styles" I mean [ANSI SGR codes](https://en.wikipedia.org/wiki/ANSI_escape_co
 
 
 ## Separator Line
+A line above the prompt with matching colors.
+```
+_______________________________________________
+```
+
 ### Toggle Separator
 *`HEADLINE_LINE_MODE`*  
 Whether to print the separator line above the prompt.
@@ -43,9 +48,14 @@ Styles applied to each segment of the separator line.
 
 
 ## Information Line
+The core of the prompt.
+```
+<user> @ <host>: <path> | <branch> [<status>]
+```
+
 ### Toggle Segments
 *`HEADLINE_DO_USER`, `HEADLINE_DO_HOST`, `HEADLINE_DO_PATH`, `HEADLINE_DO_GIT_BRANCH`, `HEADLINE_DO_GIT_STATUS`*  
-Whether to print each segment of prompt
+Whether to print each segment of prompt.
 * `true` – print segment
 * `false` – don't print segment or associated joints
 
@@ -79,7 +89,7 @@ The connector strings between information segments.
 | *`HEADLINE_STATUS_TO_STATUS`* | (none)   |
 | *`HEADLINE_STATUS_END`*       | `']'`    |
 
-By default, `HEADLINE_USER_BEGIN` is `=> ` when `IS_SSH` is `0` (true).
+By default, `HEADLINE_USER_BEGIN` is `=>` when `IS_SSH` is `0` (true).
 
 ### Print Mode
 *`HEADLINE_INFO_MODE`*  
@@ -91,9 +101,14 @@ Whether info line is in `PROMPT` or printed by `precmd`. This option exists beca
 
 
 ## Git Status
+Status of the current git branch represented by symbols.
+```
+[+!?↓↑↕*✘]
+```
+
 ### Toggle Counts
 *`HEADLINE_DO_GIT_STATUS_COUNTS`*  
-Whether to show count of each status. It can make the status segment a bit cluttery, so also consider setting the `HEADLINE_STATUS_TO_STATUS` joint character
+Whether to show count of each status. It can make the status segment a bit cluttery, so also consider setting the `HEADLINE_STATUS_TO_STATUS` joint character.
 * `true` – show counts
 * `false` – don't show counts (default)
 
@@ -115,21 +130,28 @@ Characters used to represent each Git status.
 
 
 ## Exit Code
+The code returned by the previous command.
+```
+→ <code> (<meaning>)
+```
+
+*HINT:* To change the messages associated with exit codes, edit the `headline_exit_meaning()` function (it's just a switch statement).
+
 ### Toggle Exit Code
 *`HEADLINE_DO_ERR`*  
-Whether to show non-zero exit codes
+Whether to show non-zero exit codes.
 * `true` – show exit codes
 * `false` – don't show exit codes (default)
 
-### Toggle Exit Code Meaning
+### Toggle Meaning
 *`HEADLINE_DO_ERR_INFO`*  
-Whether to show guessed meaning alongside exit code
+Whether to show guessed meaning alongside exit code (must have `HEADLINE_DO_ERR` set `true`).
 * `true` – show exit code meaning (default)
 * `false` – don't show exit code meaning
 
 ### Prefix
 *`HEADLINE_ERR_PREFIX`*  
-String to put ahead of exit code, `→ ` by default.
+String to put ahead of exit code, `→` by default.
 
 ### Style
 *`HEADLINE_STYLE_ERR`*  
@@ -139,6 +161,10 @@ Style applied to exit code line, `$italic$faint` by default.
 
 
 ## Prompt Line
+Where commands are entered.
+```
+$ 
+```
 ### Normal Prompt
 *`HEADLINE_PROMPT`*  
 Prompt line string, which by default shows `$` normally and `#` for root. Supports [Zsh prompt expansion](https://zsh.sourceforge.io/Doc/Release/Prompt-Expansion.html), so you could use `"%#"` to get `%` normally and `#` for root.
@@ -151,17 +177,22 @@ Optional prompt at right of screen, none by default.
 
 
 ## Clock
-*HINT:* The clock shows the time that the prompt was printed. If you want the clock to stay current by re-printing every second, add `TMOUT=1; TRAPALRM () { zle reset-prompt }` to your `~/.zshrc`. Note that this only works properly with `HEADLINE_INFO_MODE='precmd'`.
+The current time.
+```
+hh:mm:ss pp
+```
+
+*HINT:* The clock shows the time that the prompt was printed. If you want the clock to stay current by re-printing every second, add `TMOUT=1; TRAPALRM () { zle reset-prompt }` to your `~/.zshrc`. Note that this only works properly when `HEADLINE_INFO_MODE` is set `precmd`.
 
 ### Toggle Clock
 *`HEADLINE_DO_CLOCK`*  
-Whether to show the clock in `RPROMPT`
+Whether to show the clock in `RPROMPT`.
 * `true` – show clock
 * `false` – don't show clock (default)
 
 ### Style
 *`HEADLINE_STYLE_CLOCK`*  
-Style to apply to the clock, `$faint` by default
+Style to apply to the clock, `$faint` by default.
 
 ### Format
 *`HEADLINE_CLOCK_FORMAT`*  
