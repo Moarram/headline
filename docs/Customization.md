@@ -26,7 +26,7 @@ A line above the prompt with matching colors.
 _______________________________________________
 ```
 
-### Toggle Separator
+### Separator Mode
 *`HEADLINE_LINE_MODE`*  
 Whether to print the separator line above the prompt.
 * `on` – always print the line (default)
