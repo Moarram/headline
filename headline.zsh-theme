@@ -179,7 +179,7 @@ fi
 
 # Calculate length of string, excluding formatting characters
 # REF: https://old.reddit.com/r/zsh/comments/cgbm24/multiline_prompt_the_missing_ingredient/
-headline_prompt_len() {
+headline_prompt_len() { # (str, num)
   emulate -L zsh
   local -i COLUMNS=${2:-COLUMNS}
   local -i x y=${#1} m
@@ -364,56 +364,80 @@ headline_precmd() {
   [[ $HEADLINE_DO_GIT_BRANCH == 'true' ]] && branch_str=$(headline_git_branch)
   [[ $HEADLINE_DO_GIT_STATUS == 'true' ]] && status_str=$(headline_git_status)
 
-  # Trimming
-  if (( $COLUMNS < 35 && ${#path_str} )); then
-    user_str=''; host_str=''
-  elif (( $COLUMNS < 55 )); then
-    user_str="${user_str:0:1}"
-    host_str="${host_str:0:1}"
-  fi
-
   # Shared variables
-  _HEADLINE_LEN_SUM=0
+  _HEADLINE_LEN_REMAIN=$COLUMNS
   _HEADLINE_INFO_LEFT=''
   _HEADLINE_LINE_LEFT=''
   _HEADLINE_INFO_RIGHT=''
   _HEADLINE_LINE_RIGHT=''
 
-  # Prompt construction
-  local git_len len
+  # Git status
   if (( ${#status_str} )); then
     _headline_part JOINT "$HEADLINE_STATUS_END" right
     _headline_part STATUS "$HEADLINE_STATUS_PREFIX$status_str" right
     _headline_part JOINT "$HEADLINE_BRANCH_TO_STATUS" right
+    if (( $_HEADLINE_LEN_REMAIN < ${#HEADLINE_PAD_TO_BRANCH} + ${#HEADLINE_BRANCH_PREFIX} + 3 )); then
+      user_str=''; host_str=''; path_str=''; branch_str=''
+    fi
   fi
+
+  # Git branch
+  local len=$(( $_HEADLINE_LEN_REMAIN - ${#HEADLINE_BRANCH_PREFIX} ))
   if (( ${#branch_str} )); then
-    _headline_part BRANCH "$HEADLINE_BRANCH_PREFIX$branch_str" right
+    if (( $len < ${#HEADLINE_PATH_PREFIX} + 3 + ${#HEADLINE_PATH_TO_BRANCH} + ${#branch_str} )); then
+      path_str=''
+    fi
+    if (( ${#path_str} )); then
+      len=$(( $len - ${#HEADLINE_PATH_PREFIX} - ${#HEADLINE_PATH_TO_BRANCH} ))
+    else
+      len=$(( $len - ${#HEADLINE_PAD_TO_BRANCH} ))
+    fi
+    _headline_part BRANCH "$HEADLINE_BRANCH_PREFIX%$len<...<$branch_str%<<" right
   fi
-  git_len=$_HEADLINE_LEN_SUM
+
+  # Trimming
+  local joint_len=$(( ${#HEADLINE_USER_BEGIN} + ${#HEADLINE_USER_TO_HOST} + ${#HEADLINE_HOST_TO_PATH} + ${#HEADLINE_PATH_TO_BRANCH} ))
+  local path_min_len=$(( ${#path_str} + ${#HEADLINE_PATH_PREFIX} > 25 ? 25 : ${#path_str} + ${#HEADLINE_PATH_PREFIX} ))
+  len=$(( $_HEADLINE_LEN_REMAIN - $path_min_len - $joint_len ))
+  if (( $len < 2 )); then
+    user_str=''; host_str=''
+  elif (( $len < ${#user_str} + ${#host_str} )); then
+    user_str="${user_str:0:1}"
+    host_str="${host_str:0:1}"
+  fi
+
+  # User
   if (( ${#user_str} )); then
     _headline_part JOINT "$HEADLINE_USER_BEGIN" left
     _headline_part USER "$HEADLINE_USER_PREFIX$user_str" left
   fi
+
+  # Host
   if (( ${#host_str} )); then
     if (( ${#_HEADLINE_INFO_LEFT} )); then
       _headline_part JOINT "$HEADLINE_USER_TO_HOST" left
     fi
     _headline_part HOST "$HEADLINE_HOST_PREFIX$host_str" left
   fi
+
+  # Path
   if (( ${#path_str} )); then
     if (( ${#_HEADLINE_INFO_LEFT} )); then
       _headline_part JOINT "$HEADLINE_HOST_TO_PATH" left
     fi
-    len=$(( $COLUMNS - $_HEADLINE_LEN_SUM - ${#HEADLINE_PATH_PREFIX} - ( $git_len ? ${#HEADLINE_PATH_TO_BRANCH} : 0 ) ))
+    len=$(( $_HEADLINE_LEN_REMAIN - ${#HEADLINE_PATH_PREFIX} - ( ${#branch_str} ? ${#HEADLINE_PATH_TO_BRANCH} : 0 ) ))
     _headline_part PATH "$HEADLINE_PATH_PREFIX%$len<...<$path_str%<<" left
   fi
-  len=$(( $COLUMNS - $_HEADLINE_LEN_SUM - ${#HEADLINE_PATH_TO_PAD} - ${#HEADLINE_PAD_TO_BRANCH} ))
-  if (( $git_len && $COLUMNS - $_HEADLINE_LEN_SUM <= ${#HEADLINE_PATH_TO_BRANCH} )); then
+
+  # Padding
+  if (( ${#branch_str} && ${#path_str} && $_HEADLINE_LEN_REMAIN <= ${#HEADLINE_PATH_TO_BRANCH} )); then
     _headline_part JOINT "$HEADLINE_PATH_TO_BRANCH" left
   else
+    if (( ${#branch_str} )); then
+      _headline_part JOINT "$HEADLINE_PAD_TO_BRANCH" right
+    fi
     _headline_part JOINT "$HEADLINE_PATH_TO_PAD" left
-    _headline_part JOINT "$(headline_repeat_char $HEADLINE_PAD_CHAR $len)" left
-    _headline_part JOINT "$HEADLINE_PAD_TO_BRANCH" left
+    _headline_part JOINT "$(headline_repeat_char $HEADLINE_PAD_CHAR $_HEADLINE_LEN_REMAIN)" left
   fi
 
   # Error line
@@ -458,7 +482,7 @@ _headline_part() { # (name, content, side)
   eval style="\$reset\$HEADLINE_STYLE_DEFAULT\$HEADLINE_STYLE_${1}"
   info="%{$style%}$2"
   info_len=$(headline_prompt_len $info 9999)
-  _HEADLINE_LEN_SUM=$(( $_HEADLINE_LEN_SUM + $info_len ))
+  _HEADLINE_LEN_REMAIN=$(( $_HEADLINE_LEN_REMAIN - $info_len ))
   eval style="\$reset\$HEADLINE_STYLE_${1}_LINE"
   line="%{$style%}$(headline_repeat_char $HEADLINE_LINE_CHAR $info_len)"
   if [[ $3 == 'right' ]]; then
