@@ -8,6 +8,11 @@ Take a look in the `headline.zsh-theme` file to see all the customization variab
 ### Setting Variables
 You can edit the variables in the theme file directly, or set the Headline variables in your `~/.zshrc` after the theme is sourced. *Variables set before the theme is sourced are ignored.*
 
+### Booleans
+The string "true" is considered *true*, all other values are false.
+
+> Example: `HEADLINE_DO_ERR=true`
+
 ### Styles
 By "styles" I mean [ANSI SGR codes](https://en.wikipedia.org/wiki/ANSI_escape_code#SGR_(Select_Graphic_Rendition)_parameters): non-printed sequences that specify colors and formatting. I have aliased all the common SGR codes at the beginning of the file, so you can use `$red` instead of `$'\e[31m'`.
 
@@ -16,6 +21,59 @@ By "styles" I mean [ANSI SGR codes](https://en.wikipedia.org/wiki/ANSI_escape_co
 * Foreground colors – `$black`, `$red`, `$green`, `$yellow`, `$blue`, `$magenta`, `$cyan`, `$white`, `$light_black`, `$light_red`, `$light_green`, `$light_yellow`, `$light_blue`, `$light_magenta`, `$light_cyan`, `$light_white`
 
 * Background colors – Same as the foreground colors but with `_back` on the end, such as `$red_back`.
+
+<br>
+
+
+## Information Line
+The core of the prompt.
+```
+<user> @ <host>: <path> | <branch> [<status>]
+```
+
+### Toggle Segments
+*`HEADLINE_DO_USER`, `HEADLINE_DO_HOST`, `HEADLINE_DO_PATH`, `HEADLINE_DO_GIT_BRANCH`, `HEADLINE_DO_GIT_STATUS`*  
+Whether to print each segment of prompt.
+* `true` – print segment
+* `false` – don't print segment or associated joints
+
+### Symbols
+*`HEADLINE_USER_PREFIX`, `HEADLINE_HOST_PREFIX`, `HEADLINE_PATH_PREFIX`, `HEADLINE_BRANCH_PREFIX`*  
+Symbols to prepend to each segment of info line. The symbols must be included with your font. More details in [Terminal Setup](Terminal-Setup.md).
+
+### Joints
+The connector strings between information segments.
+| Variable                      | Default  |
+|-------------------------------|----------|
+| *`HEADLINE_USER_BEGIN`*       | (none)   |
+| *`HEADLINE_USER_TO_HOST`*     | `' @ '`  |
+| *`HEADLINE_HOST_TO_PATH`*     | `': '`   |
+| *`HEADLINE_PATH_TO_BRANCH`*   | `' \| '` |
+| *`HEADLINE_PATH_TO_PAD`*      | (none)   |
+| *`HEADLINE_PAD_TO_BRANCH`*    | (none)   |
+| *`HEADLINE_BRANCH_TO_STATUS`* | `' ['`   |
+| *`HEADLINE_STATUS_TO_STATUS`* | (none)   |
+| *`HEADLINE_STATUS_END`*       | `']'`    |
+
+### Styles
+Styles applied to each segment. The default style applies to the entire information line, although the other styles take precedence.
+| Variable                   | Default         |
+|----------------------------|-----------------|
+| *`HEADLINE_STYLE_JOINT`*   | `$light_black`  |
+| *`HEADLINE_STYLE_USER`*    | `$bold$red`     |
+| *`HEADLINE_STYLE_HOST`*    | `$bold$yellow`  |
+| *`HEADLINE_STYLE_PATH`*    | `$bold$blue`    |
+| *`HEADLINE_STYLE_BRANCH`*  | `$bold$cyan`    |
+| *`HEADLINE_STYLE_STATUS`*  | `$bold$magenta` |
+| *`HEADLINE_STYLE_DEFAULT`* | (none)          |
+
+By default, `HEADLINE_USER_BEGIN` is `=>` when `IS_SSH` is `0` (true).
+
+### Print Mode
+*`HEADLINE_INFO_MODE`*  
+Whether info line is in `PROMPT` or printed by `precmd`. This option exists because I can't figure out how to solve both problems at once.
+* `precmd` – window resize works properly, but Ctrl+L won't print the info line (default)
+* `prompt` – Ctrl+L works properly, but window resize eats previous output
 
 <br>
 
@@ -47,70 +105,11 @@ Styles applied to each segment of the separator line.
 <br>
 
 
-## Information Line
-The core of the prompt.
-```
-<user> @ <host>: <path> | <branch> [<status>]
-```
-
-### Toggle Segments
-*`HEADLINE_DO_USER`, `HEADLINE_DO_HOST`, `HEADLINE_DO_PATH`, `HEADLINE_DO_GIT_BRANCH`, `HEADLINE_DO_GIT_STATUS`*  
-Whether to print each segment of prompt.
-* `true` – print segment
-* `false` – don't print segment or associated joints
-
-### Symbols
-*`HEADLINE_USER_PREFIX`, `HEADLINE_HOST_PREFIX`, `HEADLINE_PATH_PREFIX`, `HEADLINE_BRANCH_PREFIX`*  
-Symbols to prepend to each segment of info line. The symbols must be included with your font. More details in [Terminal Setup](Terminal-Setup.md).
-
-### Styles
-Styles applied to each segment. The default style applies to the entire information line, although the other styles take precedence.
-| Variable                   | Default         |
-|----------------------------|-----------------|
-| *`HEADLINE_STYLE_JOINT`*   | `$light_black`  |
-| *`HEADLINE_STYLE_USER`*    | `$bold$red`     |
-| *`HEADLINE_STYLE_HOST`*    | `$bold$yellow`  |
-| *`HEADLINE_STYLE_PATH`*    | `$bold$blue`    |
-| *`HEADLINE_STYLE_BRANCH`*  | `$bold$cyan`    |
-| *`HEADLINE_STYLE_STATUS`*  | `$bold$magenta` |
-| *`HEADLINE_STYLE_DEFAULT`* | (none)          |
-
-### Joints
-The connector strings between information segments.
-| Variable                      | Default  |
-|-------------------------------|----------|
-| *`HEADLINE_USER_BEGIN`*       | (none)   |
-| *`HEADLINE_USER_TO_HOST`*     | `' @ '`  |
-| *`HEADLINE_HOST_TO_PATH`*     | `': '`   |
-| *`HEADLINE_PATH_TO_BRANCH`*   | `' \| '` |
-| *`HEADLINE_PATH_TO_PAD`*      | (none)   |
-| *`HEADLINE_PAD_TO_BRANCH`*    | (none)   |
-| *`HEADLINE_BRANCH_TO_STATUS`* | `' ['`   |
-| *`HEADLINE_STATUS_TO_STATUS`* | (none)   |
-| *`HEADLINE_STATUS_END`*       | `']'`    |
-
-By default, `HEADLINE_USER_BEGIN` is `=>` when `IS_SSH` is `0` (true).
-
-### Print Mode
-*`HEADLINE_INFO_MODE`*  
-Whether info line is in `PROMPT` or printed by `precmd`. This option exists because I can't figure out how to solve both problems at once.
-* `precmd` – window resize works properly, but Ctrl+L won't print the info line (default)
-* `prompt` – Ctrl+L works properly, but window resize eats previous output
-
-<br>
-
-
 ## Git Status
 Status of the current git branch represented by symbols.
 ```
 [+!?↓↑↕*✘]
 ```
-
-### Toggle Counts
-*`HEADLINE_DO_GIT_STATUS_COUNTS`*  
-Whether to show count of each status. It can make the status segment a bit cluttery, so also consider setting the `HEADLINE_STATUS_TO_STATUS` joint character.
-* `true` – show counts
-* `false` – don't show counts (default)
 
 ### Status Characters
 Characters used to represent each Git status.
@@ -126,36 +125,21 @@ Characters used to represent each Git status.
 | *`HEADLINE_GIT_CONFLICTS`* | `✘`     | conflicts        |
 | *`HEADLINE_GIT_CLEAN`*     | (none)  | clean branch     |
 
-<br>
+### Toggle Counts
+*`HEADLINE_DO_GIT_STATUS_COUNTS`*  
+Whether to show count of each status. It can make the status segment a bit cluttery, so also consider setting the `HEADLINE_STATUS_TO_STATUS` joint character.
+* `true` – show counts
+* `false` – don't show counts (default)
 
+> Example: no counts `+!?`, with counts `3+1!2?`, and with joint `3+|1!|2?`
 
-## Exit Code
-The code returned by the previous command.
-```
-→ <code> (<meaning>)
-```
+### Toggle Single Count
+*`HEADLINE_DO_GIT_STATUS_OMIT_ONE`*  
+Whether to show count for a status when that count is one (must have `HEADLINE_DO_GIT_STATUS_COUNTS` set `true`).
+* `true` – omit the count when it is 1
+* `false` – show count even when it is 1 (default)
 
-*HINT:* To change the messages associated with exit codes, edit the `headline_exit_meaning()` function (it's just a switch statement).
-
-### Toggle Exit Code
-*`HEADLINE_DO_ERR`*  
-Whether to show non-zero exit codes.
-* `true` – show exit codes
-* `false` – don't show exit codes (default)
-
-### Toggle Meaning
-*`HEADLINE_DO_ERR_INFO`*  
-Whether to show guessed meaning alongside exit code (must have `HEADLINE_DO_ERR` set `true`).
-* `true` – show exit code meaning (default)
-* `false` – don't show exit code meaning
-
-### Prefix
-*`HEADLINE_ERR_PREFIX`*  
-String to put ahead of exit code, `→` by default.
-
-### Style
-*`HEADLINE_STYLE_ERR`*  
-Style applied to exit code line, `$italic$faint` by default.
+> Example: counts `3+1!2?`, with omit one `3+!2?`, and with joint `3+|!|2?`
 
 <br>
 
@@ -167,7 +151,7 @@ $
 ```
 ### Normal Prompt
 *`HEADLINE_PROMPT`*  
-Prompt line string, which by default shows `$` normally and `#` for root. Supports [Zsh prompt expansion](https://zsh.sourceforge.io/Doc/Release/Prompt-Expansion.html), so you could use `"%#"` to get `%` normally and `#` for root.
+Prompt line string, which by default shows `$` normally and `#` for root. Supports [Zsh prompt expansion](https://zsh.sourceforge.io/Doc/Release/Prompt-Expansion.html), so you could use `"%#"` (the Zsh default) for `%` normally and `#` for root.
 
 ### Right Prompt
 *`HEADLINE_RPROMPT`*  
@@ -197,6 +181,37 @@ Style to apply to the clock, `$faint` by default.
 ### Format
 *`HEADLINE_CLOCK_FORMAT`*  
 Format of the clock, `%l:%M:%S %p` by default. Use `%+` for complete date and time. See `man strftime` for details.
+
+<br>
+
+
+## Exit Code
+The code returned by the previous command.
+```
+→ <code> (<meaning>)
+```
+
+*HINT:* To add or change the messages associated with exit codes, edit the `headline_exit_meaning()` function (it's just a switch statement).
+
+### Toggle Exit Code
+*`HEADLINE_DO_ERR`*  
+Whether to show non-zero exit codes.
+* `true` – show exit codes
+* `false` – don't show exit codes (default)
+
+### Toggle Meaning
+*`HEADLINE_DO_ERR_INFO`*  
+Whether to show guessed meaning alongside exit code (must have `HEADLINE_DO_ERR` set `true`).
+* `true` – show exit code meaning (default)
+* `false` – don't show exit code meaning
+
+### Prefix
+*`HEADLINE_ERR_PREFIX`*  
+String to put ahead of exit code, `→` by default.
+
+### Style
+*`HEADLINE_STYLE_ERR`*  
+Style applied to exit code line, `$italic$faint` by default.
 
 <br>
 

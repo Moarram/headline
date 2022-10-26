@@ -72,45 +72,20 @@ IS_SSH=$? # 0=true, 1=false
 # These variables can also be set in your ~/.zshrc after sourcing this file
 # The style aliases for ANSI SGR codes (defined above) can be used there too
 
-# Options
-HEADLINE_LINE_MODE='on' # on|auto|off (whether to print the line above the prompt)
-HEADLINE_INFO_MODE='precmd' # precmd|prompt (whether info line is in PROMPT or printed by precmd)
-  # use "precmd" for window resize to work properly (but Ctrl+L doesn't show info line)
-  # use "prompt" for Ctrl+L to clear properly (but window resize eats previous output)
+# Info segments
+HEADLINE_DO_USER=true
+HEADLINE_DO_HOST=true
+HEADLINE_DO_PATH=true
+HEADLINE_DO_GIT_BRANCH=true
+HEADLINE_DO_GIT_STATUS=true
 
-# Exit codes
-HEADLINE_DO_ERR='false' # whether to show non-zero exit codes above prompt
-HEADLINE_DO_ERR_INFO='true' # whether to show exit code meaning as well
-HEADLINE_ERR_PREFIX='→ '
-HEADLINE_STYLE_ERR=$italic$faint
-
-# Segments
-HEADLINE_DO_USER='true'
-HEADLINE_DO_HOST='true'
-HEADLINE_DO_PATH='true'
-HEADLINE_DO_GIT_BRANCH='true'
-HEADLINE_DO_GIT_STATUS='true'
-
-# Prompt
-HEADLINE_PROMPT='%(#.#.%(!.!.$)) ' # consider "%#"
-HEADLINE_RPROMPT=''
-
-# Clock (prepends to RPROMPT)
-HEADLINE_DO_CLOCK='false' # whether to show the clock
-HEADLINE_STYLE_CLOCK=$faint
-HEADLINE_CLOCK_FORMAT='%l:%M:%S %p' # consider "%+" for full date (see man strftime)
-
-# Repeated characters (no styles here)
-HEADLINE_LINE_CHAR='_' # line above information
-HEADLINE_PAD_CHAR=' ' # space between <path> and <branch>
-
-# Prefixes (optional)
+# Info symbols (optional)
 HEADLINE_USER_PREFIX='' # consider " "
 HEADLINE_HOST_PREFIX='' # consider " "
 HEADLINE_PATH_PREFIX='' # consider " "
 HEADLINE_BRANCH_PREFIX='' # consider " "
 
-# Joints
+# Info joints
 HEADLINE_USER_BEGIN=''
 if [ $IS_SSH = 0 ]; then HEADLINE_USER_BEGIN='=> '; fi
 HEADLINE_USER_TO_HOST=' @ '
@@ -131,7 +106,12 @@ HEADLINE_STYLE_PATH=$bold$blue
 HEADLINE_STYLE_BRANCH=$bold$cyan
 HEADLINE_STYLE_STATUS=$bold$magenta
 
-# Line styles
+# Info options
+HEADLINE_INFO_MODE=precmd # precmd|prompt (whether info line is in PROMPT or printed by precmd)
+  # use "precmd" for window resize to work properly (but Ctrl+L doesn't show info line)
+  # use "prompt" for Ctrl+L to clear properly (but window resize eats previous output)
+
+# Separator styles
 HEADLINE_STYLE_JOINT_LINE=$HEADLINE_STYLE_JOINT
 HEADLINE_STYLE_USER_LINE=$HEADLINE_STYLE_USER
 HEADLINE_STYLE_HOST_LINE=$HEADLINE_STYLE_HOST
@@ -139,14 +119,13 @@ HEADLINE_STYLE_PATH_LINE=$HEADLINE_STYLE_PATH
 HEADLINE_STYLE_BRANCH_LINE=$HEADLINE_STYLE_BRANCH
 HEADLINE_STYLE_STATUS_LINE=$HEADLINE_STYLE_STATUS
 
+# Separator options
+HEADLINE_LINE_MODE=on # on|auto|off (whether to print the line above the prompt)
+
 # Git branch characters
 HEADLINE_GIT_HASH=':' # hash prefix to distinguish from branch
 
-# Git status options
-HEADLINE_DO_GIT_STATUS_COUNTS='false' # set "true" to show count of each status
-HEADLINE_DO_GIT_STATUS_OMIT_ONE='false' # set "true" to omit the status number when it is 1
-
-# Git status styles and characters
+# Git status characters
 # To set individual status styles use "%{$reset<style>%}<char>"
 HEADLINE_GIT_STAGED='+'
 HEADLINE_GIT_CHANGED='!'
@@ -157,6 +136,29 @@ HEADLINE_GIT_DIVERGED='↕'
 HEADLINE_GIT_STASHED='*'
 HEADLINE_GIT_CONFLICTS='✘' # consider "%{$red%}✘"
 HEADLINE_GIT_CLEAN='' # consider "✓" or "✔"
+
+# Git status options
+HEADLINE_DO_GIT_STATUS_COUNTS=false # set "true" to show count of each status
+HEADLINE_DO_GIT_STATUS_OMIT_ONE=false # set "true" to omit the status number when it is 1
+
+# Prompt
+HEADLINE_PROMPT='%(#.#.%(!.!.$)) ' # consider "%#"
+HEADLINE_RPROMPT=''
+
+# Clock (prepends to RPROMPT)
+HEADLINE_DO_CLOCK=false # whether to show the clock
+HEADLINE_STYLE_CLOCK=$faint
+HEADLINE_CLOCK_FORMAT='%l:%M:%S %p' # consider "%+" for full date (see man strftime)
+
+# Exit code
+HEADLINE_DO_ERR=false # whether to show non-zero exit codes above prompt
+HEADLINE_DO_ERR_INFO=true # whether to show exit code meaning as well
+HEADLINE_ERR_PREFIX='→ '
+HEADLINE_STYLE_ERR=$italic$faint
+
+# Repeated characters (no styles here)
+HEADLINE_LINE_CHAR='_' # line above information
+HEADLINE_PAD_CHAR=' ' # space between <path> and <branch>
 
 # ------------------------------------------------------------------------------
 
@@ -212,23 +214,23 @@ headline_exit_meaning() { # (num)
   # REF: https://man7.org/linux/man-pages/man7/signal.7.html
   # NOTE: these meanings are not standardized
   case $1 in
-    126) print 'Command cannot execute';;
-    127) print 'Command not found';;
-    129) print 'Hangup';;
-    130) print 'Interrupted';;
-    131) print 'Quit';;
-    132) print 'Illegal instruction';;
-    133) print 'Trapped';;
-    134) print 'Aborted';;
-    135) print 'Bus error';;
-    136) print 'Arithmetic error';;
-    137) print 'Killed';;
-    138) print 'User signal 1';;
-    139) print 'Segmentation fault';;
-    140) print 'User signal 2';;
-    141) print 'Pipe error';;
-    142) print 'Alarm';;
-    143) print 'Terminated';;
+    126) echo 'Command cannot execute';;
+    127) echo 'Command not found';;
+    129) echo 'Hangup';;
+    130) echo 'Interrupted';;
+    131) echo 'Quit';;
+    132) echo 'Illegal instruction';;
+    133) echo 'Trapped';;
+    134) echo 'Aborted';;
+    135) echo 'Bus error';;
+    136) echo 'Arithmetic error';;
+    137) echo 'Killed';;
+    138) echo 'User signal 1';;
+    139) echo 'Segmentation fault';;
+    140) echo 'User signal 2';;
+    141) echo 'Pipe error';;
+    142) echo 'Alarm';;
+    143) echo 'Terminated';;
     *) ;;
   esac
 }
