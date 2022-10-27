@@ -1,6 +1,8 @@
 # Customization
 Take a look in the `headline.zsh-theme` file to see all the customization variables (they start [around line 70](../headline.zsh-theme#L70)). This documentation is non-exhaustive.
 
+For sample configurations see [Examples](#examples)
+
 <br>
 
 
@@ -228,9 +230,77 @@ Style applied to exit code line, `$italic$faint` by default.
 <br>
 
 
-## Screenshots
-> <img src="https://raw.githubusercontent.com/moarram/headline/assets/images/customization-demo.png" width="600"/>
->
-> A sampling of the available customization variables.
+## Examples
+Some sample configurations for inspiration (with screenshots).
+
+### Compact
+Hides separator line and extra spaces between info segments.
+
+<img src="https://raw.githubusercontent.com/moarram/headline/assets/images/config-compact.png" width="600"/>
+
+```sh
+HEADLINE_USER_TO_HOST='@'
+HEADLINE_HOST_TO_PATH=':'
+HEADLINE_PATH_TO_BRANCH='|'
+HEADLINE_BRANCH_TO_STATUS='['
+HEADLINE_TRUNC_PREFIX='…'
+HEADLINE_LINE_MODE=off
+```
+
+### Kebab
+Hides separator line and uses `-` between info segments.
+
+<img src="https://raw.githubusercontent.com/moarram/headline/assets/images/config-kebab.png" width="600"/>
+
+```sh
+HEADLINE_USER_BEGIN='--'
+HEADLINE_USER_TO_HOST='-'
+HEADLINE_HOST_TO_PATH='-'
+HEADLINE_PATH_TO_BRANCH='-'
+HEADLINE_PAD_TO_BRANCH='-'
+HEADLINE_BRANCH_TO_STATUS='-'
+HEADLINE_STATUS_END='--'
+HEADLINE_PAD_CHAR='-'
+HEADLINE_TRUNC_PREFIX='…'
+HEADLINE_LINE_MODE=off
+```
+
+### Standard
+Shows exit codes (when not 0), clock, and git status counts (when not 1). Moarram uses this configuration.
+
+<img src="https://raw.githubusercontent.com/moarram/headline/assets/images/config-standard.png" width="600"/>
+
+```sh
+HEADLINE_STATUS_TO_STATUS='|'
+HEADLINE_LINE_MODE=auto
+HEADLINE_DO_GIT_STATUS_COUNTS=true
+HEADLINE_DO_GIT_STATUS_OMIT_ONE=true
+HEADLINE_DO_ERR=true
+HEADLINE_DO_CLOCK=true
+```
+
+### Verbose
+Shows exit codes (when not 0), full time and date, git status counts, info segment symbols, and words between info segments.
+
+<img src="https://raw.githubusercontent.com/moarram/headline/assets/images/config-verbose.png" width="600"/>
+
+```sh
+HEADLINE_USER_PREFIX=' '
+HEADLINE_HOST_PREFIX=' '
+HEADLINE_PATH_PREFIX=' '
+HEADLINE_BRANCH_PREFIX=' '
+HEADLINE_USER_TO_HOST=' at '
+HEADLINE_HOST_TO_PATH=' in '
+HEADLINE_PATH_TO_BRANCH=' on '
+HEADLINE_PAD_TO_BRANCH=' on '
+HEADLINE_BRANCH_TO_STATUS=' ('
+HEADLINE_STATUS_TO_STATUS='|'
+HEADLINE_STATUS_END=')'
+HEADLINE_LINE_MODE=auto
+HEADLINE_DO_GIT_STATUS_COUNTS=true
+HEADLINE_DO_ERR=true
+HEADLINE_DO_CLOCK=true
+HEADLINE_CLOCK_FORMAT='%+'
+```
 
 <br>
