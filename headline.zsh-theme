@@ -97,6 +97,12 @@ HEADLINE_BRANCH_TO_STATUS=' ['
 HEADLINE_STATUS_TO_STATUS='' # between each status section, consider "]"
 HEADLINE_STATUS_END=']'
 
+# Info padding character
+HEADLINE_PAD_CHAR=' ' # repeated for space between <path> and <branch>
+
+# Info truncation symbol
+HEADLINE_TRUNC_PREFIX='...' # shown where <path> or <branch> is truncated, consider "…"
+
 # Info styles
 HEADLINE_STYLE_DEFAULT='' # style applied to entire info line
 HEADLINE_STYLE_JOINT=$light_black
@@ -111,6 +117,12 @@ HEADLINE_INFO_MODE=precmd # precmd|prompt (whether info line is in PROMPT or pri
   # use "precmd" for window resize to work properly (but Ctrl+L doesn't show info line)
   # use "prompt" for Ctrl+L to clear properly (but window resize eats previous output)
 
+# Separator options
+HEADLINE_LINE_MODE=on # on|auto|off (whether to print the line above the prompt)
+
+# Separator character
+HEADLINE_LINE_CHAR='_' # repeated for line above information
+
 # Separator styles
 HEADLINE_STYLE_JOINT_LINE=$HEADLINE_STYLE_JOINT
 HEADLINE_STYLE_USER_LINE=$HEADLINE_STYLE_USER
@@ -118,9 +130,6 @@ HEADLINE_STYLE_HOST_LINE=$HEADLINE_STYLE_HOST
 HEADLINE_STYLE_PATH_LINE=$HEADLINE_STYLE_PATH
 HEADLINE_STYLE_BRANCH_LINE=$HEADLINE_STYLE_BRANCH
 HEADLINE_STYLE_STATUS_LINE=$HEADLINE_STYLE_STATUS
-
-# Separator options
-HEADLINE_LINE_MODE=on # on|auto|off (whether to print the line above the prompt)
 
 # Git branch characters
 HEADLINE_GIT_HASH=':' # hash prefix to distinguish from branch
@@ -155,13 +164,6 @@ HEADLINE_DO_ERR=false # whether to show non-zero exit codes above prompt
 HEADLINE_DO_ERR_INFO=true # whether to show exit code meaning as well
 HEADLINE_ERR_PREFIX='→ '
 HEADLINE_STYLE_ERR=$italic$faint
-
-# Repeated characters (no styles here)
-HEADLINE_LINE_CHAR='_' # line above information
-HEADLINE_PAD_CHAR=' ' # space between <path> and <branch>
-
-# Miscellaneous
-HEADLINE_TRUNC_PREFIX='...' # shown where <path> or <branch> is truncated
 
 # ------------------------------------------------------------------------------
 

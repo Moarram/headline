@@ -55,6 +55,14 @@ The connector strings between information segments.
 | *`HEADLINE_STATUS_TO_STATUS`* | (none)   |
 | *`HEADLINE_STATUS_END`*       | `']'`    |
 
+### Padding Character
+*`HEADLINE_PAD_CHAR`*  
+Character that repeats to pad between path and branch, space by default.
+
+### Truncation Symbol
+*`HEADLINE_TRUNC_PREFIX`*  
+Symbol used when path or branch is truncated, `...` by default.
+
 ### Styles
 Styles applied to each segment. The default style applies to the entire information line, although the other styles take precedence.
 | Variable                   | Default         |
@@ -90,6 +98,10 @@ Whether to print the separator line above the prompt.
 * `on` – always print the line (default)
 * `auto` – print the line, but not on the first prompt or after the `clear` command (this feature isn't complete)
 * `off` – don't print the line
+
+### Line Character
+*`HEADLINE_LINE_CHAR`*  
+Character that repeats to build separator line, `_` by default.
 
 ### Styles
 Styles applied to each segment of the separator line.
