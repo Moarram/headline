@@ -160,6 +160,9 @@ HEADLINE_STYLE_ERR=$italic$faint
 HEADLINE_LINE_CHAR='_' # line above information
 HEADLINE_PAD_CHAR=' ' # space between <path> and <branch>
 
+# Miscellaneous
+HEADLINE_TRUNC_PREFIX='...' # shown where <path> or <branch> is truncated
+
 # ------------------------------------------------------------------------------
 
 
@@ -378,7 +381,7 @@ headline_precmd() {
     _headline_part JOINT "$HEADLINE_STATUS_END" right
     _headline_part STATUS "$HEADLINE_STATUS_PREFIX$status_str" right
     _headline_part JOINT "$HEADLINE_BRANCH_TO_STATUS" right
-    if (( $_HEADLINE_LEN_REMAIN < ${#HEADLINE_PAD_TO_BRANCH} + ${#HEADLINE_BRANCH_PREFIX} + 3 )); then
+    if (( $_HEADLINE_LEN_REMAIN < ${#HEADLINE_PAD_TO_BRANCH} + ${#HEADLINE_BRANCH_PREFIX} + ${#HEADLINE_TRUNC_PREFIX} )); then
       user_str=''; host_str=''; path_str=''; branch_str=''
     fi
   fi
@@ -386,7 +389,7 @@ headline_precmd() {
   # Git branch
   local len=$(( $_HEADLINE_LEN_REMAIN - ${#HEADLINE_BRANCH_PREFIX} ))
   if (( ${#branch_str} )); then
-    if (( $len < ${#HEADLINE_PATH_PREFIX} + 3 + ${#HEADLINE_PATH_TO_BRANCH} + ${#branch_str} )); then
+    if (( $len < ${#HEADLINE_PATH_PREFIX} + ${#HEADLINE_TRUNC_PREFIX} + ${#HEADLINE_PATH_TO_BRANCH} + ${#branch_str} )); then
       path_str=''
     fi
     if (( ${#path_str} )); then
@@ -394,7 +397,7 @@ headline_precmd() {
     else
       len=$(( $len - ${#HEADLINE_PAD_TO_BRANCH} ))
     fi
-    _headline_part BRANCH "$HEADLINE_BRANCH_PREFIX%$len<...<$branch_str%<<" right
+    _headline_part BRANCH "$HEADLINE_BRANCH_PREFIX%$len<$HEADLINE_TRUNC_PREFIX<$branch_str%<<" right
   fi
 
   # Trimming
@@ -428,7 +431,7 @@ headline_precmd() {
       _headline_part JOINT "$HEADLINE_HOST_TO_PATH" left
     fi
     len=$(( $_HEADLINE_LEN_REMAIN - ${#HEADLINE_PATH_PREFIX} - ( ${#branch_str} ? ${#HEADLINE_PATH_TO_BRANCH} : 0 ) ))
-    _headline_part PATH "$HEADLINE_PATH_PREFIX%$len<...<$path_str%<<" left
+    _headline_part PATH "$HEADLINE_PATH_PREFIX%$len<$HEADLINE_TRUNC_PREFIX<$path_str%<<" left
   fi
 
   # Padding
