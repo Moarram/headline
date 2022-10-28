@@ -8,7 +8,7 @@ Headline. A stylish theme with deliberate use of space. No dependencies. Easily 
 
 ## Features
 ### Separator Line
-A line above the prompt info text with matching colors. May be disabled with `HEADLINE_LINE_MODE='off'` for a more compact prompt.
+A line above the prompt info text with matching colors. May be disabled with `HEADLINE_LINE_MODE=off` for a more compact prompt.
 
 ### Information Line
 `<user> @ <host>: <path> | <branch> [<status>]`
@@ -33,10 +33,10 @@ All the Git status symbols are customizable. The defaults are below:
 ### *Exit Code*
 `→ <code> (<meaning>)`
 
-When enabled with `HEADLINE_DO_ERR='true'`, print non-zero exit codes ahead of the prompt. The exit code meaning is merely a guess for the semi-standard exit codes (in the range 126-143) and is often incorrect.
+When enabled with `HEADLINE_DO_ERR=true`, print non-zero exit codes ahead of the prompt. The exit code meaning is merely a guess for the semi-standard exit codes (in the range 126-143) and is often incorrect.
 
 ### *Clock*
-When enabled with `HEADLINE_DO_CLOCK='true'`, display the time to the right of the prompt.
+When enabled with `HEADLINE_DO_CLOCK=true`, display the time to the right of the prompt.
 
 <br>
 
@@ -58,6 +58,8 @@ More details in [Installation](docs/Installation.md)
 
 
 ## Customization
+<img src="https://raw.githubusercontent.com/moarram/headline/assets/images/configs.gif" width="600"/>
+
 The `headline.zsh-theme` file describes variables ([around line 70](headline.zsh-theme#L70)) for customizing prompt behavior, colors, styles, symbols, etc. You can edit the theme file directly or set these variables in your `~/.zshrc` *after* sourcing the theme to override the defaults. Play around with it and make it your own!
 
 More details in [Customization](docs/Customization.md)
@@ -71,8 +73,6 @@ For the continuous line above the prompt, use a font with ligatures such as [Fir
 If you want symbols, use a font that has them such as [FiraCode Nerd Font](https://github.com/ryanoasis/nerd-fonts/tree/master/patched-fonts/FiraCode) and assign your desired symbols to the prefix variables.
 
 More details in [Terminal Setup](docs/Terminal-Setup.md)
-
-
 
 <br>
 

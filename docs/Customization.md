@@ -8,7 +8,9 @@ For sample configurations see [Examples](#examples)
 
 ## General
 ### Setting Variables
-You can edit the variables in the theme file directly, or set the Headline variables in your `~/.zshrc` after the theme is sourced. *Variables set before the theme is sourced are ignored.*
+You can edit the customization variables in the theme file directly, or set them in your `~/.zshrc` after the theme is sourced.
+
+*You must source the theme before setting customization variables!*
 
 ### Booleans
 The string "true" is considered *true*, all other values are false.
@@ -165,7 +167,9 @@ $
 ```
 ### Normal Prompt
 *`HEADLINE_PROMPT`*  
-Prompt line string, which by default shows `$` normally and `#` for root. Supports [Zsh prompt expansion](https://zsh.sourceforge.io/Doc/Release/Prompt-Expansion.html), so you could use `"%#"` (the Zsh default) for `%` normally and `#` for root.
+Prompt line string, which by default shows `$` normally and `#` for root. Supports [Zsh prompt expansion](https://zsh.sourceforge.io/Doc/Release/Prompt-Expansion.html), so anything you would assign to `PROMPT` should work here too.
+
+> Example: `HEADLINE_PROMPT="%#"` shows `%` normally and `#` for root (the Zsh default)
 
 ### Right Prompt
 *`HEADLINE_RPROMPT`*  
@@ -180,7 +184,7 @@ The current time.
 hh:mm:ss pp
 ```
 
-*HINT:* The clock shows the time that the prompt was printed. If you want the clock to stay current by re-printing every second, add `TMOUT=1; TRAPALRM () { zle reset-prompt }` to your `~/.zshrc`. Note that this only works properly when `HEADLINE_INFO_MODE` is set `precmd`.
+*HINT:* The clock shows the time that the prompt was printed. If you want the clock to stay current by re-printing every second, add `TMOUT=1; TRAPALRM () { zle reset-prompt }` to your `~/.zshrc`. Note that this only works properly when `HEADLINE_INFO_MODE` is set to the default value `precmd`.
 
 ### Toggle Clock
 *`HEADLINE_DO_CLOCK`*  
@@ -303,4 +307,5 @@ HEADLINE_DO_CLOCK=true
 HEADLINE_CLOCK_FORMAT='%+'
 ```
 
-<br>
+### *Yours?*
+*Let me know if you'd like to share your setup here!*
