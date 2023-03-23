@@ -1,7 +1,7 @@
 # Headline ZSH Theme
 <img src="https://raw.githubusercontent.com/moarram/headline/assets/images/slice.png" width="600"/>
 
-Headline. A stylish theme with deliberate use of space. No dependencies. Easily customizable.
+Headline. A stylish theme with deliberate use of space. No dependencies. Customizable.
 
 <br>
 
@@ -52,7 +52,7 @@ In your `~/.zshrc`, source the `headline.zsh-theme` file.
 source your/path/to/headline.zsh-theme
 ```
 
-More details in [Installation](docs/Installation.md)
+More details in **[Installation](docs/Installation.md)**
 
 <br>
 
@@ -62,7 +62,7 @@ More details in [Installation](docs/Installation.md)
 
 The `headline.zsh-theme` file describes variables ([around line 70](headline.zsh-theme#L70)) for customizing prompt behavior, colors, styles, symbols, etc. You can edit the theme file directly or set these variables in your `~/.zshrc` *after* sourcing the theme to override the defaults. Play around with it and make it your own!
 
-More details in [Customization](docs/Customization.md)
+More details in **[Customization](docs/Customization.md)**
 
 <br>
 
@@ -72,7 +72,7 @@ For the continuous line above the prompt, use a font with ligatures such as [Fir
 
 If you want symbols, use a font that has them such as [FiraCode Nerd Font](https://github.com/ryanoasis/nerd-fonts/tree/master/patched-fonts/FiraCode) and assign your desired symbols to the prefix variables.
 
-More details in [Terminal Setup](docs/Terminal-Setup.md)
+More details in **[Terminal Setup](docs/Terminal-Setup.md)**
 
 <br>
 

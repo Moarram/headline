@@ -72,12 +72,12 @@ IS_SSH=$? # 0=true, 1=false
 # These variables can also be set in your ~/.zshrc after sourcing this file
 # The style aliases for ANSI SGR codes (defined above) can be used there too
 
-# Info segments
-HEADLINE_DO_USER=true
-HEADLINE_DO_HOST=true
-HEADLINE_DO_PATH=true
-HEADLINE_DO_GIT_BRANCH=true
-HEADLINE_DO_GIT_STATUS=true
+# Info sources (enclose in single quotes as these will be eval'd, use empty string to hide segment)
+HEADLINE_USER_CMD='echo $USER'
+HEADLINE_HOST_CMD='hostname -s' # consider 'basename "$VIRTUAL_ENV"' to replace host with environment
+HEADLINE_PATH_CMD='print -rP "%~"'
+HEADLINE_GIT_BRANCH_CMD='headline_git_branch'
+HEADLINE_GIT_STATUS_CMD='headline_git_status'
 
 # Info symbols (optional)
 HEADLINE_USER_PREFIX='' # consider " "
@@ -365,11 +365,11 @@ headline_precmd() {
 
   # Information
   local user_str host_str path_str branch_str status_str
-  [[ $HEADLINE_DO_USER == 'true' ]] && user_str=$USER
-  [[ $HEADLINE_DO_HOST == 'true' ]] && host_str=$(hostname -s)
-  [[ $HEADLINE_DO_PATH == 'true' ]] && path_str=$(print -rP '%~')
-  [[ $HEADLINE_DO_GIT_BRANCH == 'true' ]] && branch_str=$(headline_git_branch)
-  [[ $HEADLINE_DO_GIT_STATUS == 'true' ]] && status_str=$(headline_git_status)
+  user_str=$(eval $HEADLINE_USER_CMD)
+  host_str=$(eval $HEADLINE_HOST_CMD)
+  path_str=$(eval $HEADLINE_PATH_CMD)
+  branch_str=$(eval $HEADLINE_GIT_BRANCH_CMD)
+  status_str=$(eval $HEADLINE_GIT_STATUS_CMD)
 
   # Shared variables
   _HEADLINE_LEN_REMAIN=$COLUMNS

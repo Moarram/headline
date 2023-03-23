@@ -35,11 +35,9 @@ The core of the prompt.
 <user> @ <host>: <path> | <branch> [<status>]
 ```
 
-### Toggle Segments
-*`HEADLINE_DO_USER`, `HEADLINE_DO_HOST`, `HEADLINE_DO_PATH`, `HEADLINE_DO_GIT_BRANCH`, `HEADLINE_DO_GIT_STATUS`*  
-Whether to print each segment of prompt.
-* `true` – print segment
-* `false` – don't print segment or associated joints
+### Data sources
+*`HEADLINE_USER_CMD`, `HEADLINE_HOST_CMD`, `HEADLINE_PATH_CMD`, `HEADLINE_GIT_BRANCH_CMD`, `HEADLINE_GIT_STATUS_CMD`*  
+Commands that are eval'd to obtain each segment's content. Enclose in single quotes. Use empty string to disable a segment.
 
 ### Symbols
 *`HEADLINE_USER_PREFIX`, `HEADLINE_HOST_PREFIX`, `HEADLINE_PATH_PREFIX`, `HEADLINE_BRANCH_PREFIX`*  
