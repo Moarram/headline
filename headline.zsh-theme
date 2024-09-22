@@ -458,9 +458,9 @@ headline_precmd() {
   fi
 
   # Separator line
-  _HEADLINE_LINE_OUTPUT="$_HEADLINE_LINE_LEFT$_HEADLINE_LINE_RIGHT$reset"
+  _HEADLINE_LINE_OUTPUT=""
   if [[ $HEADLINE_LINE_MODE == 'on' || ($HEADLINE_LINE_MODE == 'auto' && $_HEADLINE_DO_SEP == 'true' ) ]]; then
-    print -rP $_HEADLINE_LINE_OUTPUT
+    _HEADLINE_LINE_OUTPUT="$_HEADLINE_LINE_LEFT$_HEADLINE_LINE_RIGHT$reset"
   fi
   _HEADLINE_DO_SEP='true'
 
@@ -469,10 +469,11 @@ headline_precmd() {
 
   # Prompt
   if [[ $HEADLINE_INFO_MODE == 'precmd' ]]; then
+    [ ! -z ${_HEADLINE_LINE_OUTPUT} ] && print -rP $_HEADLINE_LINE_OUTPUT
     print -rP $_HEADLINE_INFO_OUTPUT
     PROMPT=$HEADLINE_PROMPT
   else
-    PROMPT='$(print -rP $_HEADLINE_INFO_OUTPUT; print -rP $HEADLINE_PROMPT)'
+    PROMPT='$([ ! -z ${_HEADLINE_LINE_OUTPUT} ] && print -rP $_HEADLINE_LINE_OUTPUT; print -rP $_HEADLINE_INFO_OUTPUT; print -rP $HEADLINE_PROMPT)'
   fi
 
   # Right prompt
