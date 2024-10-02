@@ -16,6 +16,10 @@ faint=$'\e[2m'
 italic=$'\e[3m'
 underline=$'\e[4m'
 invert=$'\e[7m'
+hide_cursor=$'\e[?25l'
+show_cursor=$'\e[?25h'
+cursor_to_top_left_corner=$'\e[H'
+clear_entire_screen=$'\e[2J'
 # ...
 
 # Foreground color aliases
@@ -114,7 +118,7 @@ HEADLINE_STYLE_STATUS=$bold$magenta
 
 # Info options
 HEADLINE_INFO_MODE=precmd # precmd|prompt (whether info line is in PROMPT or printed by precmd)
-  # use "precmd" for window resize to work properly (but Ctrl+L doesn't show info line)
+  # use "precmd" for window resizing to work properly (but note that some terminals, like Warp, may print an info line as part of the output)
   # use "prompt" for Ctrl+L to clear properly (but window resize eats previous output)
 
 # Separator options
@@ -347,7 +351,25 @@ headline_git_status() {
   fi
 }
 
+# If Ctrl+L is pressed
+zle -N headline-clear-screen
+bindkey '^L' headline-clear-screen
+headline-clear-screen() {
+  # Note that this is the top of the terminal
+  _HEADLINE_DO_SEP='false'
 
+  # Hide cursor and clear screen
+  builtin print -rn -- "$hide_cursor$cursor_to_top_left_corner$clear_entire_screen" >"$TTY"
+
+  # Trigger precmd
+  headline_precmd
+
+  # Reset prompt
+  builtin zle .reset-prompt
+
+  # Show cursor
+  builtin print -rn -- "$show_cursor" >"$TTY"
+}
 
 # Before executing command
 add-zsh-hook preexec headline_preexec
