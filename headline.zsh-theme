@@ -557,7 +557,7 @@ headline-precmd() {
     (( target_length -= $remove ))
     contents[$key]=''; (( content_length -= $content_lengths[$key] )); content_lengths[$key]=0
     layouts[$key]=''; (( layout_length -= $layout_lengths[$key] )); layout_lengths[$key]=0
-  
+
     # Update first segment
     for key in $HL_LAYOUT_ORDER; do
       [[ $key == '_PRE' ]] && continue # skip special segment
@@ -666,13 +666,13 @@ headline-precmd() {
   _HL_INFO=$information
 
   # Prompt
-  if [[ $HL_PRINT_MODE == 'precmd' ]]; then
-    PROMPT=$HL_PROMPT
-  elif [[ $HL_PRINT_MODE == 'prompt' ]]; then
+  if [[ $HL_PRINT_MODE == 'prompt' ]]; then
     PROMPT='$('
     (( ${#HL_OUTPUT_SEP} )) && PROMPT+='print -rP "$HL_OUTPUT_SEP"; '
     (( ${#HL_OUTPUT_INFO} )) && PROMPT+='print -rP "$HL_OUTPUT_INFO"; '
     PROMPT+='print -rP "$HL_PROMPT")'
+  else
+    PROMPT=$HL_PROMPT
   fi
 
   # Right prompt
