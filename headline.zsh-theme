@@ -82,10 +82,10 @@ clear_entire_screen=$'\e[2J'
 
 
 # Only print information line if it has changed
-HL_THIN='on' # on|off
+HL_THIN='off' # on|off
 
 # Press <enter> with no commands to overwrite previous prompt
-HL_OVERWRITE='on' # on|off
+HL_OVERWRITE='off' # on|off
 
 # Print separator and information line with precmd, in PROMPT, or don't print
 HL_PRINT_MODE='precmd' # precmd|prompt|off
@@ -142,11 +142,11 @@ HL_SPACE_CHAR=' '
 
 # Template for each segment's content
 declare -A HL_CONTENT_TEMPLATE=(
-  USER   "%{$bold$red%} ..."
-  HOST   "%{$bold$yellow%}󰇅 ..."
-  VENV   "%{$bold$green%} ..."
-  PATH   "%{$bold$blue%} ..."
-  BRANCH "%{$bold$cyan%} ..."
+  USER   "%{$bold$red%}..." # consider ' ' or ' '
+  HOST   "%{$bold$yellow%}..." # consider '󰇅 ' or ' '
+  VENV   "%{$bold$green%}..." # consider ' ' or ' '
+  PATH   "%{$bold$blue%}..." # consider ' ' or ' '
+  BRANCH "%{$bold$cyan%}..." # consider ' ' or ' '
   STATUS "%{$bold$magenta%}..."
 )
 
@@ -162,10 +162,10 @@ declare -A HL_CONTENT_SOURCE=(
 
 
 # Show count of each status always, only when greater than one, or don't show
-HL_GIT_COUNT_MODE='auto' # on|auto|off
+HL_GIT_COUNT_MODE='off' # on|auto|off
 
 # Symbol to join each status
-HL_GIT_SEP_SYMBOL='|'
+HL_GIT_SEP_SYMBOL=''
 
 # Order of statuses
 declare -a HL_GIT_STATUS_ORDER=(
@@ -189,7 +189,7 @@ declare -A HL_GIT_STATUS_SYMBOLS=(
 # Minimum screen width to show segment
 declare -A HL_COLS_REMOVAL=(
   USER   50
-  HOST   80
+  HOST   70
   VENV   30
 )
 
@@ -214,9 +214,9 @@ HL_PROMPT='%(#.#.%(!.!.$)) ' # consider '%#'
 # Right prompt
 HL_RPROMPT=''
 
-# Show the clock, or don't show
-HL_CLOCK_MODE='on' # on|off
 
+# Show the clock, or don't show
+HL_CLOCK_MODE='off' # on|off
 
 # Template for the clock
 HL_CLOCK_TEMPLATE="%{$faint%}..."
@@ -226,7 +226,7 @@ HL_CLOCK_SOURCE='date "+%l:%M:%S %p"' # consider 'date +%+' for full date
 
 
 # Show non-zero exit code, include a guessed meaning too, or don't show
-HL_ERR_MODE='detail' # on|detail|off
+HL_ERR_MODE='off' # on|detail|off
 
 # Template for the exit code
 HL_ERR_TEMPLATE="%{$faint$italic%}→ ..."
@@ -249,7 +249,7 @@ HL_OUTPUT_INFO='' # printed information line
 # Local variables
 _HL_SEP='' # computed separator line
 _HL_INFO='' # computed information line
-_HL_AT_TOP='false' # whether prompt is at top of the screen
+_HL_AT_TOP='true' # whether prompt is at top of the screen
 _HL_CMD_NUM=0 # number of commands entered
 _HL_CMD_NUM_PREV=-1 # previous number of commands entered, no command if same
 
@@ -473,7 +473,7 @@ headline-clear-screen() {
 
   # Update and print
   headline-precmd
-  zle .reset-prompt # re-print $PROMPT
+  zle .reset-prompt # re-print $PROMPT and $RPROMPT
 
   # Show cursor
   print -nr "$cursor_show"
@@ -539,7 +539,7 @@ headline-precmd() {
   # Update first segment
   for key in $HL_LAYOUT_ORDER; do
     [[ $key == '_PRE' ]] && continue # skip special segment
-    (( layout_lengths[$key] <= 0 )) && continue # skip omitted segment
+    (( content_lengths[$key] <= 0 )) && continue # skip omitted segment
     if (( ${+HL_LAYOUT_FIRST[$key]} )); then
       layouts[$key]=$HL_LAYOUT_FIRST[$key]
       (( layout_length -= $layout_lengths[$key] - $first_layout_lengths[$key] ))
@@ -561,7 +561,7 @@ headline-precmd() {
     # Update first segment
     for key in $HL_LAYOUT_ORDER; do
       [[ $key == '_PRE' ]] && continue # skip special segment
-      (( layout_lengths[$key] <= 0 )) && continue # skip omitted segment
+      (( content_lengths[$key] <= 0 )) && continue # skip omitted segment
       if (( ${+HL_LAYOUT_FIRST[$key]} )); then
         layouts[$key]=$HL_LAYOUT_FIRST[$key]
         (( layout_length -= $layout_lengths[$key] - $first_layout_lengths[$key] ))

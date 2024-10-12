@@ -19,7 +19,7 @@ For symbols you could use a font patched with [Nerd Fonts](https://www.nerdfonts
 1. Set it as the font for your terminal (depends on your terminal, might need to enable font ligatures)
 
 ### Specify Symbols
-Choose your symbols by assigning to the variables `HEADLINE_USER_PREFIX`, `HEADLINE_HOST_PREFIX`, `HEADLINE_PATH_PREFIX`, and `HEADLINE_BRANCH_PREFIX`. You can do this in your `~/.zshrc` after the theme has been sourced, or in the theme file itself. The symbols I used are in comments in the theme file, but you will only see them properly once your font is installed.
+Add your symbols to the templates in `HL_CONTENT_TEMPLATE`. You can do this in your `~/.zshrc` after the theme has been sourced, or in the theme file itself. The symbols I used are in comments in the theme file, but you will only see them properly once your font is installed.
 
 <br>
 

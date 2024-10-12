@@ -1,239 +1,238 @@
 # Customization
-Take a look in the `headline.zsh-theme` file to see all the customization variables (they start [around line 70](../headline.zsh-theme#L70)). This documentation is non-exhaustive.
+Take a look in the `headline.zsh-theme` file to see all the customization variables (they start [around line 80](../headline.zsh-theme#L80)).
 
-For sample configurations see [Examples](#examples)
+For sample configurations see [Examples](#examples) below.
 
 <br>
 
 
 ## General
-### Setting Variables
+
+### Setting variables
 You can edit the customization variables in the theme file directly, or set them in your `~/.zshrc` after the theme is sourced.
 
-*You must source the theme before setting customization variables!*
+***Note:** You must source the theme before setting customization variables!*
 
-### Booleans
-The string "true" is considered *true*, all other values are false.
+### Associative arrays
+Some customization variables contain a map of key value pairs. These variables may be set using syntax `VARIABLE=(key1 value1 key2 value2)`. To update an individual entry instead of the whole array, use syntax `VARIABLE[key]=value`.
 
-> Example: `HEADLINE_DO_ERR=true`
-
-### Styles
-By "styles" I mean [ANSI SGR codes](https://en.wikipedia.org/wiki/ANSI_escape_code#SGR_(Select_Graphic_Rendition)_parameters): non-printed sequences that specify colors and formatting. I have aliased all the common SGR codes at the beginning of the file, so you can use `$red` instead of `$'\e[31m'`.
-
-* Formatting – `$reset`, `$bold`, `$faint`, `$italic`, `$underline`, `$invert`
-
-* Foreground colors – `$black`, `$red`, `$green`, `$yellow`, `$blue`, `$magenta`, `$cyan`, `$white`, `$light_black`, `$light_red`, `$light_green`, `$light_yellow`, `$light_blue`, `$light_magenta`, `$light_cyan`, `$light_white`
-
-* Background colors – Same as the foreground colors but with `_back` on the end, such as `$red_back`.
-
-<br>
-
-
-## Information Line
-The core of the prompt.
-```
-<user> @ <host>: <path> | <branch> [<status>]
-```
-
-### Data sources
-*`HEADLINE_USER_CMD`, `HEADLINE_HOST_CMD`, `HEADLINE_PATH_CMD`, `HEADLINE_GIT_BRANCH_CMD`, `HEADLINE_GIT_STATUS_CMD`*  
-Commands that are eval'd to obtain each segment's content. Enclose in single quotes. Use empty string to disable a segment.
-
-### Symbols
-*`HEADLINE_USER_PREFIX`, `HEADLINE_HOST_PREFIX`, `HEADLINE_PATH_PREFIX`, `HEADLINE_BRANCH_PREFIX`*  
-Symbols to prepend to each segment of info line. The symbols must be included with your font. More details in [Terminal Setup](Terminal-Setup.md).
-
-### Joints
-The connector strings between information segments.
-| Variable                      | Default  |
-|-------------------------------|----------|
-| *`HEADLINE_USER_BEGIN`*       | (none)   |
-| *`HEADLINE_USER_TO_HOST`*     | `' @ '`  |
-| *`HEADLINE_HOST_TO_PATH`*     | `': '`   |
-| *`HEADLINE_PATH_TO_BRANCH`*   | `' \| '` |
-| *`HEADLINE_PATH_TO_PAD`*      | (none)   |
-| *`HEADLINE_PAD_TO_BRANCH`*    | (none)   |
-| *`HEADLINE_BRANCH_TO_STATUS`* | `' ['`   |
-| *`HEADLINE_STATUS_TO_STATUS`* | (none)   |
-| *`HEADLINE_STATUS_END`*       | `']'`    |
-
-### Padding Character
-*`HEADLINE_PAD_CHAR`*  
-Character that repeats to pad between path and branch, space by default.
-
-### Truncation Symbol
-*`HEADLINE_TRUNC_PREFIX`*  
-Symbol used when path or branch is truncated, `...` by default.
+### Template
+A template string includes the template token (`...` by default) which will be replaced by something else. Templates may contain styles.
 
 ### Styles
-Styles applied to each segment. The default style applies to the entire information line, although the other styles take precedence.
-| Variable                   | Default         |
-|----------------------------|-----------------|
-| *`HEADLINE_STYLE_JOINT`*   | `$light_black`  |
-| *`HEADLINE_STYLE_USER`*    | `$bold$red`     |
-| *`HEADLINE_STYLE_HOST`*    | `$bold$yellow`  |
-| *`HEADLINE_STYLE_PATH`*    | `$bold$blue`    |
-| *`HEADLINE_STYLE_BRANCH`*  | `$bold$cyan`    |
-| *`HEADLINE_STYLE_STATUS`*  | `$bold$magenta` |
-| *`HEADLINE_STYLE_DEFAULT`* | (none)          |
+Here the term "styles" refers to [ANSI SGR codes](https://en.wikipedia.org/wiki/ANSI_escape_code#SGR_(Select_Graphic_Rendition)_parameters). These are non-printed sequences that specify colors and formatting, assuming your terminal supports them. The beginning of the file has aliases for common SGR codes, so you can use `$red` instead of `$'\e[31m'`.
 
-By default, `HEADLINE_USER_BEGIN` is `=>` when `IS_SSH` is `0` (true).
-
-### Print Mode
-*`HEADLINE_INFO_MODE`*  
-Whether info line is in `PROMPT` or printed by `precmd`. This option exists because I can't figure out how to solve both problems at once.
-* `precmd` – window resize works properly, but Ctrl+L won't print the info line (default)
-* `prompt` – Ctrl+L works properly, but window resize eats previous output
+These styles must be enclosed by the prompt escape characters `%{` and `%}`. Strings with styles should use double quotes.
 
 <br>
 
 
-## Separator Line
-A line above the prompt with matching colors.
-```
-_______________________________________________
-```
+## Options
 
-### Separator Mode
-*`HEADLINE_LINE_MODE`*  
-Whether to print the separator line above the prompt.
-* `on` – always print the line (default)
-* `auto` – print the line, but not on the first prompt or after the `clear` command (this feature isn't complete)
-* `off` – don't print the line
+### Printing
 
-### Line Character
-*`HEADLINE_LINE_CHAR`*  
-Character that repeats to build separator line, `_` by default.
+`HL_THIN`  
+Only print the information line if it has new information.
+* `on` - Enable conditional information line
+* `off` - Always print information line
 
-### Styles
-Styles applied to each segment of the separator line.
-| Variable                        | Default         |
-|---------------------------------|-----------------|
-| *`HEADLINE_STYLE_JOINT_LINE`*   | `$light_black`  |
-| *`HEADLINE_STYLE_USER_LINE`*    | `$bold$red`     |
-| *`HEADLINE_STYLE_HOST_LINE`*    | `$bold$yellow`  |
-| *`HEADLINE_STYLE_PATH_LINE`*    | `$bold$blue`    |
-| *`HEADLINE_STYLE_BRANCH_LINE`*  | `$bold$cyan`    |
-| *`HEADLINE_STYLE_STATUS_LINE`*  | `$bold$magenta` |
+`HL_OVERWRITE`  
+Press `<enter>` with no commands to overwrite previous prompt.
+* `on` - Enable prompt overwrite
+* `off` - Re-print as normal
+
+`HL_PRINT_MODE`  
+Choose how to print the output.
+* `precmd` - Output is printed in a `precmd` hook
+  * ***Note:** Some terminals may confuse this for the previous command's output*
+* `prompt` - Output is assigned to the `PROMPT` variable
+  * ***Note:** Zsh doesn't always handle multi-line prompts correctly... expect issues when re-printing*
+* `off` - Not printed. The outputs are available in `HL_OUTPUT_SEP` and `HL_OUTPUT_INFO`
+
+
+### Separator
+
+`HL_SEP_MODE`  
+Choose when to print the separator line.
+* `on` - Always print the separator line
+* `auto` - Print the separator line unless the screen has just been cleared
+* `off` - Never print the separator line
+
+`HL_SEP_STYLE`  
+Style applied to entire separator line, after other styles.
+
+`HL_SEP`  
+An associative array with the segments of the separator line.
+* `_PRE` - Optional string at start of separator line
+* `_LINE` - A character that will be repeated to build the separator line
+* `_POST` - Optional string at end of separator line
+
+
+### Layout
+
+`HL_BASE_STYLE`  
+Style applied to all the segments, before other styles.
+
+`HL_LAYOUT_STYLE`  
+Style of the segment layout template... everything besides segment content.
+
+`HL_LAYOUT_ORDER`  
+An array specifying the order of the segments in the prompt. These segments are `_PRE`, `USER`, `HOST`, `VENV`, `PATH`, `_SPACER`, `BRANCH`, `STATUS`, and `_POST`. For guidance on extending the layout, see [Add Segment](#add-segment) below.
+
+`HL_LAYOUT_TEMPLATE`  
+An associative array with a template for each segment. Segments whose names start with an underscore are special and don't have content.
+
+`HL_LAYOUT_FIRST`  
+An associative array with an optional template to use when a segment is first in the layout, which occurs when preceeding segments are removed during truncation.
+
+`HL_SPACE_CHAR`  
+The character used by the `_SPACER` segment to fill space.
+
+
+### Content
+
+`HL_CONTENT_TEMPLATE`  
+An associative array with a template for each content segment. These templates each contain a unique style (and perhaps a symbol).
+
+`HL_CONTENT_SOURCE`  
+An associative array with a command to produce content for each segment. Enclose commands in single quotes so they may be eval'd later. If a command produces nothing, the associated segment is removed.
+
+
+### Git Status
+
+`HL_GIT_COUNT_MODE`  
+Choose how to indicate the number of each status.
+* `on` - Always show the count of each status (`[3+|1!|2?]`)
+* `auto` - Only show the count when it's greater than one (`[3+|!|2?]`)
+* `off` - Never show the count (`[+|!|?]`)
+
+`HL_GIT_SEP_SYMBOL`  
+The symbol used to separate each status.
+
+`HL_GIT_STATUS_ORDER`  
+An array specifying the order of the statuses. These statuses are `STAGED`, `CHANGED`, `UNTRACKED`, `BEHIND`, `AHEAD`, `DIVERGED`, `STASHED`, `CONFLICTS`, and `CLEAN`.
+
+`HL_GIT_STATUS_SYMBOLS`  
+An associative array with a symbol to represent each status.
+
+
+### Truncation
+
+`HL_COLS_REMOVAL`  
+An associative array with an optional minimum width to show segment. Always remove at smaller console widths.
+
+`HL_TRUNC_ORDER`  
+An array specifying the order to begin truncating and removing segments. Segments not in this list won't be truncated.
+
+`HL_TRUNC_SYMBOL`  
+The symbol to insert when truncating a segment.
+
+`HL_TRUNC_INITIAL`  
+The minimum segment length for the initial round of truncation. Once all segments are at least this short, the removal round may begin.
+
+`HL_TRUNC_REMOVAL`  
+The minimum segment length for the removal round of truncation. If a segment would be shorter than this it is removed.
+
+
+### Prompt
+
+`HL_PROMPT`  
+The standard prompt where commands are entered.
+
+`HL_RPROMPT`  
+Optional prompt at the right of the console.
+
+
+### Clock
+
+`HL_CLOCK_MODE`  
+Show the time in `RPROMPT`.
+* `on` - Enable the clock
+* `off` - Don't show
+
+`HL_CLOCK_TEMPLATE`  
+The template for the clock.
+
+`HL_CLOCK_SOURCE`  
+The command which produces clock content. Enclose command in single quotes so it may be eval'd later.
+
+***Hint:** The clock shows the time that the prompt was printed. If you want the clock to stay current by re-printing every second, add `TMOUT=1; TRAPALRM () { zle reset-prompt }` to your `~/.zshrc`. Note that this only works properly when `HL_PRINT_MODE` is set to the default value `precmd`.*
+
+
+### Error
+
+`HL_ERR_MODE`  
+Choose how to show non-zero exit codes.
+* `on` - Show non-zero exit code
+* `detail` - Show non-zero exit code and a guessed meaning
+* `off` - Don't show exit code
+
+`HL_ERR_TEMPLATE`  
+The template for the exit code.
+
+`HL_ERR_DETAIL_TEMPLATE`  
+The template for the optional detail. It will be appended to the error template.
+
+***Hint:** To add or change the messages associated with exit codes, edit the `headline-exit-meaning()` function (it's just a switch statement).*
+
+### Other
+
+`HL_TEMPLATE_TOKEN`  
+The string to replace in templates (`...` by default).
 
 <br>
 
 
-## Git Status
-Status of the current git branch represented by symbols.
-```
-[+!?↓↑↕*✘]
-```
-
-### Status Characters
-Characters used to represent each Git status.
-| Variable                   | Default | Meaning          |
-|----------------------------|---------|------------------|
-| *`HEADLINE_GIT_STAGED`*    | `+`     | staged changes   |
-| *`HEADLINE_GIT_CHANGED`*   | `!`     | unstaged changes |
-| *`HEADLINE_GIT_UNTRACKED`* | `?`     | untracked files  |
-| *`HEADLINE_GIT_BEHIND`*    | `↓`     | commits behind   |
-| *`HEADLINE_GIT_AHEAD`*     | `↑`     | commits ahead    |
-| *`HEADLINE_GIT_DIVERGED`*  | `↕`     | commits diverged |
-| *`HEADLINE_GIT_STASHED`*   | `*`     | stashed files    |
-| *`HEADLINE_GIT_CONFLICTS`* | `✘`     | conflicts        |
-| *`HEADLINE_GIT_CLEAN`*     | (none)  | clean branch     |
-
-### Toggle Counts
-*`HEADLINE_DO_GIT_STATUS_COUNTS`*  
-Whether to show count of each status. It can make the status segment a bit cluttery, so also consider setting the `HEADLINE_STATUS_TO_STATUS` joint character.
-* `true` – show counts
-* `false` – don't show counts (default)
-
-> Example: no counts `+!?`, with counts `3+1!2?`, and with joint `3+|1!|2?`
-
-### Toggle Single Count
-*`HEADLINE_DO_GIT_STATUS_OMIT_ONE`*  
-Whether to show count for a status when that count is one (must have `HEADLINE_DO_GIT_STATUS_COUNTS` set `true`).
-* `true` – omit the count when it is 1
-* `false` – show count even when it is 1 (default)
-
-> Example: counts `3+1!2?`, with omit one `3+!2?`, and with joint `3+|!|2?`
+## Remove Segment
+To remove a segment, simply delete the segment name from `HL_LAYOUT_ORDER`. Alternatively, set the segment content command to an empty string `HL_CONTENT_SOURCE[key]=''`.
 
 <br>
 
 
-## Prompt Line
-Where commands are entered.
-```
-$ 
-```
-### Normal Prompt
-*`HEADLINE_PROMPT`*  
-Prompt line string, which by default shows `$` normally and `#` for root. Supports [Zsh prompt expansion](https://zsh.sourceforge.io/Doc/Release/Prompt-Expansion.html), so anything you would assign to `PROMPT` should work here too.
+## Add Segment
+Because the segment truncation and removal logic is abstracted, it's *relatively* easy to add a new segment. We just need to update a few arrays.
 
-> Example: `HEADLINE_PROMPT="%#"` shows `%` normally and `#` for root (the Zsh default)
+For example, let's add an `OS` segment that displays the name of the operating system.
 
-### Right Prompt
-*`HEADLINE_RPROMPT`*  
-Optional prompt at right of screen, none by default.
+```sh
+# 1. Specify the content source
+HL_CONTENT_SOURCE[OS]='uname'
+
+# 2. Specify the content template
+HL_CONTENT_TEMPLATE[OS]="%{$bold$yellow%}..."
+
+# 3. Specify the layout template
+HL_LAYOUT_TEMPLATE[OS]='[...]'
+
+# 4. Redefine the layout order to place the new segment
+HL_LAYOUT_ORDER=(_PRE USER HOST OS VENV PATH _SPACER BRANCH STATUS _POST)
+
+# (Optional) Set a minimum console width before segment is removed
+HL_COLS_REMOVAL[OS]=60
+
+# (Optional) Redefine the truncation order to enable truncation for this segment
+HL_TRUNC_ORDER=(OS HOST USER VENV PATH BRANCH)
+```
+
+Explained in words, the `OS` segment obtains content by running the `uname` command. Then that content is styled bold yellow, wrapped in brackets, and inserted just after the `HOST` segment. If the console width is less than 60, the segment is removed. Additionally, it's the first segment to truncate when there's not enough space.
 
 <br>
 
 
-## Clock
-The current time.
-```
-hh:mm:ss pp
-```
+## Truncation
+Intelligent truncation is a primary feature of the Headline prompt. The goal is to show as much content as possible while keeping the information on a single line.
 
-*HINT:* The clock shows the time that the prompt was printed. If you want the clock to stay current by re-printing every second, add `TMOUT=1; TRAPALRM () { zle reset-prompt }` to your `~/.zshrc`. Note that this only works properly when `HEADLINE_INFO_MODE` is set to the default value `precmd`.
+The truncation process consists of two rounds, which halt as soon as the information line fits within `COLUMNS`:
+1. For each segment in `HL_TRUNC_ORDER`, truncate the segment to the initial length specified by `HL_TRUNC_INITIAL`. This shortens excessively long segments.
+1. For each segment in `HL_TRUNC_ORDER`, truncate the segment further. Remove the segment if it's shorter than `HL_TRUNC_REMOVAL`.
 
-### Toggle Clock
-*`HEADLINE_DO_CLOCK`*  
-Whether to show the clock in `RPROMPT`.
-* `true` – show clock
-* `false` – don't show clock (default)
-
-### Style
-*`HEADLINE_STYLE_CLOCK`*  
-Style to apply to the clock, `$faint` by default.
-
-### Format
-*`HEADLINE_CLOCK_FORMAT`*  
-Format of the clock, `%l:%M:%S %p` by default. Use `%+` for complete date and time. See `man strftime` for details.
-
-<br>
-
-
-## Exit Code
-The code returned by the previous command.
-```
-→ <code> (<meaning>)
-```
-
-*HINT:* To add or change the messages associated with exit codes, edit the `headline_exit_meaning()` function (it's just a switch statement).
-
-### Toggle Exit Code
-*`HEADLINE_DO_ERR`*  
-Whether to show non-zero exit codes.
-* `true` – show exit codes
-* `false` – don't show exit codes (default)
-
-### Toggle Meaning
-*`HEADLINE_DO_ERR_INFO`*  
-Whether to show guessed meaning alongside exit code (must have `HEADLINE_DO_ERR` set `true`).
-* `true` – show exit code meaning (default)
-* `false` – don't show exit code meaning
-
-### Prefix
-*`HEADLINE_ERR_PREFIX`*  
-String to put ahead of exit code, `→` by default.
-
-### Style
-*`HEADLINE_STYLE_ERR`*  
-Style applied to exit code line, `$italic$faint` by default.
+To disable truncation, set `HL_TRUNC_ORDER` to an empty array `()`.
 
 <br>
 
 
 ## Examples
-Some sample configurations for inspiration (with screenshots).
+Some sample configurations with screenshots.
 
 ### Compact
 Hides separator line and extra spaces between info segments.
@@ -241,69 +240,109 @@ Hides separator line and extra spaces between info segments.
 <img src="https://raw.githubusercontent.com/moarram/headline/assets/images/config-compact.png" width="600"/>
 
 ```sh
-HEADLINE_USER_TO_HOST='@'
-HEADLINE_HOST_TO_PATH=':'
-HEADLINE_PATH_TO_BRANCH='|'
-HEADLINE_BRANCH_TO_STATUS='['
-HEADLINE_TRUNC_PREFIX='…'
-HEADLINE_LINE_MODE=off
-```
-
-### Kebab
-Hides separator line and uses `-` between info segments.
-
-<img src="https://raw.githubusercontent.com/moarram/headline/assets/images/config-kebab.png" width="600"/>
-
-```sh
-HEADLINE_USER_BEGIN='--'
-HEADLINE_USER_TO_HOST='-'
-HEADLINE_HOST_TO_PATH='-'
-HEADLINE_PATH_TO_BRANCH='-'
-HEADLINE_PAD_TO_BRANCH='-'
-HEADLINE_BRANCH_TO_STATUS='-'
-HEADLINE_STATUS_END='--'
-HEADLINE_PAD_CHAR='-'
-HEADLINE_TRUNC_PREFIX='…'
-HEADLINE_LINE_MODE=off
+HL_SEP_MODE='off'
+HL_LAYOUT_TEMPLATE[HOST]='@...'
+HL_LAYOUT_TEMPLATE[VENV]='(...)'
+HL_LAYOUT_TEMPLATE[PATH]=':...'
+HL_LAYOUT_TEMPLATE[_SPACER]='|'
+HL_LAYOUT_TEMPLATE[STATUS]='|...'
+HL_TRUNC_SYMBOL='…'
 ```
 
 ### Standard
-Shows exit codes (when not 0), clock, and git status counts (when not 1). Moarram uses this configuration.
+Shows non-zero exit codes, clock, and git status counts. Personal favorite.
 
 <img src="https://raw.githubusercontent.com/moarram/headline/assets/images/config-standard.png" width="600"/>
 
 ```sh
-HEADLINE_STATUS_TO_STATUS='|'
-HEADLINE_LINE_MODE=auto
-HEADLINE_DO_GIT_STATUS_COUNTS=true
-HEADLINE_DO_GIT_STATUS_OMIT_ONE=true
-HEADLINE_DO_ERR=true
-HEADLINE_DO_CLOCK=true
+HL_THIN='on'
+HL_OVERWRITE='on'
+HL_GIT_COUNT_MODE='auto'
+HL_GIT_SEP_SYMBOL='|'
+HL_CLOCK_MODE='on'
+HL_ERR_MODE='detail'
 ```
 
 ### Verbose
-Shows exit codes (when not 0), full time and date, git status counts, info segment symbols, and words between info segments.
+Shows non-zero exit codes, full time and date, git status counts, content symbols, and words between segments. Clean branch shows green `✔`, conflicting branch shows red `✘`.
 
 <img src="https://raw.githubusercontent.com/moarram/headline/assets/images/config-verbose.png" width="600"/>
 
 ```sh
-HEADLINE_USER_PREFIX=' '
-HEADLINE_HOST_PREFIX=' '
-HEADLINE_PATH_PREFIX=' '
-HEADLINE_BRANCH_PREFIX=' '
-HEADLINE_USER_TO_HOST=' at '
-HEADLINE_HOST_TO_PATH=' in '
-HEADLINE_PATH_TO_BRANCH=' on '
-HEADLINE_PAD_TO_BRANCH=' on '
-HEADLINE_BRANCH_TO_STATUS=' ('
-HEADLINE_STATUS_TO_STATUS='|'
-HEADLINE_STATUS_END=')'
-HEADLINE_LINE_MODE=auto
-HEADLINE_DO_GIT_STATUS_COUNTS=true
-HEADLINE_DO_ERR=true
-HEADLINE_DO_CLOCK=true
-HEADLINE_CLOCK_FORMAT='%+'
+HL_LAYOUT_TEMPLATE=(
+  _PRE    "${IS_SSH+ssh }" # shows "ssh " if this is an ssh session
+  USER    '...'
+  HOST    ' at ...'
+  VENV    ' with ...'
+  PATH    ' in ...'
+  _SPACER '' # special, only shows when compact, otherwise fill with space
+  BRANCH  ' on ...'
+  STATUS  ' (...)'
+  _POST   ''
+)
+HL_CONTENT_TEMPLATE=(
+  USER   "%{$bold$red%} ..."
+  HOST   "%{$bold$yellow%}󰇅 ..."
+  VENV   "%{$bold$green%} ..."
+  PATH   "%{$bold$blue%} ..."
+  BRANCH "%{$bold$cyan%} ..."
+  STATUS "%{$bold$magenta%}..."
+)
+HL_GIT_COUNT_MODE='on'
+HL_GIT_SEP_SYMBOL='|'
+HL_GIT_STATUS_SYMBOLS[CONFLICTS]="%{$red%}✘"
+HL_GIT_STATUS_SYMBOLS[CLEAN]="%{$green%}✔"
+HL_CLOCK_MODE='on'
+HL_CLOCK_SOURCE="date +%+"
+HL_ERR_MODE='detail'
 ```
 
-### *Yours?*
-*Let me know if you'd like to share your setup here!*
+### Fancy
+Has almost everything in the verbose config and utilizes `_PRE` and `_POST` segments to further decorate the prompt.
+
+<img src="https://raw.githubusercontent.com/moarram/headline/assets/images/config-fancy.png" width="600"/>
+
+```sh
+HL_THIN='on'
+HL_OVERWRITE='on'
+HL_SEP_MODE='on'
+HL_SEP=(
+  _PRE  '┍' # consider '┌' or '╭'
+  _LINE '━' # consider '─'
+  _POST '┑' # consider '┐' or '╮'
+)
+HL_LAYOUT_STYLE="%{$light_black%}"
+HL_LAYOUT_TEMPLATE=(
+  _PRE    "│${IS_SSH+ %{$reset$faint%\}ssh}" # shows " ssh" if this is an SSH session
+  USER    ' ...'
+  HOST    " %{$reset$faint%}at%{$reset$HL_LAYOUT_STYLE%} ..."
+  VENV    " %{$reset$faint%}with%{$reset$HL_LAYOUT_STYLE%} ..."
+  PATH    " %{$reset$faint%}in%{$reset$HL_LAYOUT_STYLE%} ..."
+  _SPACER ''
+  BRANCH  " %{$reset$faint%}on%{$reset$HL_LAYOUT_STYLE%} ..."
+  STATUS  ' ...'
+  _POST   ' │'
+)
+HL_LAYOUT_FIRST=(
+  HOST    ' ...'
+  VENV    ' ...'
+  PATH    ' ...'
+  _SPACER ' '
+  BRANCH  ' ...'
+)
+HL_CONTENT_TEMPLATE=(
+  USER   "%{$bold$red%} ..."
+  HOST   "%{$bold$yellow%} ..."
+  VENV   "%{$bold$green%} ..."
+  PATH   "%{$bold$blue%} ..."
+  BRANCH "%{$bold$cyan%} ..."
+  STATUS "%{$bold$magenta%}..."
+)
+HL_GIT_SEP_SYMBOL=''
+HL_GIT_STATUS_SYMBOLS[CONFLICTS]="%{$red%}✘"
+HL_GIT_STATUS_SYMBOLS[CLEAN]="%{$green%}✔"
+HL_PROMPT="%{$HL_LAYOUT_STYLE%}╯ %{$reset%}$ "
+HL_CLOCK_MODE='on'
+HL_CLOCK_TEMPLATE="%{$faint%} ... %{$reset$HL_LAYOUT_STYLE%}╰"
+HL_ERR_MODE='on'
+```

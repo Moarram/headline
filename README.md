@@ -1,19 +1,19 @@
-# Headline ZSH Theme
+# Headline
 <img src="https://raw.githubusercontent.com/moarram/headline/assets/images/slice.png" width="600"/>
 
-Headline. A stylish theme with deliberate use of space. No dependencies. Customizable.
+A stylish Zsh theme with deliberate use of space. No dependencies. Highly customizable.
 
 <br>
 
 
 ## Features
 ### Separator Line
-A line above the prompt info text with matching colors. May be disabled with `HEADLINE_LINE_MODE=off` for a more compact prompt.
+The namesake of the prompt, a line above the information with matching colors. May be disabled with `HL_SEP_MODE=off` for a more compact prompt.
 
 ### Information Line
-`<user> @ <host>: <path> | <branch> [<status>]`
+`<user> @ <host> (<venv>): <path> | <branch> [<status>]`
 
-This line collapses to fit within the terminal width. Individually style each segment of the information line using [ANSI SGR codes](https://en.wikipedia.org/wiki/ANSI_escape_code#SGR_(Select_Graphic_Rendition)_parameters) (which are conveniently aliased in the theme file). You can customize the characters for joining segments and disable segments entirely.
+This line collapses to fit within the terminal width. Individually style each segment of the information line using [ANSI SGR codes](https://en.wikipedia.org/wiki/ANSI_escape_code#SGR_(Select_Graphic_Rendition)_parameters) (which are conveniently aliased in the theme file). You can customize nearly everything about the segments and even add your own.
 
 ### Git Status
 All the Git status symbols are customizable. The defaults are below:
@@ -33,10 +33,13 @@ All the Git status symbols are customizable. The defaults are below:
 ### *Exit Code*
 `→ <code> (<meaning>)`
 
-When enabled with `HEADLINE_DO_ERR=true`, print non-zero exit codes ahead of the prompt. The exit code meaning is merely a guess for the semi-standard exit codes (in the range 126-143) and is often incorrect.
+When enabled with `HL_ERR_MODE=on`, print non-zero exit codes ahead of the prompt. The exit code meaning is merely a guess for the semi-standard exit codes (in the range 126-143) and may be incorrect.
 
 ### *Clock*
-When enabled with `HEADLINE_DO_CLOCK=true`, display the time to the right of the prompt.
+When enabled with `HL_CLOCK_MODE=on`, display the time to the right of the prompt.
+
+### *Thin*
+When enabled with `HL_THIN=on`, only print the information line if it has changed.
 
 <br>
 
@@ -44,7 +47,7 @@ When enabled with `HEADLINE_DO_CLOCK=true`, display the time to the right of the
 ## Installation
 Download the `headline.zsh-theme` file.
 ```
-$ wget https://raw.githubusercontent.com/moarram/headline/main/headline.zsh-theme
+wget https://raw.githubusercontent.com/moarram/headline/main/headline.zsh-theme
 ```
 
 In your `~/.zshrc`, source the `headline.zsh-theme` file.
@@ -60,7 +63,7 @@ More details in **[Installation](docs/Installation.md)**
 ## Customization
 <img src="https://raw.githubusercontent.com/moarram/headline/assets/images/configs.gif" width="600"/>
 
-The `headline.zsh-theme` file describes variables ([around line 70](headline.zsh-theme#L70)) for customizing prompt behavior, colors, styles, symbols, etc. You can edit the theme file directly or set these variables in your `~/.zshrc` *after* sourcing the theme to override the defaults. Play around with it and make it your own!
+The `headline.zsh-theme` file describes variables ([around line 80](headline.zsh-theme#L80)) for customizing prompt behavior, colors, styles, symbols, etc. You can edit the theme file directly or set these variables in your `~/.zshrc` *after* sourcing the theme to override the defaults. Play around with it and make it your own!
 
 More details in **[Customization](docs/Customization.md)**
 
@@ -70,7 +73,7 @@ More details in **[Customization](docs/Customization.md)**
 ## Terminal Setup
 For the continuous line above the prompt, use a font with ligatures such as [Fira Code](https://github.com/tonsky/FiraCode).
 
-If you want symbols, use a font that has them such as [FiraCode Nerd Font](https://github.com/ryanoasis/nerd-fonts/tree/master/patched-fonts/FiraCode) and assign your desired symbols to the prefix variables.
+If you want symbols, use a font that has them such as [FiraCode Nerd Font](https://github.com/ryanoasis/nerd-fonts/tree/master/patched-fonts/FiraCode) and include your desired symbols in `HL_CONTENT_TEMPLATE`.
 
 More details in **[Terminal Setup](docs/Terminal-Setup.md)**
 
@@ -82,19 +85,19 @@ Screenshots of theme in [iTerm2](https://iterm2.com/index.html). Using [FiraCode
 
 > <img src="https://raw.githubusercontent.com/moarram/headline/assets/images/theme-light.png" width="600"/>
 >
-> Status showing `+` for staged changes, `!` for unstaged changes, and `?` for untracked files (configurable).
+> Status showing `+` for staged changes, `!` for unstaged changes, and `?` for untracked files.
+
+> <img src="https://raw.githubusercontent.com/moarram/headline/assets/images/theme-beige.png" width="600"/>
+>
+> Optional icons, special font required.
 
 > <img src="https://raw.githubusercontent.com/moarram/headline/assets/images/theme-brown.png" width="600"/>
 >
-> Optional icons, special font needed.
+> Path truncated to fit in available space, user and host hidden.
 
 > <img src="https://raw.githubusercontent.com/moarram/headline/assets/images/theme-dark.png" width="600"/>
 >
-> Path truncated to fit in available space, user and host hidden.
-
-> <img src="https://raw.githubusercontent.com/moarram/headline/assets/images/feature-clock-and-exit-code.png" width="600"/>
->
-> Optionally show clock and exit code.
+> Options to show clock (`HL_CLOCK_MODE=on`), show exit code (`HL_ERR_MODE=on`), and hide identical information (`HL_THIN=on`).
 
 <br>
 
