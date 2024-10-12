@@ -1,11 +1,10 @@
 #!/bin/zsh
 
 # Headline ZSH Prompt
-# Copyright (c) 2022 Moarram under the MIT License
+# Copyright (c) 2024 Moarram under the MIT License
 
-# To install, source this file from your .zshrc file
-# Customization variables begin around line 70
-
+# To install, source this file from your ~/.zshrc
+# Customization variables begin around line 80
 
 
 # Formatting aliases
@@ -35,158 +34,236 @@ light_blue=$'\e[94m'
 light_magenta=$'\e[95m'
 light_cyan=$'\e[96m'
 light_white=$'\e[97m'
+default_fg=$'\e[39m'
 
 # Background color aliases
-black_back=$'\e[40m'
-red_back=$'\e[41m'
-green_back=$'\e[42m'
-yellow_back=$'\e[43m'
-blue_back=$'\e[44m'
-magenta_back=$'\e[45m'
-cyan_back=$'\e[46m'
-white_back=$'\e[47m'
-light_black_back=$'\e[100m'
-light_red_back=$'\e[101m'
-light_green_back=$'\e[102m'
-light_yellow_back=$'\e[103m'
-light_blue_back=$'\e[104m'
-light_magenta_back=$'\e[105m'
-light_cyan_back=$'\e[106m'
-light_white_back=$'\e[107m'
+black_bg=$'\e[40m'
+red_bg=$'\e[41m'
+green_bg=$'\e[42m'
+yellow_bg=$'\e[43m'
+blue_bg=$'\e[44m'
+magenta_bg=$'\e[45m'
+cyan_bg=$'\e[46m'
+white_bg=$'\e[47m'
+light_black_bg=$'\e[100m'
+light_red_bg=$'\e[101m'
+light_green_bg=$'\e[102m'
+light_yellow_bg=$'\e[103m'
+light_blue_bg=$'\e[104m'
+light_magenta_bg=$'\e[105m'
+light_cyan_bg=$'\e[106m'
+light_white_bg=$'\e[107m'
+default_bg=$'\e[49m'
 
 # Custom colors
-# REF: https://en.wikipedia.org/wiki/ANSI_escape_code#SGR_(Select_Graphic_Rendition)_parameters
-# orange_yellow=$'\e[38;5;214m' # example 8-bit color
-# orange_brown=$'\e[38;2;191;116;46m' # example rgb color
+# Ref: https://en.wikipedia.org/wiki/ANSI_escape_code#SGR_(Select_Graphic_Rendition)_parameters
+# orange_yellow=$'\e[38;5;214m' # example 8-bit color (n=214)
+# orange_brown=$'\e[38;2;191;116;46m' # example rgb color (r=119, g=116, b=46)
+# ...
+
+# Terminal control aliases
+cursor_up=$'\e[1F'
+cursor_show=$'\e[?25h'
+cursor_hide=$'\e[?25l'
+cursor_to_top_left_corner=$'\e[H'
+clear_entire_screen=$'\e[2J'
 # ...
 
 # Flags
-! [ -z "$SSH_TTY$SSH_CONNECTION$SSH_CLIENT" ]
-IS_SSH=$? # 0=true, 1=false
+[ ! -z "$SSH_TTY$SSH_CONNECTION$SSH_CLIENT" ] && IS_SSH='true'
 
 
 
 # ------------------------------------------------------------------------------
 # Customization
-# Use the following variables to customize the theme
-# These variables can also be set in your ~/.zshrc after sourcing this file
-# The style aliases for ANSI SGR codes (defined above) can be used there too
+# Use the following variables to customize the theme.
+# If you're setting them in ~/.zshrc, source the theme, THEN set the variables.
+# To insert styles (ANSI SGR codes defined above) use syntax: "%{$style%}"
 
-# Info sources (enclose in single quotes as these will be eval'd, use empty string to hide segment)
-HEADLINE_USER_CMD='echo $USER'
-HEADLINE_HOST_CMD='hostname -s' # consider 'basename "$VIRTUAL_ENV"' to replace host with environment
-HEADLINE_PATH_CMD='print -rP "%~"'
-HEADLINE_GIT_BRANCH_CMD='headline_git_branch'
-HEADLINE_GIT_STATUS_CMD='headline_git_status'
 
-# Info symbols (optional)
-HEADLINE_USER_PREFIX='' # consider " "
-HEADLINE_HOST_PREFIX='' # consider " "
-HEADLINE_PATH_PREFIX='' # consider " "
-HEADLINE_BRANCH_PREFIX='' # consider " "
+# Only print information line if it has changed
+HL_THIN='on' # on|off
 
-# Info joints
-HEADLINE_USER_BEGIN=''
-if [ $IS_SSH = 0 ]; then HEADLINE_USER_BEGIN='=> '; fi
-HEADLINE_USER_TO_HOST=' @ '
-HEADLINE_HOST_TO_PATH=': '
-HEADLINE_PATH_TO_BRANCH=' | ' # only used when no padding between <path> and <branch>
-HEADLINE_PATH_TO_PAD='' # used if padding between <path> and <branch>
-HEADLINE_PAD_TO_BRANCH='' # used if padding between <path> and <branch>
-HEADLINE_BRANCH_TO_STATUS=' ['
-HEADLINE_STATUS_TO_STATUS='' # between each status section, consider "]"
-HEADLINE_STATUS_END=']'
+# Press <enter> with no commands to overwrite previous prompt
+HL_OVERWRITE='on' # on|off
 
-# Info padding character
-HEADLINE_PAD_CHAR=' ' # repeated for space between <path> and <branch>
+# Print separator and information line with precmd, in PROMPT, or don't print
+HL_PRINT_MODE='precmd' # precmd|prompt|off
 
-# Info truncation symbol
-HEADLINE_TRUNC_PREFIX='...' # shown where <path> or <branch> is truncated, consider "…"
 
-# Info styles
-HEADLINE_STYLE_DEFAULT='' # style applied to entire info line
-HEADLINE_STYLE_JOINT=$light_black
-HEADLINE_STYLE_USER=$bold$red
-HEADLINE_STYLE_HOST=$bold$yellow
-HEADLINE_STYLE_PATH=$bold$blue
-HEADLINE_STYLE_BRANCH=$bold$cyan
-HEADLINE_STYLE_STATUS=$bold$magenta
+# Print the separator line always, when not following clear screen, or don't print
+HL_SEP_MODE='auto' # on|auto|off
 
-# Info options
-HEADLINE_INFO_MODE=precmd # precmd|prompt (whether info line is in PROMPT or printed by precmd)
-  # use "precmd" for window resize to work properly (but Ctrl+L doesn't show info line)
-  # use "prompt" for Ctrl+L to clear properly (but window resize eats previous output)
+# Style applied to separator line, after other styles
+HL_SEP_STYLE="%{$default_bg%}"
 
-# Separator options
-HEADLINE_LINE_MODE=on # on|auto|off (whether to print the line above the prompt)
+# Segments of the separator line
+declare -A HL_SEP=(
+  _PRE  ''
+  _LINE '_' # repeated char to create separator line
+  _POST ''
+)
 
-# Separator character
-HEADLINE_LINE_CHAR='_' # repeated for line above information
 
-# Separator styles
-HEADLINE_STYLE_JOINT_LINE=$HEADLINE_STYLE_JOINT
-HEADLINE_STYLE_USER_LINE=$HEADLINE_STYLE_USER
-HEADLINE_STYLE_HOST_LINE=$HEADLINE_STYLE_HOST
-HEADLINE_STYLE_PATH_LINE=$HEADLINE_STYLE_PATH
-HEADLINE_STYLE_BRANCH_LINE=$HEADLINE_STYLE_BRANCH
-HEADLINE_STYLE_STATUS_LINE=$HEADLINE_STYLE_STATUS
+# Style applied to all segments, before other styles
+HL_BASE_STYLE=""
 
-# Git branch characters
-HEADLINE_GIT_HASH=':' # hash prefix to distinguish from branch
+# Style of segment layout template
+HL_LAYOUT_STYLE="%{$faint%}"
 
-# Git status characters
-# To set individual status styles use "%{$reset<style>%}<char>"
-HEADLINE_GIT_STAGED='+'
-HEADLINE_GIT_CHANGED='!'
-HEADLINE_GIT_UNTRACKED='?'
-HEADLINE_GIT_BEHIND='↓'
-HEADLINE_GIT_AHEAD='↑'
-HEADLINE_GIT_DIVERGED='↕'
-HEADLINE_GIT_STASHED='*'
-HEADLINE_GIT_CONFLICTS='✘' # consider "%{$red%}✘"
-HEADLINE_GIT_CLEAN='' # consider "✓" or "✔"
+# Order of segments
+declare -a HL_LAYOUT_ORDER=(
+  _PRE USER HOST VENV PATH _SPACER BRANCH STATUS _POST
+)
 
-# Git status options
-HEADLINE_DO_GIT_STATUS_COUNTS=false # set "true" to show count of each status
-HEADLINE_DO_GIT_STATUS_OMIT_ONE=false # set "true" to omit the status number when it is 1
+# Template for each segment's layout
+declare -A HL_LAYOUT_TEMPLATE=(
+  _PRE    "${IS_SSH+=> }" # shows "=> " if this is an ssh session
+  USER    '...'
+  HOST    ' @ ...'
+  VENV    ' (...)'
+  PATH    ': ...'
+  _SPACER ' | ' # special, only shows when compact, otherwise fill with space
+  BRANCH  '...'
+  STATUS  ' [...]'
+  _POST   ''
+)
+
+# Template for first segment's layout (when prior segments removed)
+declare -A HL_LAYOUT_FIRST=(
+  VENV    '(...)'
+  PATH    '...'
+  _SPACER ''
+)
+
+# The character used by _SPACER segment to fill space
+HL_SPACE_CHAR=' '
+
+
+# Template for each segment's content
+declare -A HL_CONTENT_TEMPLATE=(
+  USER   "%{$bold$red%} ..."
+  HOST   "%{$bold$yellow%}󰇅 ..."
+  VENV   "%{$bold$green%} ..."
+  PATH   "%{$bold$blue%} ..."
+  BRANCH "%{$bold$cyan%} ..."
+  STATUS "%{$bold$magenta%}..."
+)
+
+# Commands to produce each segment's content
+declare -A HL_CONTENT_SOURCE=(
+  USER   'echo $USER'
+  HOST   'hostname -s'
+  VENV   'basename "$VIRTUAL_ENV"'
+  PATH   'print -rP "%~"'
+  BRANCH 'headline-git-branch'
+  STATUS 'headline-git-status'
+)
+
+
+# Show count of each status always, only when greater than one, or don't show
+HL_GIT_COUNT_MODE='auto' # on|auto|off
+
+# Symbol to join each status
+HL_GIT_SEP_SYMBOL='|'
+
+# Order of statuses
+declare -a HL_GIT_STATUS_ORDER=(
+  STAGED CHANGED UNTRACKED BEHIND AHEAD DIVERGED STASHED CONFLICTS CLEAN
+)
+
+# Symbol for each status
+declare -A HL_GIT_STATUS_SYMBOLS=(
+  STAGED    '+'
+  CHANGED   '!'
+  UNTRACKED '?'
+  BEHIND    '↓'
+  AHEAD     '↑'
+  DIVERGED  '↕'
+  STASHED   '*'
+  CONFLICTS '✘' # consider "%{$red%}✘"
+  CLEAN     '' # consider '✓' or "%{$green%}✔"
+)
+
+
+# Minimum screen width to show segment
+declare -A HL_COLS_REMOVAL=(
+  USER   50
+  HOST   80
+  VENV   30
+)
+
+# Order to truncate & remove segments
+declare -a HL_TRUNC_ORDER=(
+  HOST USER VENV PATH BRANCH
+)
+
+# Symbol to insert when truncating a segment
+HL_TRUNC_SYMBOL='...' # consider '…'
+
+# Minimum segment length for initial truncation
+HL_TRUNC_INITIAL=16
+
+# Minimum segment length before removal
+HL_TRUNC_REMOVAL=2
+
 
 # Prompt
-HEADLINE_PROMPT='%(#.#.%(!.!.$)) ' # consider "%#"
-HEADLINE_RPROMPT=''
+HL_PROMPT='%(#.#.%(!.!.$)) ' # consider '%#'
 
-# Clock (prepends to RPROMPT)
-HEADLINE_DO_CLOCK=false # whether to show the clock
-HEADLINE_STYLE_CLOCK=$faint
-HEADLINE_CLOCK_FORMAT='%l:%M:%S %p' # consider "%+" for full date (see man strftime)
+# Right prompt
+HL_RPROMPT=''
 
-# Exit code
-HEADLINE_DO_ERR=false # whether to show non-zero exit codes above prompt
-HEADLINE_DO_ERR_INFO=true # whether to show exit code meaning as well
-HEADLINE_ERR_PREFIX='→ '
-HEADLINE_STYLE_ERR=$italic$faint
+# Show the clock, or don't show
+HL_CLOCK_MODE='on' # on|off
+
+
+# Template for the clock
+HL_CLOCK_TEMPLATE="%{$faint%}..."
+
+# Command which outputs clock content
+HL_CLOCK_SOURCE='date "+%l:%M:%S %p"' # consider 'date +%+' for full date
+
+
+# Show non-zero exit code, include a guessed meaning too, or don't show
+HL_ERR_MODE='detail' # on|detail|off
+
+# Template for the exit code
+HL_ERR_TEMPLATE="%{$faint$italic%}→ ..."
+
+# Template for the optional detail
+HL_ERR_DETAIL_TEMPLATE=' (...)'
+
+
+# The string to replace in templates
+HL_TEMPLATE_TOKEN='...'
 
 # ------------------------------------------------------------------------------
 
 
 
-# Options for zsh
+# Output variables
+HL_OUTPUT_SEP='' # printed separator line
+HL_OUTPUT_INFO='' # printed information line
+
+# Local variables
+_HL_SEP='' # computed separator line
+_HL_INFO='' # computed information line
+_HL_AT_TOP='false' # whether prompt is at top of the screen
+_HL_CMD_NUM=0 # number of commands entered
+_HL_CMD_NUM_PREV=-1 # previous number of commands entered, no command if same
+
+# Zsh configuration
 setopt PROMPT_SP # always start prompt on new line
-setopt PROMPT_SUBST # substitutions
+setopt PROMPT_SUBST # enable substitutions
 autoload -U add-zsh-hook
 PROMPT_EOL_MARK='' # remove weird % symbol
 ZLE_RPROMPT_INDENT=0 # remove extra space
 
-# Local variables
-_HEADLINE_LINE_OUTPUT='' # separator line
-_HEADLINE_INFO_OUTPUT='' # text line
-_HEADLINE_DO_SEP='false' # whether to show divider this time
-if [ $IS_SSH = 0 ]; then
-  _HEADLINE_DO_SEP='true' # assume it's not a fresh window
-fi
 
 # Calculate length of string, excluding formatting characters
-# REF: https://old.reddit.com/r/zsh/comments/cgbm24/multiline_prompt_the_missing_ingredient/
-headline_prompt_len() { # (str, num)
+headline-prompt-len() { # (str, num?)
+  # Ref: https://old.reddit.com/r/zsh/comments/cgbm24/multiline_prompt_the_missing_ingredient/
   emulate -L zsh
   local -i COLUMNS=${2:-COLUMNS}
   local -i x y=${#1} m
@@ -204,20 +281,20 @@ headline_prompt_len() { # (str, num)
 }
 
 # Repeat character a number of times
-# (replacing the "${(pl:$num::$char:)}" expansion)
-headline_repeat_char() { # (char, num)
-  local str=''
+headline-repeat-char() { # (char, num)
+  # Note: This replaces the "${(pl:$num::$char:)}" expansion
+  local result=''
   for (( i = 0; i < $2; i++ )); do
-    str+=$1
+    result+=$1
   done
-  echo $str
+  echo $result
 }
 
 # Guess the exit code meaning
-headline_exit_meaning() { # (num)
-  # REF: https://tldp.org/LDP/abs/html/exitcodes.html
-  # REF: https://man7.org/linux/man-pages/man7/signal.7.html
-  # NOTE: these meanings are not standardized
+headline-exit-meaning() { # (num)
+  # Ref: https://tldp.org/LDP/abs/html/exitcodes.html
+  # Ref: https://man7.org/linux/man-pages/man7/signal.7.html
+  # Note: These meanings are not standardized
   case $1 in
     126) echo 'Command cannot execute';;
     127) echo 'Command not found';;
@@ -240,40 +317,42 @@ headline_exit_meaning() { # (num)
   esac
 }
 
-
-
 # Git command wrapper
-headline_git() {
+headline-git() {
   GIT_OPTIONAL_LOCKS=0 command git "$@"
 }
 
-# Git branch (or hash)
-headline_git_branch() {
+# Get git branch (or hash)
+headline-git-branch() {
   local ref
-  ref=$(headline_git symbolic-ref --quiet HEAD 2> /dev/null)
-  local ret=$?
-  if [[ $ret == 0 ]]; then
+  ref=$(headline-git symbolic-ref --quiet HEAD 2> /dev/null)
+  local err=$?
+  if [[ $err == 0 ]]; then
     echo ${ref#refs/heads/} # remove "refs/heads/" to get branch
   else # not on a branch
-    [[ $ret == 128 ]] && return  # not a git repo
-    ref=$(headline_git rev-parse --short HEAD 2> /dev/null) || return
-    echo "$HEADLINE_GIT_HASH$ref" # hash prefixed to distingush from branch
+    [[ $err == 128 ]] && return  # not a git repo
+    ref=$(headline-git rev-parse --short HEAD 2> /dev/null) || return
+    echo ":${ref}" # hash prefixed to distingush from branch
   fi
 }
 
-# Git status
-headline_git_status() {
-  # Data structures
-  local order; order=('STAGED' 'CHANGED' 'UNTRACKED' 'BEHIND' 'AHEAD' 'DIVERGED' 'STASHED' 'CONFLICTS')
-  local -A totals
-  for key in $order; do
-    totals+=($key 0)
-  done
+# Get the quantity of each git status
+headline-git-status-counts() {
+  local -A counts=(
+    'STAGED' 0 # staged changes
+    'CHANGED' 0 # unstaged changes
+    'UNTRACKED' 0 # untracked files
+    'BEHIND' 0 # commits behind
+    'AHEAD' 0 # commits ahead
+    'DIVERGED' 0 # commits diverged
+    'STASHED' 0 # stashed files
+    'CONFLICTS' 0 # conflicts
+    'CLEAN' 1 # clean branch 1=true 0=false
+  )
 
   # Retrieve status
-  # REF: https://git-scm.com/docs/git-status
   local raw lines
-  raw="$(headline_git status --porcelain -b 2> /dev/null)"
+  raw="$(headline-git status --porcelain -b 2> /dev/null)"
   if [[ $? == 128 ]]; then
     return 1 # catastrophic failure, abort
   fi
@@ -285,9 +364,9 @@ headline_git_status() {
     for item in $items; do
       if [[ $item =~ '(behind|ahead|diverged) ([0-9]+)?' ]]; then
         case $match[1] in
-          'behind') totals[BEHIND]=$match[2];;
-          'ahead') totals[AHEAD]=$match[2];;
-          'diverged') totals[DIVERGED]=$match[2];;
+          'behind') counts[BEHIND]=$match[2];;
+          'ahead') counts[AHEAD]=$match[2];;
+          'diverged') counts[DIVERGED]=$match[2];;
         esac
       fi
     done
@@ -298,206 +377,311 @@ headline_git_status() {
     if [[ $line =~ '^##|^!!' ]]; then
       continue
     elif [[ $line =~ '^U[ADU]|^[AD]U|^AA|^DD' ]]; then
-      totals[CONFLICTS]=$(( ${totals[CONFLICTS]} + 1 ))
+      counts[CONFLICTS]=$(( ${counts[CONFLICTS]} + 1 ))
     elif [[ $line =~ '^\?\?' ]]; then
-      totals[UNTRACKED]=$(( ${totals[UNTRACKED]} + 1 ))
+      counts[UNTRACKED]=$(( ${counts[UNTRACKED]} + 1 ))
     elif [[ $line =~ '^[MTADRC] ' ]]; then
-      totals[STAGED]=$(( ${totals[STAGED]} + 1 ))
+      counts[STAGED]=$(( ${counts[STAGED]} + 1 ))
     elif [[ $line =~ '^[MTARC][MTD]' ]]; then
-      totals[STAGED]=$(( ${totals[STAGED]} + 1 ))
-      totals[CHANGED]=$(( ${totals[CHANGED]} + 1 ))
+      counts[STAGED]=$(( ${counts[STAGED]} + 1 ))
+      counts[CHANGED]=$(( ${counts[CHANGED]} + 1 ))
     elif [[ $line =~ '^ [MTADRC]' ]]; then
-      totals[CHANGED]=$(( ${totals[CHANGED]} + 1 ))
+      counts[CHANGED]=$(( ${counts[CHANGED]} + 1 ))
     fi
   done
 
   # Check for stashes
-  if $(headline_git rev-parse --verify refs/stash &> /dev/null); then
-    totals[STASHED]=$(headline_git rev-list --walk-reflogs --count refs/stash 2> /dev/null)
+  if $(headline-git rev-parse --verify refs/stash &> /dev/null); then
+    counts[STASHED]=$(headline-git rev-list --walk-reflogs --count refs/stash 2> /dev/null)
   fi
 
-  # Build string
-  local prefix status_str
-  status_str=''
-  for key in $order; do
-    if (( ${totals[$key]} > 0 )); then
-      if (( ${#HEADLINE_STATUS_TO_STATUS} && ${#status_str} )); then # not first iteration
-        local style_joint="$reset$HEADLINE_STYLE_DEFAULT$HEADLINE_STYLE_JOINT"
-        local style_status="$resetHEADLINE_STYLE_DEFAULT$HEADLINE_STYLE_STATUS"
-        status_str="$status_str%{$style_joint%}$HEADLINE_STATUS_TO_STATUS%{$style_status%}"
+  # Update clean flag
+  for key val in ${(@kv)counts}; do
+    [[ $key == 'CLEAN' ]] && continue
+    (( $val > 0 )) && counts[CLEAN]=0
+  done
+
+  echo ${(@kv)counts} # key1 val1 key2 val2 ...
+}
+
+# Get git status
+headline-git-status() {
+  local style=${${HL_CONTENT_TEMPLATE[STATUS]##*%\{}%%%\}*} # regex for "%{...%}"
+  local -A counts=( $(headline-git-status-counts) )
+  (( ${#counts} == 0 )) && return # not a git repo
+  local result=''
+  for key in $HL_GIT_STATUS_ORDER; do
+    if (( ${counts[$key]} > 0 )); then
+      if (( ${#HL_GIT_SEP_SYMBOL} != 0 && ${#result} != 0 )); then
+        result+="%{$reset%}$HL_BASE_STYLE$HL_LAYOUT_STYLE$HL_GIT_SEP_SYMBOL%{$reset%}$HL_BASE_STYLE%{$style%}"
       fi
-      eval prefix="\$HEADLINE_GIT_${key}"
-      if [[ $HEADLINE_DO_GIT_STATUS_COUNTS == 'true' ]]; then
-        if [[ $HEADLINE_DO_GIT_STATUS_OMIT_ONE == 'true' && (( ${totals[$key]} == 1 )) ]]; then
-          status_str="$status_str$prefix"
-        else
-          status_str="$status_str${totals[$key]}$prefix"
-        fi
+      if [[ $key != 'CLEAN' && $HL_GIT_COUNT_MODE == 'on' || ( $HL_GIT_COUNT_MODE == 'auto' && ${counts[$key]} != 1 ) ]]; then
+        result+="${counts[$key]}${HL_GIT_STATUS_SYMBOLS[$key]}"
       else
-        status_str="$status_str$prefix"
+        result+="${HL_GIT_STATUS_SYMBOLS[$key]}"
       fi
     fi
   done
+  echo $result
+}
 
-  # Return
-  if (( ${#status_str} )); then
-    echo $status_str
-  else
-    echo $HEADLINE_GIT_CLEAN
-  fi
+# Transfer styles to another string
+headline-transfer-styles() { # (str, str)
+  local -a src=( ${(@s::)1} ) # source char array
+  local -a dest=( ${(@s::)2} ) # destination char array
+  local result=''
+  local prev=''
+  local is_style='false'
+  local index=0
+  for char in $src; do
+    if [[ $prev == '{' || $prev == '}' ]]; then
+      prev=$char
+      continue
+    elif [[ $prev == '%' && $char == '{' ]]; then
+      [[ $is_style != 'true' ]] && result+='%{'
+      is_style='true'
+    elif [[ $prev == '%' && $char == '}' ]]; then
+      [[ $is_style == 'true' ]] && result+='%}'
+      is_style='false'
+    elif [[ $is_style == 'true' ]]; then
+      result+=$prev
+    else
+      result+=${dest[$index]}
+      (( index += 1 ))
+    fi
+    prev=$char
+  done
+  result+=${dest[$index]}
+  echo $result
+
+  # TODO use regex... why does this suck so much? can't match multiple?
+  # if [[ $1 =~ '%{([^%]*)%}' ]]; then
+  #   echo $MBEGIN $MEND $MATCH
+  #   echo $mbegin $mend $match # expect arrays?
+  # fi
 }
 
 
+# Handle Ctrl+L press
+zle -N headline-clear-screen
+bindkey '^L' headline-clear-screen
+headline-clear-screen() {
+  _HL_AT_TOP='true'
+
+  # Hide cursor and clear screen
+  print -nr "$cursor_hide$cursor_to_top_left_corner$clear_entire_screen"
+
+  # Update and print
+  headline-precmd
+  zle .reset-prompt # re-print $PROMPT
+
+  # Show cursor
+  print -nr "$cursor_show"
+}
 
 # Before executing command
-add-zsh-hook preexec headline_preexec
-headline_preexec() {
-  # TODO better way of knowing the prompt is at the top of the terminal
+add-zsh-hook preexec headline-preexec
+headline-preexec() {
+  (( _HL_CMD_NUM++ ))
+  # TODO better way of knowing the prompt is at the top of the terminal ?
   if [[ $2 == 'clear' ]]; then
-    _HEADLINE_DO_SEP='false'
+    _HL_AT_TOP='true'
+    _HL_INFO='' # ensure info line will print
   fi
 }
 
 # Before prompting
-add-zsh-hook precmd headline_precmd
-headline_precmd() {
-  local err=$?
+add-zsh-hook precmd headline-precmd
+headline-precmd() {
+  local -i err=$?
+  local -i trunc_initial_length=$(( $HL_TRUNC_INITIAL + ${#HL_TRUNC_SYMBOL} ))
+  local -i trunc_removal_length=$(( $HL_TRUNC_REMOVAL + ${#HL_TRUNC_SYMBOL} ))
 
-  # Information
-  local user_str host_str path_str branch_str status_str
-  user_str=$(eval $HEADLINE_USER_CMD)
-  host_str=$(eval $HEADLINE_HOST_CMD)
-  path_str=$(eval $HEADLINE_PATH_CMD)
-  branch_str=$(eval $HEADLINE_GIT_BRANCH_CMD)
-  status_str=$(eval $HEADLINE_GIT_STATUS_CMD)
+  # Acquire contents
+  local -A contents
+  local -A content_lengths # length of each content (without style)
+  local -i content_length=0 # total length of content
+  for key val in "${(@kv)HL_CONTENT_SOURCE}"; do
+    content_lengths[$key]=0
+    (( $COLUMNS < ${HL_COLS_REMOVAL[$key]:-0} )) && continue # omit segment
+    contents[$key]=$(eval ${=val})
+    local -i length=$(headline-prompt-len ${contents[$key]:-''} 999)
+    (( content_length += $length )); content_lengths[$key]=$length
+  done
 
-  # Shared variables
-  _HEADLINE_LEN_REMAIN=$COLUMNS
-  _HEADLINE_INFO_LEFT=''
-  _HEADLINE_LINE_LEFT=''
-  _HEADLINE_INFO_RIGHT=''
-  _HEADLINE_LINE_RIGHT=''
-
-  # Git status
-  if (( ${#status_str} )); then
-    _headline_part JOINT "$HEADLINE_STATUS_END" right
-    _headline_part STATUS "$HEADLINE_STATUS_PREFIX$status_str" right
-    _headline_part JOINT "$HEADLINE_BRANCH_TO_STATUS" right
-    if (( $_HEADLINE_LEN_REMAIN < ${#HEADLINE_PAD_TO_BRANCH} + ${#HEADLINE_BRANCH_PREFIX} + ${#HEADLINE_TRUNC_PREFIX} )); then
-      user_str=''; host_str=''; path_str=''; branch_str=''
+  # Compute layout lengths
+  local -A layouts
+  local -A layout_lengths # length of each layout (without style)
+  local -i layout_length=0 # total length of layout
+  local -A first_layout_lengths # length of each first layout (without style)
+  for key val in "${(@kv)HL_LAYOUT_TEMPLATE}"; do
+    layout_lengths[$key]=0
+    local -i length=$(headline-prompt-len "$val$HL_CONTENT_TEMPLATE[$key]" 999)
+    local -i first_length=$(headline-prompt-len "$HL_LAYOUT_FIRST[$key]$HL_CONTENT_TEMPLATE[$key]" 999)
+    if [[ ${key::1} != '_' ]]; then
+      (( content_lengths[$key] <= 0 )) && continue # skip omitted segment
+      (( length -= ${#HL_TEMPLATE_TOKEN} * 2 )) # subtract length of tokens
+      (( first_length -= ${#HL_TEMPLATE_TOKEN} * 2 )) # subtract length of tokens
     fi
+    layouts[$key]=$val
+    (( layout_length += $length )); layout_lengths[$key]=$length
+    (( ${+HL_LAYOUT_FIRST[$key]} )) && first_layout_lengths[$key]=$first_length
+  done
+
+  # Compute target truncation length
+  local -i target_length=$content_length
+  for key in $HL_LAYOUT_ORDER; do
+    (( ! $HL_TRUNC_ORDER[(Ie)$key] )) && continue # no truncation specified
+    (( $trunc_initial_length >= $content_lengths[$key] )) && continue # already short enough
+    (( target_length -= $content_lengths[$key] - $trunc_initial_length ))
+  done
+
+  # Update first segment
+  for key in $HL_LAYOUT_ORDER; do
+    [[ $key == '_PRE' ]] && continue # skip special segment
+    (( layout_lengths[$key] <= 0 )) && continue # skip omitted segment
+    if (( ${+HL_LAYOUT_FIRST[$key]} )); then
+      layouts[$key]=$HL_LAYOUT_FIRST[$key]
+      (( layout_length -= $layout_lengths[$key] - $first_layout_lengths[$key] ))
+      layout_lengths[$key]=$first_layout_lengths[$key]
+    fi
+    break
+  done
+
+  # Remove segments as needed
+  for key in $HL_TRUNC_ORDER; do
+    (( content_lengths[$key] <= 0 )) && continue # already removed
+    local -i remove=$(( $content_lengths[$key] < $trunc_initial_length ? $content_lengths[$key] : $trunc_initial_length ))
+    local -i offset=$(( $remove < $trunc_removal_length ? 0 : $remove - $trunc_removal_length ))
+    (( $target_length + $layout_length - $offset <= $COLUMNS )) && break # done removing
+    (( target_length -= $remove ))
+    contents[$key]=''; (( content_length -= $content_lengths[$key] )); content_lengths[$key]=0
+    layouts[$key]=''; (( layout_length -= $layout_lengths[$key] )); layout_lengths[$key]=0
+  
+    # Update first segment
+    for key in $HL_LAYOUT_ORDER; do
+      [[ $key == '_PRE' ]] && continue # skip special segment
+      (( layout_lengths[$key] <= 0 )) && continue # skip omitted segment
+      if (( ${+HL_LAYOUT_FIRST[$key]} )); then
+        layouts[$key]=$HL_LAYOUT_FIRST[$key]
+        (( layout_length -= $layout_lengths[$key] - $first_layout_lengths[$key] ))
+        layout_lengths[$key]=$first_layout_lengths[$key]
+      fi
+      break
+    done
+  done
+
+  # Truncate segments to initial length
+  for key in $HL_TRUNC_ORDER; do
+    (( content_lengths[$key] <= 0 )) && continue # segment removed
+    local -i excess=$(( $content_length + $layout_length - $COLUMNS ))
+    (( $excess <= 0 )) && break # done truncating
+    local -i removeable=$(( $content_lengths[$key] - $trunc_initial_length ))
+    (( $removeable <= 0 )) && continue # already short enough
+    local -i remove=$(( ( $excess < $removeable ? $excess : $removeable ) ))
+    (( content_length -= $remove ))
+    content_lengths[$key]=$(( $content_lengths[$key] - $remove ))
+    contents[$key]="$HL_TRUNC_SYMBOL${contents[$key]:$(( $remove + ${#HL_TRUNC_SYMBOL} ))}"
+  done
+
+  # Truncate segment to minimum length
+  for key in $HL_TRUNC_ORDER; do
+    (( content_lengths[$key] <= 0 )) && continue # segment removed
+    local -i excess=$(( $content_length + $layout_length - $COLUMNS ))
+    (( $excess <= 0 )) && break # done truncating
+    (( content_length -= $excess ))
+    content_lengths[$key]=$(( $content_lengths[$key] - $excess ))
+    contents[$key]="$HL_TRUNC_SYMBOL${contents[$key]:$(( excess + ${#HL_TRUNC_SYMBOL} ))}"
+  done
+
+  # Build spacer
+  local -i remainder=$(( $COLUMNS - $content_length - $layout_length ))
+  if (( $remainder > 0 )); then
+    contents[_SPACER]="$(headline-repeat-char "$HL_SPACE_CHAR" $(( $remainder + $layout_lengths[_SPACER] )) )"
   fi
 
-  # Git branch
-  local len=$(( $_HEADLINE_LEN_REMAIN - ${#HEADLINE_BRANCH_PREFIX} ))
-  if (( ${#branch_str} )); then
-    if (( $len < ${#HEADLINE_PATH_PREFIX} + ${#HEADLINE_TRUNC_PREFIX} + ${#HEADLINE_PATH_TO_BRANCH} + ${#branch_str} )); then
-      path_str=''
+  # Assemble segments
+  local information='' # the styled information line
+  for key in $HL_LAYOUT_ORDER; do
+    local segment=''; local segment_sep=''
+    if [[ ${key::1} == '_' && ${#contents[$key]} == 0 ]]; then # special segment without content (ex: _PRE, _POST)
+      segment="${layouts[$key]}"; segment_sep=$segment
+    elif [[ ${key::1} == '_' && ${#contents[$key]} != 0 ]]; then # special segment with generated content (ex: _SPACER)
+      segment="${contents[$key]}"; segment_sep=$segment
+    elif [[ ${key::1} != '_' && ${#contents[$key]} != 0 ]]; then # normal segment with content
+      segment="${HL_CONTENT_TEMPLATE[$key]/$HL_TEMPLATE_TOKEN/$contents[$key]}"
+      segment="%{$reset%}$HL_BASE_STYLE$segment%{$reset%}$HL_BASE_STYLE$HL_LAYOUT_STYLE"
+      segment="${layouts[$key]/$HL_TEMPLATE_TOKEN/$segment}"
+    else # normal segment without content
+      continue
     fi
-    if (( ${#path_str} )); then
-      len=$(( $len - ${#HEADLINE_PATH_PREFIX} - ${#HEADLINE_PATH_TO_BRANCH} ))
-    else
-      len=$(( $len - ${#HEADLINE_PAD_TO_BRANCH} ))
+    information+="$HL_BASE_STYLE$HL_LAYOUT_STYLE$segment%{$reset%}"
+  done
+
+  # Assemble separator
+  local separator=$(headline-repeat-char "${HL_SEP[_LINE]}" $(( $COLUMNS - ${#HL_SEP[_PRE]} - ${#HL_SEP[_POST]} )) )
+  separator=$(headline-transfer-styles "$information" "${HL_SEP[_PRE]}$separator${HL_SEP[_POST]}")
+  separator="${separator//"%}"/"%}$HL_SEP_STYLE"}"
+
+  # Prepare cursor
+  local overwrite='false'
+  if [[ $HL_OVERWRITE == 'on' && $_HL_CMD_NUM == $_HL_CMD_NUM_PREV ]]; then
+    overwrite='true'
+    print -nr "$cursor_hide"
+    print -nr "$cursor_up" # to prompt line
+    (( ${#HL_OUTPUT_INFO} )) && print -nr "$cursor_up" # to info line
+    (( ${#HL_OUTPUT_SEP} )) && print -nr "$cursor_up" # to separator line
+    if [[ $HL_SEP_MODE == 'auto' && ! $HL_OUTPUT_SEP ]]; then
+      _HL_AT_TOP='true' # deduce that we were at top last time
     fi
-    _headline_part BRANCH "$HEADLINE_BRANCH_PREFIX%$len<$HEADLINE_TRUNC_PREFIX<$branch_str%<<" right
-  fi
-
-  # Trimming
-  local joint_len=$(( ${#HEADLINE_USER_BEGIN} + ${#HEADLINE_USER_TO_HOST} + ${#HEADLINE_HOST_TO_PATH} + ${#HEADLINE_PATH_TO_BRANCH} ))
-  local path_min_len=$(( ${#path_str} + ${#HEADLINE_PATH_PREFIX} > 25 ? 25 : ${#path_str} + ${#HEADLINE_PATH_PREFIX} ))
-  len=$(( $_HEADLINE_LEN_REMAIN - $path_min_len - $joint_len ))
-  if (( $len < 2 )); then
-    user_str=''; host_str=''
-  elif (( $len < ${#user_str} + ${#host_str} )); then
-    user_str="${user_str:0:1}"
-    host_str="${host_str:0:1}"
-  fi
-
-  # User
-  if (( ${#user_str} )); then
-    _headline_part JOINT "$HEADLINE_USER_BEGIN" left
-    _headline_part USER "$HEADLINE_USER_PREFIX$user_str" left
-  fi
-
-  # Host
-  if (( ${#host_str} )); then
-    if (( ${#_HEADLINE_INFO_LEFT} )); then
-      _headline_part JOINT "$HEADLINE_USER_TO_HOST" left
-    fi
-    _headline_part HOST "$HEADLINE_HOST_PREFIX$host_str" left
-  fi
-
-  # Path
-  if (( ${#path_str} )); then
-    if (( ${#_HEADLINE_INFO_LEFT} )); then
-      _headline_part JOINT "$HEADLINE_HOST_TO_PATH" left
-    fi
-    len=$(( $_HEADLINE_LEN_REMAIN - ${#HEADLINE_PATH_PREFIX} - ( ${#branch_str} ? ${#HEADLINE_PATH_TO_BRANCH} : 0 ) ))
-    _headline_part PATH "$HEADLINE_PATH_PREFIX%$len<$HEADLINE_TRUNC_PREFIX<$path_str%<<" left
-  fi
-
-  # Padding
-  if (( ${#branch_str} && ${#path_str} && $_HEADLINE_LEN_REMAIN <= ${#HEADLINE_PATH_TO_BRANCH} )); then
-    _headline_part JOINT "$HEADLINE_PATH_TO_BRANCH" left
-  else
-    if (( ${#branch_str} )); then
-      _headline_part JOINT "$HEADLINE_PAD_TO_BRANCH" right
-    fi
-    _headline_part JOINT "$HEADLINE_PATH_TO_PAD" left
-    _headline_part JOINT "$(headline_repeat_char $HEADLINE_PAD_CHAR $_HEADLINE_LEN_REMAIN)" left
+    print -nr "$cursor_show"
   fi
 
   # Error line
-  if [[ $HEADLINE_DO_ERR == 'true' ]] && (( $err )); then
-    local meaning msg
-    if [[ $HEADLINE_DO_ERR_INFO == 'true' ]]; then
-      meaning=$(headline_exit_meaning $err)
-      (( ${#meaning} )) && msg=" ($meaning)"
+  if [[ $err != 0 && ($HL_ERR_MODE == 'on' || $HL_ERR_MODE == 'detail') && $overwrite != 'true' ]]; then
+    local message=$err
+    if [[ $HL_ERR_MODE == 'detail' ]]; then
+      local meaning=$(headline-exit-meaning $err)
+      (( ${#meaning} > 0 )) && message+="${HL_ERR_DETAIL_TEMPLATE/$HL_TEMPLATE_TOKEN/$meaning}%{$reset%}"
     fi
-    print -rP "$HEADLINE_STYLE_ERR$HEADLINE_ERR_PREFIX$err$msg"
+    print -rP "${HL_ERR_TEMPLATE/$HL_TEMPLATE_TOKEN/$message}%{$reset%}"
   fi
 
   # Separator line
-  _HEADLINE_LINE_OUTPUT=""
-  if [[ $HEADLINE_LINE_MODE == 'on' || ($HEADLINE_LINE_MODE == 'auto' && $_HEADLINE_DO_SEP == 'true' ) ]]; then
-    _HEADLINE_LINE_OUTPUT="$_HEADLINE_LINE_LEFT$_HEADLINE_LINE_RIGHT$reset"
+  if [[ $HL_SEP_MODE == 'on' || ($HL_SEP_MODE == 'auto' && $_HL_AT_TOP != 'true') ]]; then
+    HL_OUTPUT_SEP=$separator
+    [[ $HL_PRINT_MODE == 'precmd' ]] && print -rP "$HL_OUTPUT_SEP"
+  else
+    HL_OUTPUT_SEP=''
   fi
-  _HEADLINE_DO_SEP='true'
+  _HL_SEP=$separator
 
   # Information line
-  _HEADLINE_INFO_OUTPUT="$_HEADLINE_INFO_LEFT$_HEADLINE_INFO_RIGHT$reset"
+  if [[ ! ($HL_THIN == 'on' && $information == $_HL_INFO) || $overwrite == 'true' ]]; then
+    HL_OUTPUT_INFO=$information
+    [[ $HL_PRINT_MODE == 'precmd' ]] && print -rP "$HL_OUTPUT_INFO"
+  else
+    HL_OUTPUT_INFO=''
+  fi
+  _HL_INFO=$information
 
   # Prompt
-  if [[ $HEADLINE_INFO_MODE == 'precmd' ]]; then
-    [ ! -z ${_HEADLINE_LINE_OUTPUT} ] && print -rP $_HEADLINE_LINE_OUTPUT
-    print -rP $_HEADLINE_INFO_OUTPUT
-    PROMPT=$HEADLINE_PROMPT
-  else
-    PROMPT='$([ ! -z ${_HEADLINE_LINE_OUTPUT} ] && print -rP $_HEADLINE_LINE_OUTPUT; print -rP $_HEADLINE_INFO_OUTPUT; print -rP $HEADLINE_PROMPT)'
+  if [[ $HL_PRINT_MODE == 'precmd' ]]; then
+    PROMPT=$HL_PROMPT
+  elif [[ $HL_PRINT_MODE == 'prompt' ]]; then
+    PROMPT='$('
+    (( ${#HL_OUTPUT_SEP} )) && PROMPT+='print -rP "$HL_OUTPUT_SEP"; '
+    (( ${#HL_OUTPUT_INFO} )) && PROMPT+='print -rP "$HL_OUTPUT_INFO"; '
+    PROMPT+='print -rP "$HL_PROMPT")'
   fi
 
   # Right prompt
-  if [[ $HEADLINE_DO_CLOCK == 'true' ]]; then
-    RPROMPT='%{$HEADLINE_STYLE_CLOCK%}$(date +$HEADLINE_CLOCK_FORMAT)%{$reset%}$HEADLINE_RPROMPT'
+  if [[ $HL_CLOCK_MODE == 'on' ]]; then
+    RPROMPT='${HL_CLOCK_TEMPLATE/$HL_TEMPLATE_TOKEN/$(eval ${=HL_CLOCK_SOURCE})}%{$reset%}$HL_RPROMPT'
   else
-    RPROMPT=$HEADLINE_RPROMPT
+    RPROMPT=$HL_RPROMPT
   fi
-}
 
-# Create a part of the prompt
-_headline_part() { # (name, content, side)
-  local style info info_len line
-  eval style="\$reset\$HEADLINE_STYLE_DEFAULT\$HEADLINE_STYLE_${1}"
-  info="%{$style%}$2"
-  info_len=$(headline_prompt_len $info 9999)
-  _HEADLINE_LEN_REMAIN=$(( $_HEADLINE_LEN_REMAIN - $info_len ))
-  eval style="\$reset\$HEADLINE_STYLE_${1}_LINE"
-  line="%{$style%}$(headline_repeat_char $HEADLINE_LINE_CHAR $info_len)"
-  if [[ $3 == 'right' ]]; then
-    _HEADLINE_INFO_RIGHT="$info$_HEADLINE_INFO_RIGHT"
-    _HEADLINE_LINE_RIGHT="$line$_HEADLINE_LINE_RIGHT"
-  else
-    _HEADLINE_INFO_LEFT="$_HEADLINE_INFO_LEFT$info"
-    _HEADLINE_LINE_LEFT="$_HEADLINE_LINE_LEFT$line"
-  fi
+  _HL_CMD_NUM_PREV=$_HL_CMD_NUM
+  _HL_AT_TOP='false'
 }
