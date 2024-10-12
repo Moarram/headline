@@ -228,6 +228,10 @@ The truncation process consists of two rounds, which halt as soon as the informa
 
 To disable truncation, set `HL_TRUNC_ORDER` to an empty array `()`.
 
+> <img src="https://raw.githubusercontent.com/moarram/headline/assets/images/truncation.png" width="600"/>
+> 
+> A demonstration of the truncation process with `HL_TRUNC_INITIAL=4` and `HL_TRUNC_REMOVAL=1`
+
 <br>
 
 

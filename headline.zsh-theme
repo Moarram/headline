@@ -539,7 +539,7 @@ headline-precmd() {
   # Update first segment
   for key in $HL_LAYOUT_ORDER; do
     [[ $key == '_PRE' ]] && continue # skip special segment
-    (( content_lengths[$key] <= 0 )) && continue # skip omitted segment
+    (( content_lengths[$key] <= 0 && layout_lengths[$key] <= 0 )) && continue # skip omitted segment
     if (( ${+HL_LAYOUT_FIRST[$key]} )); then
       layouts[$key]=$HL_LAYOUT_FIRST[$key]
       (( layout_length -= $layout_lengths[$key] - $first_layout_lengths[$key] ))
@@ -561,7 +561,7 @@ headline-precmd() {
     # Update first segment
     for key in $HL_LAYOUT_ORDER; do
       [[ $key == '_PRE' ]] && continue # skip special segment
-      (( content_lengths[$key] <= 0 )) && continue # skip omitted segment
+      (( content_lengths[$key] <= 0 && layout_lengths[$key] <= 0 )) && continue # skip omitted segment
       if (( ${+HL_LAYOUT_FIRST[$key]} )); then
         layouts[$key]=$HL_LAYOUT_FIRST[$key]
         (( layout_length -= $layout_lengths[$key] - $first_layout_lengths[$key] ))
