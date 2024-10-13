@@ -467,6 +467,7 @@ zle -N headline-clear-screen
 bindkey '^L' headline-clear-screen
 headline-clear-screen() {
   _HL_AT_TOP='true'
+  _HL_INFO='' # ensure info line will print
 
   # Hide cursor and clear screen
   print -nr "$cursor_hide$cursor_to_top_left_corner$clear_entire_screen"
