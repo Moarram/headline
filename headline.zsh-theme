@@ -473,7 +473,9 @@ headline-clear-screen() {
   print -nr "$cursor_hide$cursor_to_top_left_corner$clear_entire_screen"
 
   # Update and print
-  headline-precmd
+  for function in $precmd_functions; do
+    $function
+  done
   zle .reset-prompt # re-print $PROMPT and $RPROMPT
 
   # Show cursor
