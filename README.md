@@ -38,9 +38,6 @@ When enabled with `HL_ERR_MODE=on`, print non-zero exit codes ahead of the promp
 ### *Clock*
 When enabled with `HL_CLOCK_MODE=on`, display the time to the right of the prompt.
 
-### *Thin*
-When enabled with `HL_THIN=on`, only print the information line if it has changed.
-
 <br>
 
 
@@ -71,7 +68,7 @@ More details in **[Customization](docs/Customization.md)**
 
 
 ## Terminal Setup
-For the continuous line above the prompt, use a font with ligatures such as [Fira Code](https://github.com/tonsky/FiraCode).
+For the continuous line above the prompt, use a font with ligatures such as [Fira Code](https://github.com/tonsky/FiraCode). Alternatively, use the "lower 1/8th block" character instead of underscores with `HL_SEP[_LINE]='▁'`.
 
 If you want symbols, use a font that has them such as [FiraCode Nerd Font](https://github.com/ryanoasis/nerd-fonts/tree/master/patched-fonts/FiraCode) and include your desired symbols in `HL_CONTENT_TEMPLATE`.
 
@@ -97,7 +94,7 @@ Screenshots of theme in [iTerm2](https://iterm2.com/index.html). Using [FiraCode
 
 > <img src="https://raw.githubusercontent.com/moarram/headline/assets/images/theme-dark.png" width="600"/>
 >
-> Options to show clock (`HL_CLOCK_MODE=on`), show exit code (`HL_ERR_MODE=on`), and hide identical information (`HL_THIN=on`).
+> Options to show clock (`HL_CLOCK_MODE=on`), show exit code (`HL_ERR_MODE=on`), and hide identical information (`HL_INFO_MODE=auto`).
 
 <br>
 

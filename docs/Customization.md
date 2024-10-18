@@ -31,32 +31,32 @@ These styles must be enclosed by the prompt escape characters `%{` and `%}`. Str
 
 ### Printing
 
-`HL_THIN`  
-Only print the information line if it has new information.
-* `on` - Enable conditional information line
-* `off` - Always print information line
-
-`HL_OVERWRITE`  
-Press `<enter>` with no commands to overwrite previous prompt.
-* `on` - Enable prompt overwrite
-* `off` - Re-print as normal
-
 `HL_PRINT_MODE`  
 Choose how to print the output.
 * `precmd` - Output is printed in a `precmd` hook
   * ***Note:** Some terminals may confuse this for the previous command's output*
 * `prompt` - Output is assigned to the `PROMPT` variable
   * ***Note:** Zsh doesn't always handle multi-line prompts correctly... expect issues when re-printing*
-* `off` - Not printed. The outputs are available in `HL_OUTPUT_SEP` and `HL_OUTPUT_INFO`
-
-
-### Separator
 
 `HL_SEP_MODE`  
 Choose when to print the separator line.
 * `on` - Always print the separator line
 * `auto` - Print the separator line unless the screen has just been cleared
 * `off` - Never print the separator line
+
+`HL_INFO_MODE`  
+Choose when to print the information line.
+* `on` - Always print the information line
+* `auto` - Print the information line only if it has changed 
+* `off` - Never print the information line
+
+`HL_OVERWRITE`  
+Press `<enter>` with no commands to overwrite previous prompt.
+* `on` - Enable prompt overwrite
+* `off` - Re-print as normal
+
+
+### Separator
 
 `HL_SEP_STYLE`  
 Style applied to entire separator line, after other styles.
@@ -259,7 +259,7 @@ Shows non-zero exit codes, clock, and git status counts. Personal favorite.
 <img src="https://raw.githubusercontent.com/moarram/headline/assets/images/config-standard.png" width="600"/>
 
 ```sh
-HL_THIN='on'
+HL_INFO_MODE='auto'
 HL_OVERWRITE='on'
 HL_GIT_COUNT_MODE='auto'
 HL_GIT_SEP_SYMBOL='|'
@@ -307,9 +307,9 @@ Has almost everything in the verbose config and utilizes `_PRE` and `_POST` segm
 <img src="https://raw.githubusercontent.com/moarram/headline/assets/images/config-fancy.png" width="600"/>
 
 ```sh
-HL_THIN='on'
-HL_OVERWRITE='on'
 HL_SEP_MODE='on'
+HL_INFO_MODE='auto'
+HL_OVERWRITE='on'
 HL_SEP=(
   _PRE  '┍' # consider '┌' or '╭'
   _LINE '━' # consider '─'

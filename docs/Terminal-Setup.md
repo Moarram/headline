@@ -5,7 +5,9 @@ The following features depend on terminal settings.
 
 
 ## Continuous Line
-For the continuous separator line above the prompt you need a font with ligatures (and a terminal that supports them). I know [Fira Code](https://github.com/tonsky/FiraCode) works well, but any font that joins adjacent underscores will do. You may need to enable font ligatures in your terminal settings.
+For the continuous separator line above the prompt, I recommend a font with ligatures (and a terminal that supports them). I know [Fira Code](https://github.com/tonsky/FiraCode) works well, but any font that joins adjacent underscores will do. You may need to enable font ligatures in your terminal settings.
+
+If your terminal doesn't support ligatures, or you don't want a different font, consider using the "lower 1/8th block" character to build the separator line with `HL_SEP[_LINE]='▁'`. This character naturally fills the width of the cell so it doesn't require ligatures. Note that the resulting line is a bit thicker.
 
 <br>
 

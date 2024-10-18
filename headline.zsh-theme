@@ -11,10 +11,10 @@
 # (add more if you need)
 reset=$'\e[0m'
 bold=$'\e[1m'
-faint=$'\e[2m'
-italic=$'\e[3m'
-underline=$'\e[4m'
-invert=$'\e[7m'
+faint=$'\e[2m';     no_faint_bold=$'\e[22m'
+italic=$'\e[3m';    no_italic=$'\e[23m'
+underline=$'\e[4m'; no_underline=$'\e[24m'
+invert=$'\e[7m';    no_invert=$'\e[27m'
 # ...
 
 # Foreground color aliases
@@ -81,18 +81,18 @@ clear_entire_screen=$'\e[2J'
 # To insert styles (ANSI SGR codes defined above) use syntax: "%{$style%}"
 
 
-# Only print information line if it has changed
-HL_THIN='off' # on|off
+# Print separator and information line with precmd hook or in PROMPT
+HL_PRINT_MODE='precmd' # precmd|prompt
+
+# Print the separator line always, when not following clear screen, or don't print
+HL_SEP_MODE='auto' # on|auto|off
+
+# Print the information line always, when it has changed, or don't print
+HL_INFO_MODE='on' # on|auto|off
 
 # Press <enter> with no commands to overwrite previous prompt
 HL_OVERWRITE='off' # on|off
 
-# Print separator and information line with precmd, in PROMPT, or don't print
-HL_PRINT_MODE='precmd' # precmd|prompt|off
-
-
-# Print the separator line always, when not following clear screen, or don't print
-HL_SEP_MODE='auto' # on|auto|off
 
 # Style applied to separator line, after other styles
 HL_SEP_STYLE="%{$default_bg%}"
@@ -100,7 +100,7 @@ HL_SEP_STYLE="%{$default_bg%}"
 # Segments of the separator line
 declare -A HL_SEP=(
   _PRE  ''
-  _LINE '_' # repeated char to create separator line
+  _LINE '_' # repeated char to create separator line, consider '▁'
   _POST ''
 )
 
@@ -406,7 +406,8 @@ headline-git-status-counts() {
 
 # Get git status
 headline-git-status() {
-  local style=${${HL_CONTENT_TEMPLATE[STATUS]##*%\{}%%%\}*} # regex for "%{...%}"
+  local parts=( ${(ps:$HL_TEMPLATE_TOKEN:)HL_CONTENT_TEMPLATE[STATUS]} ) # split on template token
+  local style=${${parts[1]##*%\{}%%%\}*} # regex for "%{...%}"
   local -A counts=( $(headline-git-status-counts) )
   (( ${#counts} == 0 )) && return # not a git repo
   local result=''
@@ -660,7 +661,7 @@ headline-precmd() {
   _HL_SEP=$separator
 
   # Information line
-  if [[ ! ($HL_THIN == 'on' && $information == $_HL_INFO) || $overwrite == 'true' ]]; then
+  if [[ $HL_INFO_MODE == 'on' || ($HL_INFO_MODE == 'auto' && $information != $_HL_INFO) || $overwrite == 'true' ]]; then
     HL_OUTPUT_INFO=$information
     [[ $HL_PRINT_MODE == 'precmd' ]] && print -rP "$HL_OUTPUT_INFO"
   else
