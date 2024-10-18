@@ -522,7 +522,7 @@ headline-precmd() {
     layout_lengths[$key]=0
     local -i length=$(headline-prompt-len "$val$HL_CONTENT_TEMPLATE[$key]" 999)
     local -i first_length=$(headline-prompt-len "$HL_LAYOUT_FIRST[$key]$HL_CONTENT_TEMPLATE[$key]" 999)
-    if [[ ${key::1} != '_' ]]; then
+    if [[ ${key[1]} != '_' ]]; then
       (( content_lengths[$key] <= 0 )) && continue # skip omitted segment
       (( length -= ${#HL_TEMPLATE_TOKEN} * 2 )) # subtract length of tokens
       (( first_length -= ${#HL_TEMPLATE_TOKEN} * 2 )) # subtract length of tokens
@@ -608,11 +608,11 @@ headline-precmd() {
   local information='' # the styled information line
   for key in $HL_LAYOUT_ORDER; do
     local segment=''; local segment_sep=''
-    if [[ ${key::1} == '_' && ${#contents[$key]} == 0 ]]; then # special segment without content (ex: _PRE, _POST)
+    if [[ ${key[1]} == '_' && ${#contents[$key]} == 0 ]]; then # special segment without content (ex: _PRE, _POST)
       segment="${layouts[$key]}"; segment_sep=$segment
-    elif [[ ${key::1} == '_' && ${#contents[$key]} != 0 ]]; then # special segment with generated content (ex: _SPACER)
+    elif [[ ${key[1]} == '_' && ${#contents[$key]} != 0 ]]; then # special segment with generated content (ex: _SPACER)
       segment="${contents[$key]}"; segment_sep=$segment
-    elif [[ ${key::1} != '_' && ${#contents[$key]} != 0 ]]; then # normal segment with content
+    elif [[ ${key[1]} != '_' && ${#contents[$key]} != 0 ]]; then # normal segment with content
       segment="${HL_CONTENT_TEMPLATE[$key]/$HL_TEMPLATE_TOKEN/$contents[$key]}"
       segment="%{$reset%}$HL_BASE_STYLE$segment%{$reset%}$HL_BASE_STYLE$HL_LAYOUT_STYLE"
       segment="${layouts[$key]/$HL_TEMPLATE_TOKEN/$segment}"
