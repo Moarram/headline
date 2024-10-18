@@ -31,9 +31,7 @@ All the Git status symbols are customizable. The defaults are below:
 | (none) | clean branch     |
 
 ### *Exit Code*
-`→ <code> (<meaning>)`
-
-When enabled with `HL_ERR_MODE=on`, print non-zero exit codes ahead of the prompt. The exit code meaning is merely a guess for the semi-standard exit codes (in the range 126-143) and may be incorrect.
+When enabled with `HL_ERR_MODE=on`, print non-zero exit codes ahead of the prompt.
 
 ### *Clock*
 When enabled with `HL_CLOCK_MODE=on`, display the time to the right of the prompt.
@@ -94,7 +92,7 @@ Screenshots of theme in [iTerm2](https://iterm2.com/index.html). Using [FiraCode
 
 > <img src="https://raw.githubusercontent.com/moarram/headline/assets/images/theme-dark.png" width="600"/>
 >
-> Options to show clock (`HL_CLOCK_MODE=on`), show exit code (`HL_ERR_MODE=on`), and hide identical information (`HL_INFO_MODE=auto`).
+> Options to show clock (`HL_CLOCK_MODE=on`), show exit code with meaning (`HL_ERR_MODE=detail`), and hide identical information (`HL_INFO_MODE=auto`).
 
 <br>
 
