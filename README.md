@@ -1,7 +1,7 @@
 # Headline
 <img src="https://raw.githubusercontent.com/moarram/headline/assets/images/slice.png" width="600"/>
 
-A stylish Zsh theme with deliberate use of space. No dependencies. Highly customizable.
+A stylish Zsh theme with deliberate use of space. Single file. No dependencies. Highly customizable.
 
 <br>
 
@@ -16,25 +16,19 @@ The namesake of the prompt, a line above the information with matching colors. M
 This line collapses to fit within the terminal width. Individually style each segment of the information line using [ANSI SGR codes](https://en.wikipedia.org/wiki/ANSI_escape_code#SGR_(Select_Graphic_Rendition)_parameters) (which are conveniently aliased in the theme file). You can customize nearly everything about the segments and even add your own.
 
 ### Git Status
-All the Git status symbols are customizable. The defaults are below:
+A segment with symbols describing the status of the current Git repository.
 
 | Symbol | Meaning          |
 |--------|------------------|
-| `+`    | staged changes   |
-| `!`    | unstaged changes |
-| `?`    | untracked files  |
-| `↓`    | commits behind   |
-| `↑`    | commits ahead    |
-| `↕`    | commits diverged |
-| `*`    | stashed files    |
-| `✘`    | conflicts        |
-| (none) | clean branch     |
-
-### *Exit Code*
-When enabled with `HL_ERR_MODE=on`, print non-zero exit codes ahead of the prompt.
-
-### *Clock*
-When enabled with `HL_CLOCK_MODE=on`, display the time to the right of the prompt.
+| `+`    | Staged changes   |
+| `!`    | Unstaged changes |
+| `?`    | Untracked files  |
+| `↓`    | Commits behind   |
+| `↑`    | Commits ahead    |
+| `↕`    | Commits diverged |
+| `*`    | Stashed files    |
+| `✘`    | Conflicts        |
+| (none) | Clean branch     |
 
 <br>
 
@@ -58,7 +52,7 @@ More details in **[Installation](docs/Installation.md)**
 ## Customization
 <img src="https://raw.githubusercontent.com/moarram/headline/assets/images/configs.gif" width="600"/>
 
-The `headline.zsh-theme` file describes variables ([around line 80](headline.zsh-theme#L80)) for customizing prompt behavior, colors, styles, symbols, etc. You can edit the theme file directly or set these variables in your `~/.zshrc` *after* sourcing the theme to override the defaults. Play around with it and make it your own!
+The `headline.zsh-theme` file describes variables ([around line 80](headline.zsh-theme#L80)) for customizing prompt behavior, colors, styles, symbols, etc. You can edit the theme file directly or set these variables in your `~/.zshrc` *after* sourcing the theme to override the defaults. There are plenty of options so play around and make it your own!
 
 More details in **[Customization](docs/Customization.md)**
 

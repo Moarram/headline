@@ -113,7 +113,7 @@ HL_LAYOUT_STYLE="%{$faint%}"
 
 # Order of segments
 declare -a HL_LAYOUT_ORDER=(
-  _PRE USER HOST VENV PATH _SPACER BRANCH STATUS _POST
+  _PRE USER HOST VENV PATH _SPACER BRANCH STATUS _POST # ...
 )
 
 # Template for each segment's layout
@@ -127,6 +127,7 @@ declare -A HL_LAYOUT_TEMPLATE=(
   BRANCH  '...'
   STATUS  ' [...]'
   _POST   ''
+  # ...
 )
 
 # Template for first segment's layout (when prior segments removed)
@@ -134,6 +135,7 @@ declare -A HL_LAYOUT_FIRST=(
   VENV    '(...)'
   PATH    '...'
   _SPACER ''
+  # ...
 )
 
 # The character used by _SPACER segment to fill space
@@ -148,6 +150,7 @@ declare -A HL_CONTENT_TEMPLATE=(
   PATH   "%{$bold$blue%}..." # consider ' ' or ' '
   BRANCH "%{$bold$cyan%}..." # consider ' ' or ' '
   STATUS "%{$bold$magenta%}..."
+  # ...
 )
 
 # Commands to produce each segment's content
@@ -158,6 +161,7 @@ declare -A HL_CONTENT_SOURCE=(
   PATH   'print -rP "%~"'
   BRANCH 'headline-git-branch'
   STATUS 'headline-git-status'
+  # ...
 )
 
 
@@ -191,11 +195,12 @@ declare -A HL_COLS_REMOVAL=(
   USER   50
   HOST   70
   VENV   30
+  # ...
 )
 
 # Order to truncate & remove segments
 declare -a HL_TRUNC_ORDER=(
-  HOST USER VENV PATH BRANCH
+  HOST USER VENV PATH BRANCH # ...
 )
 
 # Symbol to insert when truncating a segment
@@ -319,6 +324,7 @@ headline-exit-meaning() { # (num)
 
 # Git command wrapper
 headline-git() {
+  # TODO is this necessary?
   GIT_OPTIONAL_LOCKS=0 command git "$@"
 }
 

@@ -119,7 +119,7 @@ An associative array with a symbol to represent each status.
 ### Truncation
 
 `HL_COLS_REMOVAL`  
-An associative array with an optional minimum width to show segment. Always remove at smaller console widths.
+An associative array with an optional minimum width to show segment. The segment is always removed at smaller console widths, regardless of the truncation order.
 
 `HL_TRUNC_ORDER`  
 An array specifying the order to begin truncating and removing segments. Segments not in this list won't be truncated.
@@ -175,6 +175,7 @@ The template for the optional detail. It will be appended to the error template.
 
 ***Hint:** To add or change the messages associated with exit codes, edit the `headline-exit-meaning()` function (it's just a switch statement).*
 
+
 ### Other
 
 `HL_TEMPLATE_TOKEN`  
@@ -204,9 +205,13 @@ HL_CONTENT_TEMPLATE[OS]="%{$bold$yellow%}..."
 # 3. Specify the layout template
 HL_LAYOUT_TEMPLATE[OS]='[...]'
 
-# 4. Redefine the layout order to place the new segment
+# 4. Redefine the layout order to position the new segment
 HL_LAYOUT_ORDER=(_PRE USER HOST OS VENV PATH _SPACER BRANCH STATUS _POST)
+```
 
+Optionally, we may also configure truncation rules.
+
+```sh
 # (Optional) Set a minimum console width before segment is removed
 HL_COLS_REMOVAL[OS]=60
 
@@ -214,13 +219,13 @@ HL_COLS_REMOVAL[OS]=60
 HL_TRUNC_ORDER=(OS HOST USER VENV PATH BRANCH)
 ```
 
-Explained in words, the `OS` segment obtains content by running the `uname` command. Then that content is styled bold yellow, wrapped in brackets, and inserted just after the `HOST` segment. If the console width is less than 60, the segment is removed. Additionally, it's the first segment to truncate when there's not enough space.
+Explained in words, the `OS` segment obtains content by running the `uname` command. Then that content is styled bold yellow, wrapped in brackets, and inserted just after the `HOST` segment. If the console width is less than 60, the segment is removed. Additionally, it will be the first segment truncated when there's not enough space.
 
 <br>
 
 
 ## Truncation
-Intelligent truncation is a primary feature of the Headline prompt. The goal is to show as much content as possible while keeping the information on a single line.
+Intelligent truncation is a primary feature of Headline. The goal is to show as much content as possible while keeping the information on a single line.
 
 The truncation process consists of two rounds, which halt as soon as the information line fits within `COLUMNS`:
 1. For each segment in `HL_TRUNC_ORDER`, truncate the segment to the initial length specified by `HL_TRUNC_INITIAL`. This shortens excessively long segments.
@@ -239,7 +244,7 @@ To disable truncation, set `HL_TRUNC_ORDER` to an empty array `()`.
 Some sample configurations with screenshots.
 
 ### Compact
-Hides separator line and extra spaces between info segments.
+Hides separator line and removes space between info segments.
 
 <img src="https://raw.githubusercontent.com/moarram/headline/assets/images/config-compact.png" width="600"/>
 
