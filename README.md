@@ -52,7 +52,7 @@ More details in **[Installation](docs/Installation.md)**
 ## Customization
 <img src="https://raw.githubusercontent.com/moarram/headline/assets/images/configs.gif" width="600"/>
 
-The `headline.zsh-theme` file describes variables ([around line 80](headline.zsh-theme#L80)) for customizing prompt behavior, colors, styles, symbols, etc. You can edit the theme file directly or set these variables in your `~/.zshrc` *after* sourcing the theme to override the defaults. There are plenty of options so play around and make it your own!
+The `headline.zsh-theme` file describes variables ([around line 60](headline.zsh-theme#L60)) for customizing prompt behavior, colors, styles, symbols, etc. You can edit the theme file directly or set these variables in your `~/.zshrc` *after* sourcing the theme to override the defaults. There are plenty of options so play around and make it your own!
 
 More details in **[Customization](docs/Customization.md)**
 

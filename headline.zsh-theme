@@ -1,10 +1,10 @@
 #!/bin/zsh
 
 # Headline ZSH Prompt
-# Copyright (c) 2024 Moarram under the MIT License
+# Copyright (c) 2025 Moarram under the MIT License
 
 # To install, source this file from your ~/.zshrc
-# Customization variables begin around line 80
+# Customization variables begin around line 60
 
 
 # Formatting aliases
@@ -18,41 +18,25 @@ invert=$'\e[7m';    no_invert=$'\e[27m'
 # ...
 
 # Foreground color aliases
-black=$'\e[30m'
-red=$'\e[31m'
-green=$'\e[32m'
-yellow=$'\e[33m'
-blue=$'\e[34m'
-magenta=$'\e[35m'
-cyan=$'\e[36m'
-white=$'\e[37m'
-light_black=$'\e[90m'
-light_red=$'\e[91m'
-light_green=$'\e[92m'
-light_yellow=$'\e[93m'
-light_blue=$'\e[94m'
-light_magenta=$'\e[95m'
-light_cyan=$'\e[96m'
-light_white=$'\e[97m'
+black=$'\e[30m';   light_black=$'\e[90m'
+red=$'\e[31m';     light_red=$'\e[91m'
+green=$'\e[32m';   light_green=$'\e[92m'
+yellow=$'\e[33m';  light_yellow=$'\e[93m'
+blue=$'\e[34m';    light_blue=$'\e[94m'
+magenta=$'\e[35m'; light_magenta=$'\e[95m'
+cyan=$'\e[36m';    light_cyan=$'\e[96m'
+white=$'\e[37m';   light_white=$'\e[97m'
 default_fg=$'\e[39m'
 
 # Background color aliases
-black_bg=$'\e[40m'
-red_bg=$'\e[41m'
-green_bg=$'\e[42m'
-yellow_bg=$'\e[43m'
-blue_bg=$'\e[44m'
-magenta_bg=$'\e[45m'
-cyan_bg=$'\e[46m'
-white_bg=$'\e[47m'
-light_black_bg=$'\e[100m'
-light_red_bg=$'\e[101m'
-light_green_bg=$'\e[102m'
-light_yellow_bg=$'\e[103m'
-light_blue_bg=$'\e[104m'
-light_magenta_bg=$'\e[105m'
-light_cyan_bg=$'\e[106m'
-light_white_bg=$'\e[107m'
+black_bg=$'\e[40m';   light_black_bg=$'\e[100m'
+red_bg=$'\e[41m';     light_red_bg=$'\e[101m'
+green_bg=$'\e[42m';   light_green_bg=$'\e[102m'
+yellow_bg=$'\e[43m';  light_yellow_bg=$'\e[103m'
+blue_bg=$'\e[44m';    light_blue_bg=$'\e[104m'
+magenta_bg=$'\e[45m'; light_magenta_bg=$'\e[105m'
+cyan_bg=$'\e[46m';    light_cyan_bg=$'\e[106m'
+white_bg=$'\e[47m';   light_white_bg=$'\e[107m'
 default_bg=$'\e[49m'
 
 # Custom colors
@@ -434,6 +418,7 @@ headline-git-status() {
 
 # Transfer styles to another string
 headline-transfer-styles() { # (str, str)
+  # Note: This assumes styles are wrapped with %{ and %}
   local -a src=( ${(@s::)1} ) # source char array
   local -a dest=( ${(@s::)2} ) # destination char array
   local result=''
