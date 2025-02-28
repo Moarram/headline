@@ -65,19 +65,6 @@ clear_entire_screen=$'\e[2J'
 # To insert styles (ANSI SGR codes defined above) use syntax: "%{$style%}"
 
 
-# Print separator and information line with precmd hook or in PROMPT
-HL_PRINT_MODE='precmd' # precmd|prompt
-
-# Print the separator line always, when not following clear screen, or don't print
-HL_SEP_MODE='auto' # on|auto|off
-
-# Print the information line always, when it has changed, or don't print
-HL_INFO_MODE='on' # on|auto|off
-
-# Press <enter> with no commands to overwrite previous prompt
-HL_OVERWRITE='off' # on|off
-
-
 # Style applied to separator line, after other styles
 HL_SEP_STYLE="%{$default_bg%}"
 
@@ -224,6 +211,19 @@ HL_ERR_TEMPLATE="%{$faint$italic%}→ ..."
 HL_ERR_DETAIL_TEMPLATE=' (...)'
 
 
+# Print separator and information line with precmd hook or in PROMPT
+HL_PRINT_MODE='precmd' # precmd|prompt
+
+# Print the separator line always, when not following clear screen, or don't print
+HL_SEP_MODE='auto' # on|auto|off
+
+# Print the information line always, when it has changed, or don't print
+HL_INFO_MODE='on' # on|auto|off
+
+# Press <enter> with no commands to overwrite previous prompt
+HL_OVERWRITE='off' # on|off
+
+
 # The string to replace in templates
 HL_TEMPLATE_TOKEN='...'
 
@@ -336,7 +336,7 @@ headline-git-status-counts() {
     'AHEAD' 0 # commits ahead
     'DIVERGED' 0 # commits diverged
     'STASHED' 0 # stashed files
-    'CONFLICTS' 0 # conflicts
+    'CONFLICTS' 0 # conflicted files
     'CLEAN' 1 # clean branch 1=true 0=false
   )
 

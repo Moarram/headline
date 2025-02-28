@@ -27,7 +27,7 @@ A segment with symbols describing the status of the current Git repository.
 | `↑`    | Commits ahead    |
 | `↕`    | Commits diverged |
 | `*`    | Stashed files    |
-| `✘`    | Conflicts        |
+| `✘`    | Conflicted files |
 | (none) | Clean branch     |
 
 <br>
@@ -98,5 +98,5 @@ Screenshots of theme in [iTerm2](https://iterm2.com/index.html). Using [FiraCode
 
 
 ## Credits
-* Headline's Git status functions are inspired by `git.zsh` in [Oh-My-Zsh's core library](https://github.com/ohmyzsh/ohmyzsh/blob/master/lib).
-* Thanks to u/romkatv (author of [Powerlevel10k](https://github.com/romkatv/powerlevel10k)) for the [Reddit post](https://old.reddit.com/r/zsh/comments/cgbm24/multiline_prompt_the_missing_ingredient/) describing how to calculate prompt string display length.
+* Headline's Git status functions are inspired by `git.zsh` in [Oh-My-Zsh's core library](https://github.com/ohmyzsh/ohmyzsh/blob/master/lib/git.zsh).
+* Thanks to u/romkatv (author of [Powerlevel10k](https://github.com/romkatv/powerlevel10k)) for describing [how to calculate prompt display length](https://old.reddit.com/r/zsh/comments/cgbm24/multiline_prompt_the_missing_ingredient/).

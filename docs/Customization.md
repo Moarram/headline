@@ -1,12 +1,13 @@
 # Customization
 Take a look in the `headline.zsh-theme` file to see all the customization variables (they start [around line 60](../headline.zsh-theme#L60)).
 
-For sample configurations see [Examples](#examples) below.
+See [Example Configurations](#example-configurations).
 
 <br>
 
 
-## General
+## Intro
+
 
 ### Setting variables
 You can edit the customization variables in the theme file directly, or set them in your `~/.zshrc` after the theme is sourced.
@@ -14,7 +15,7 @@ You can edit the customization variables in the theme file directly, or set them
 ***Note:** You must source the theme before setting customization variables!*
 
 ### Associative arrays
-Some customization variables contain a map of key value pairs. These variables may be set using syntax `VARIABLE=(key1 value1 key2 value2)`. To update an individual entry instead of the whole array, use syntax `VARIABLE[key]=value`.
+Some variables contain a map of key value pairs. These may be set using syntax `VARIABLE=(key1 value1 key2 value2)`. To update an individual entry instead of the whole array, use syntax `VARIABLE[key]=value`.
 
 ### Template
 A template string includes the template token (`...` by default) which will be replaced by something else. Templates may contain styles.
@@ -24,37 +25,12 @@ Here the term "styles" refers to [ANSI SGR codes](https://en.wikipedia.org/wiki/
 
 These styles must be enclosed by the prompt escape characters `%{` and `%}`. Strings with styles should use double quotes.
 
+So to show "apple" in red for example, we write `"%{$red%}apple"`
+
 <br>
 
 
 ## Options
-
-### Printing
-
-**`HL_PRINT_MODE`**  
-Choose how to print the output.
-* `precmd` - Output is printed in a `precmd` hook
-  * ***Note:** Some terminals may confuse this for the previous command's output*
-* `prompt` - Output is assigned to the `PROMPT` variable
-  * ***Note:** Zsh doesn't always handle multi-line prompts correctly... expect issues when re-printing*
-
-**`HL_SEP_MODE`**  
-Choose when to print the separator line.
-* `on` - Always print the separator line
-* `auto` - Print the separator line unless the screen has just been cleared
-* `off` - Never print the separator line
-
-**`HL_INFO_MODE`**  
-Choose when to print the information line.
-* `on` - Always print the information line
-* `auto` - Print the information line only if it has changed 
-* `off` - Never print the information line
-
-**`HL_OVERWRITE`**  
-Press `<enter>` with no commands to overwrite previous prompt.
-* `on` - Enable prompt overwrite
-* `off` - Re-print as normal
-
 
 ### Separator
 
@@ -101,8 +77,8 @@ An associative array with a command to produce content for each segment. Enclose
 ### Git Status
 
 **`HL_GIT_COUNT_MODE`**  
-Choose how to indicate the number of each status.
-* `on` - Always show the count of each status (`[3+|1!|2?]`)
+Choose how to indicate the count of each status.
+* `on` - Always show the count (`[3+|1!|2?]`)
 * `auto` - Only show the count when it's greater than one (`[3+|!|2?]`)
 * `off` - Never show the count (`[+|!|?]`)
 
@@ -117,6 +93,7 @@ An associative array with a symbol to represent each status.
 
 
 ### Truncation
+See [Truncation Procedure](#truncation-procedure).
 
 **`HL_COLS_REMOVAL`**  
 An associative array with an optional minimum width to show segment. The segment is always removed at smaller console widths, regardless of the truncation order.
@@ -176,6 +153,33 @@ The template for the optional detail. It will be appended to the error template.
 ***Hint:** To add or change the messages associated with exit codes, edit the `headline-exit-meaning()` function (it's just a switch statement).*
 
 
+### Printing
+
+**`HL_PRINT_MODE`**  
+Choose how to print the output.
+* `precmd` - Output is printed in a `precmd` hook
+  * ***Note:** Some terminals may confuse this for the previous command's output*
+* `prompt` - Output is assigned to the `PROMPT` variable
+  * ***Note:** Zsh doesn't always handle multi-line prompts correctly... expect issues when re-printing*
+
+**`HL_SEP_MODE`**  
+Choose when to print the separator line.
+* `on` - Always print the separator line
+* `auto` - Print the separator line unless the screen has just been cleared
+* `off` - Never print the separator line
+
+**`HL_INFO_MODE`**  
+Choose when to print the information line.
+* `on` - Always print the information line
+* `auto` - Print the information line only if it has changed 
+* `off` - Never print the information line
+
+**`HL_OVERWRITE`**  
+Press `<enter>` with no commands to overwrite previous prompt.
+* `on` - Enable prompt overwrite
+* `off` - Re-print as normal
+
+
 ### Other
 
 **`HL_TEMPLATE_TOKEN`**  
@@ -212,10 +216,10 @@ HL_LAYOUT_ORDER=(_PRE USER HOST OS VENV PATH _SPACER BRANCH STATUS _POST)
 Optionally, we may also configure truncation rules.
 
 ```sh
-# (Optional) Set a minimum console width before segment is removed
+# 5. (Optional) Set a minimum console width before segment is removed
 HL_COLS_REMOVAL[OS]=60
 
-# (Optional) Redefine the truncation order to enable truncation for this segment
+# 6. (Optional) Redefine the truncation order to enable truncation for this segment
 HL_TRUNC_ORDER=(OS HOST USER VENV PATH BRANCH)
 ```
 
@@ -224,29 +228,31 @@ Explained in words, the `OS` segment obtains content by running the `uname` comm
 <br>
 
 
-## Truncation
+## Truncation Procedure
 Intelligent truncation is a primary feature of Headline. The goal is to show as much content as possible while keeping the information on a single line.
 
-The truncation process consists of two rounds, which halt as soon as the information line fits within `COLUMNS`:
+The procedure consists of two rounds, which halt as soon as the information line fits within `COLUMNS`:
 1. For each segment in `HL_TRUNC_ORDER`, truncate the segment to the initial length specified by `HL_TRUNC_INITIAL`. This shortens excessively long segments.
 1. For each segment in `HL_TRUNC_ORDER`, truncate the segment further. Remove the segment if it's shorter than `HL_TRUNC_REMOVAL`.
 
 To disable truncation, set `HL_TRUNC_ORDER` to an empty array `()`.
 
 > <img src="https://raw.githubusercontent.com/moarram/headline/assets/images/truncation.png" width="600"/>
-> 
-> A demonstration of the truncation process with `HL_TRUNC_INITIAL=4` and `HL_TRUNC_REMOVAL=1`
+>
+> A demonstration of the truncation procedure with `HL_TRUNC_INITIAL=4` and `HL_TRUNC_REMOVAL=1`
 
 <br>
 
 
-## Examples
-Some sample configurations with screenshots.
+## Example Configurations
 
 ### Compact
 Hides separator line and removes space between info segments.
 
 <img src="https://raw.githubusercontent.com/moarram/headline/assets/images/config-compact.png" width="600"/>
+
+<details>
+<summary>Show configuration</summary>
 
 ```sh
 HL_SEP_MODE='off'
@@ -257,11 +263,15 @@ HL_LAYOUT_TEMPLATE[_SPACER]='|'
 HL_LAYOUT_TEMPLATE[STATUS]='|...'
 HL_TRUNC_SYMBOL='…'
 ```
+</details>
 
 ### Standard
 Shows non-zero exit codes, clock, and git status counts. Personal favorite.
 
 <img src="https://raw.githubusercontent.com/moarram/headline/assets/images/config-standard.png" width="600"/>
+
+<details>
+<summary>Show configuration</summary>
 
 ```sh
 HL_INFO_MODE='auto'
@@ -271,11 +281,15 @@ HL_GIT_SEP_SYMBOL='|'
 HL_CLOCK_MODE='on'
 HL_ERR_MODE='detail'
 ```
+</details>
 
 ### Verbose
 Shows non-zero exit codes, full time and date, git status counts, content symbols, and words between segments. Clean branch shows green `✔`, conflicting branch shows red `✘`.
 
 <img src="https://raw.githubusercontent.com/moarram/headline/assets/images/config-verbose.png" width="600"/>
+
+<details>
+<summary>Show configuration</summary>
 
 ```sh
 HL_LAYOUT_TEMPLATE=(
@@ -305,11 +319,15 @@ HL_CLOCK_MODE='on'
 HL_CLOCK_SOURCE="date +%+"
 HL_ERR_MODE='detail'
 ```
+</details>
 
 ### Fancy
 Has almost everything in the verbose config and utilizes `_PRE` and `_POST` segments to further decorate the prompt.
 
 <img src="https://raw.githubusercontent.com/moarram/headline/assets/images/config-fancy.png" width="600"/>
+
+<details>
+<summary>Show configuration</summary>
 
 ```sh
 HL_SEP_MODE='on'
@@ -355,3 +373,4 @@ HL_CLOCK_MODE='on'
 HL_CLOCK_TEMPLATE="%{$faint%} ... %{$reset$HL_LAYOUT_STYLE%}╰"
 HL_ERR_MODE='on'
 ```
+</details>
