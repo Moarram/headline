@@ -139,6 +139,10 @@ declare -A HL_CONTENT_SOURCE=(
 # Show count of each status always, only when greater than one, or don't show
 HL_GIT_COUNT_MODE='off' # on|auto|off
 
+# Extra arguments passed to the `git status` command, e.g. ('-uno') to skip
+# checking untracked files, which can save time in very large repos
+declare -a HL_GIT_STATUS_ARGS=()
+
 # Symbol to join each status
 HL_GIT_SEP_SYMBOL=''
 
@@ -342,7 +346,7 @@ headline-git-status-counts() {
 
   # Retrieve status
   local raw lines
-  raw="$(headline-git status --porcelain -b 2> /dev/null)"
+  raw="$(headline-git status --porcelain -b $HL_GIT_STATUS_ARGS 2> /dev/null)"
   if [[ $? == 128 ]]; then
     return 1 # catastrophic failure, abort
   fi
